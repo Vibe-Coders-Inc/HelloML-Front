@@ -1,0 +1,274 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { FileText, Upload, Download, Trash2, File, AlertCircle } from 'lucide-react';
+import { Document } from '@/lib/mock-data';
+import { useApp } from '@/lib/context';
+
+interface DocumentsTabProps {
+  agentId?: number;
+}
+
+export default function DocumentsTab({ agentId }: DocumentsTabProps) {
+  const { documents, createDocument, deleteDocument } = useApp();
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const agentDocuments = agentId ? documents.filter(doc => doc.agent_id === agentId) : [];
+
+  const handleFileUpload = async (files: FileList) => {
+    setIsUploading(true);
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Mock file upload - in real app, upload to storage
+      const mockStorageUrl = `/storage/docs/${Date.now()}-${file.name}`;
+      
+      createDocument({
+        agent_id: agentId!,
+        filename: file.name,
+        storage_url: mockStorageUrl,
+        file_type: file.type || file.name.split('.').pop() || 'unknown',
+      });
+    }
+    
+    setIsUploading(false);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files);
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFileUpload(e.target.files);
+    }
+  };
+
+  const handleDownload = (document: Document) => {
+    // Mock download - in real app, download from storage
+    const link = document.createElement('a');
+    link.href = document.storage_url;
+    link.download = document.filename;
+    link.click();
+  };
+
+  const handleDelete = (documentId: number) => {
+    if (window.confirm('Are you sure you want to delete this document?')) {
+      deleteDocument(documentId);
+    }
+  };
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes('pdf')) return '📄';
+    if (fileType.includes('text') || fileType.includes('txt')) return '📝';
+    if (fileType.includes('word') || fileType.includes('doc')) return '📄';
+    if (fileType.includes('excel') || fileType.includes('csv')) return '📊';
+    return '📁';
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (!agentId) {
+    return (
+      <Card>
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="w-8 h-8 text-yellow-600" />
+          </div>
+          <CardTitle className="text-xl">No Agent Found</CardTitle>
+          <CardDescription>
+            Create an agent first to upload documents
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Upload className="h-5 w-5" />
+            <span>Upload Documents</span>
+          </CardTitle>
+          <CardDescription>
+            Feed your agent with knowledge documents. Supported formats: PDF, TXT, DOCX, CSV
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              dragActive 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <div className="space-y-4">
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Upload className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-lg font-medium">
+                  {dragActive ? 'Drop files here' : 'Drag & drop files here'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  or click to browse files
+                </p>
+              </div>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                {isUploading ? 'Uploading...' : 'Choose Files'}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.txt,.docx,.csv"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documents List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5" />
+            <span>Knowledge Base</span>
+          </CardTitle>
+          <CardDescription>
+            Documents that your agent can reference during conversations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {agentDocuments.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <File className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No documents yet
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Upload some documents to help your agent answer questions better
+              </p>
+              <Button onClick={() => fileInputRef.current?.click()}>
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Your First Document
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {agentDocuments.map((document) => (
+                <div
+                  key={document.id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="text-2xl">
+                      {getFileIcon(document.file_type)}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{document.filename}</h4>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <span>{document.file_type.toUpperCase()}</span>
+                        <span>•</span>
+                        <span>Uploaded {formatDate(document.uploaded_at)}</span>
+                        {document.error_message && (
+                          <>
+                            <span>•</span>
+                            <span className="text-red-500">Error: {document.error_message}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload(document)}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(document.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Tips */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-blue-800">Pro Tips</CardTitle>
+        </CardHeader>
+        <CardContent className="text-blue-700">
+          <ul className="space-y-2 text-sm">
+            <li>• Upload FAQ documents to help your agent answer common questions</li>
+            <li>• Product manuals help your agent provide detailed technical support</li>
+            <li>• Company policies ensure consistent responses across all calls</li>
+            <li>• Keep documents up to date for the best customer experience</li>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
