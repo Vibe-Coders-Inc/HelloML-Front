@@ -87,7 +87,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gradient-to-br from-[#A67A5B] to-[#C9B790] rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                <Building2 className="h-6 w-6 text-white" />
+                <Building2 className="h-6 w-6 text-foreground" />
               </div>
               <h1 className="text-2xl font-bold text-[#A67A5B]">Your Businesses</h1>
             </div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
         {businesses.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gradient-to-br from-[#A67A5B] to-[#C9B790] rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <Building2 className="h-8 w-8 text-white" />
+              <Building2 className="h-8 w-8 text-foreground" />
             </div>
             <h3 className="mt-4 text-lg font-medium text-[#A67A5B]">Ready to build something amazing?</h3>
             <p className="mt-2 text-sm text-[#A67A5B]/70">

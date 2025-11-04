@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,12 +27,14 @@ const businessSchema = z.object({
 type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function BusinessPage({ params, searchParams }: { 
-  params: { id: string };
-  searchParams: { tab?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { businesses, agents, isAuthenticated, updateBusiness, deleteBusiness } = useApp();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(searchParams.tab || 'overview');
+  const { id } = React.use(params);
+  const resolvedSearch = React.use(searchParams);
+  const [activeTab, setActiveTab] = useState(resolvedSearch?.tab || 'overview');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -40,7 +42,7 @@ export default function BusinessPage({ params, searchParams }: {
     resolver: zodResolver(businessSchema),
   });
 
-  const businessId = parseInt(params.id);
+  const businessId = parseInt(id);
   const business = businesses.find(b => b.id === businessId);
   const agent = agents.find(a => a.business_id === businessId);
 
