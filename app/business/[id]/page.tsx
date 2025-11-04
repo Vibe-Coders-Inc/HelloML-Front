@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Building2, Mail, MapPin, Phone, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Mail, MapPin, Phone, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -41,20 +40,16 @@ export default function BusinessPage({ params, searchParams }: {
     resolver: zodResolver(businessSchema),
   });
 
+  const businessId = parseInt(params.id);
+  const business = businesses.find(b => b.id === businessId);
+  const agent = agents.find(a => a.business_id === businessId);
+
   // Handle redirect when not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/auth');
     }
   }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  const businessId = parseInt(params.id);
-  const business = businesses.find(b => b.id === businessId);
-  const agent = agents.find(a => a.business_id === businessId);
 
   // Initialize form with business data when business changes
   useEffect(() => {
@@ -67,6 +62,10 @@ export default function BusinessPage({ params, searchParams }: {
       });
     }
   }, [business, form]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const onSubmit = (data: BusinessForm) => {
     if (business) {
@@ -96,14 +95,6 @@ export default function BusinessPage({ params, searchParams }: {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF2DC] to-[#D8CBA9]">

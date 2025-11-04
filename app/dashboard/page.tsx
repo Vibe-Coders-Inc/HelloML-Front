@@ -92,7 +92,7 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-[#A67A5B]">Your Businesses</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-[#A67A5B]/70 font-medium">Ready to scale? Let's do this!</span>
+              <span className="text-sm text-[#A67A5B]/70 font-medium">Ready to scale? Let&apos;s do this!</span>
               <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="mt-4 text-lg font-medium text-[#A67A5B]">Ready to build something amazing?</h3>
             <p className="mt-2 text-sm text-[#A67A5B]/70">
-              Your first AI voice agent is just one click away. Let's make it happen!
+              Your first AI voice agent is just one click away. Let&apos;s make it happen!
             </p>
             <div className="mt-6">
               <Button onClick={() => setIsCreateDialogOpen(true)} size="lg">

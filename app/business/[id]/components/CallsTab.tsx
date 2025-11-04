@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PhoneCall, Search, Eye, Download, Copy, Clock, User, Bot, MessageSquare, AlertCircle } from 'lucide-react';
-import { Conversation, Message } from '@/lib/mock-data';
+import { Conversation } from '@/lib/mock-data';
 import { useApp } from '@/lib/context';
 
 interface CallsTabProps {
@@ -78,7 +78,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     
     const blob = new Blob([transcript], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = window.document.createElement('a');
     link.href = url;
     link.download = `transcript-${selectedConversation.id}.txt`;
     link.click();

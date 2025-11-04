@@ -45,7 +45,7 @@ export interface DocumentChunk {
   document_id: number;
   chunk_index: number;
   chunk_text: string;
-  embedding?: any;
+  embedding?: unknown;
   created_at: string;
 }
 

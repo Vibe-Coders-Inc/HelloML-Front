@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bot, Phone, Settings, Play, Pause, Trash2, Edit, TestTube } from 'lucide-react';
-import { Agent, PhoneNumber } from '@/lib/mock-data';
+import { Bot, Phone, Play, Pause, Trash2, Edit, TestTube } from 'lucide-react';
+import { Agent } from '@/lib/mock-data';
 import { useApp } from '@/lib/context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -331,11 +331,11 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm text-muted-foreground">Greeting</h4>
-                <p className="text-sm italic">"{agent.greeting}"</p>
+                <p className="text-sm italic">&quot;{agent.greeting}&quot;</p>
               </div>
               <div>
                 <h4 className="font-medium text-sm text-muted-foreground">Goodbye</h4>
-                <p className="text-sm italic">"{agent.goodbye}"</p>
+                <p className="text-sm italic">&quot;{agent.goodbye}&quot;</p>
               </div>
             </div>
           </div>

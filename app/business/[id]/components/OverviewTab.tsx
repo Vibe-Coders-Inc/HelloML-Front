@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Phone, Activity, Clock, TrendingUp, Bot, PhoneCall } from 'lucide-react';
-import { Business, Agent, PhoneNumber } from '@/lib/mock-data';
+import { Phone, Activity, TrendingUp, Bot, PhoneCall } from 'lucide-react';
+import { Business, Agent } from '@/lib/mock-data';
 import { useApp } from '@/lib/context';
 import { useRouter } from 'next/navigation';
 

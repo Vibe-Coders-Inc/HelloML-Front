@@ -24,7 +24,7 @@ const registerSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Passwords don&apos;t match",
   path: ["confirmPassword"],
 });
 
@@ -56,7 +56,7 @@ export default function AuthPage() {
       } else {
         setError('Invalid email or password');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -75,7 +75,7 @@ export default function AuthPage() {
       } else {
         setError('Registration failed. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -94,7 +94,7 @@ export default function AuthPage() {
       } else {
         setError(`${provider} authentication failed`);
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -151,7 +151,7 @@ export default function AuthPage() {
               <div className="w-10 h-10 bg-white/25 rounded-xl flex items-center justify-center shadow-md group-hover:bg-white/30 transition-all duration-300">
                 <CheckCircle className="w-5 h-5" />
               </div>
-              <span className="text-lg font-medium">Human-like Voice - Your customers won't know the difference!</span>
+              <span className="text-lg font-medium">Human-like Voice - Your customers won&apos;t know the difference!</span>
             </div>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function AuthPage() {
               </div>
               <CardTitle className="text-3xl font-bold text-[#A67A5B] mb-2">Welcome to Voice Support</CardTitle>
               <CardDescription className="text-[#A67A5B]/70 text-base">
-                Join thousands of businesses already using AI voice agents. Let's get you started!
+                Join thousands of businesses already using AI voice agents. Let&apos;s get you started!
               </CardDescription>
             </CardHeader>
             <CardContent className="px-8 pb-8">
