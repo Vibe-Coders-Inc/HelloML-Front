@@ -97,10 +97,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'active': return 'text-green-600 bg-green-100';
-      case 'inactive': return 'text-gray-600 bg-gray-100';
-      case 'paused': return 'text-yellow-600 bg-yellow-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'active': return 'text-[#8B6F47] bg-[#C9B790]/30';
+      case 'inactive': return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      case 'paused': return 'text-[#A67A5B] bg-[#FAF8F3]';
+      default: return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
     }
   };
 
@@ -117,7 +117,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
   if (!agent) {
     return (
       <div className="space-y-6">
-        <Card>
+        <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               <Bot className="w-8 h-8 text-blue-600" />
@@ -268,7 +268,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
   return (
     <div className="space-y-6">
       {/* Agent Details */}
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -352,7 +352,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       </Card>
 
       {/* Phone Number Section */}
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Phone className="h-5 w-5" />

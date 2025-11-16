@@ -34,11 +34,11 @@ export default function CallsTab({ agentId }: CallsTabProps) {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'completed': return 'text-green-600 bg-green-100';
-      case 'in_progress': return 'text-blue-600 bg-blue-100';
+      case 'completed': return 'text-[#8B6F47] bg-[#C9B790]/30';
+      case 'in_progress': return 'text-[#A67A5B] bg-[#FAF8F3]';
       case 'failed': return 'text-red-600 bg-red-100';
-      case 'cancelled': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'cancelled': return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      default: return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
     }
   };
 
@@ -116,7 +116,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
 
   if (!agentId) {
     return (
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <AlertCircle className="w-8 h-8 text-yellow-600" />
@@ -151,7 +151,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
       )}
 
       {/* Search and Filters */}
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <PhoneCall className="h-5 w-5" />
@@ -194,11 +194,11 @@ export default function CallsTab({ agentId }: CallsTabProps) {
               {filteredConversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-[#FAF8F3]"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <PhoneCall className="h-5 w-5 text-blue-600" />
+                      <PhoneCall className="h-5 w-5 text-[#8B6F47]" />
                     </div>
                     <div>
                       <h4 className="font-medium">
@@ -295,20 +295,20 @@ export default function CallsTab({ agentId }: CallsTabProps) {
 
       {/* Call Statistics */}
       {agentConversations.length > 0 && (
-        <Card>
+        <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle>Call Statistics</CardTitle>
         </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.length}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Calls</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.filter(c => c.status === 'completed').length}
                 </div>
                 <div className="text-sm text-muted-foreground">Completed</div>

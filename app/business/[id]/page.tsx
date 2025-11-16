@@ -86,10 +86,10 @@ export default function BusinessPage({ params, searchParams }: {
 
   if (!business) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF2DC] to-[#D8CBA9]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#E8DCC8] via-[#F5EFE6] to-[#D8CBA9]">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-[#A67A5B] mb-4">Business not found</h1>
-          <Button onClick={() => router.push('/dashboard')}>
+          <h1 className="text-2xl font-bold text-[#8B6F47] mb-4">Business not found</h1>
+          <Button onClick={() => router.push('/dashboard')} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
@@ -99,9 +99,24 @@ export default function BusinessPage({ params, searchParams }: {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF2DC] to-[#D8CBA9]">
+    <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] via-[#F5EFE6] to-[#D8CBA9] relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48 blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full translate-y-40 -translate-x-40 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-white/5 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+
+      {/* Floating animated dots */}
+      <div className="absolute top-[15%] left-[10%] w-3 h-3 bg-[#A67A5B]/30 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s' }}></div>
+      <div className="absolute top-[25%] left-[20%] w-2 h-2 bg-[#8B6F47]/25 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
+      <div className="absolute top-[45%] left-[15%] w-4 h-4 bg-[#C9B790]/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '6s', animationDelay: '2s' }}></div>
+      <div className="absolute top-[65%] left-[25%] w-2.5 h-2.5 bg-[#A67A5B]/35 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5.5s', animationDelay: '0.5s' }}></div>
+      <div className="absolute top-[35%] right-[15%] w-3 h-3 bg-[#8B6F47]/25 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}></div>
+      <div className="absolute top-[55%] right-[10%] w-2 h-2 bg-[#C9B790]/30 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5s', animationDelay: '2.5s' }}></div>
+      <div className="absolute top-[20%] right-[20%] w-3.5 h-3.5 bg-[#A67A5B]/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '6.5s', animationDelay: '0.8s' }}></div>
+      <div className="absolute top-[75%] left-[35%] w-2 h-2 bg-[#8B6F47]/25 rounded-full animate-bounce shadow-md" style={{ animationDuration: '4.8s', animationDelay: '1.2s' }}></div>
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9] shadow-sm">
+      <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9]/40 shadow-lg backdrop-blur-sm relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -136,24 +151,24 @@ export default function BusinessPage({ params, searchParams }: {
             <div className="flex items-center space-x-2">
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Business
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8]">
                   <DialogHeader>
-                    <DialogTitle>Edit Business</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-[#8B6F47]">Edit Business</DialogTitle>
+                    <DialogDescription className="text-[#A67A5B]/70">
                       Update your business information
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="edit-name" className="text-[#A67A5B] font-medium">Business Name</Label>
+                      <Label htmlFor="edit-name" className="text-[#8B6F47] font-medium text-sm">Business Name</Label>
                       <Input
                         id="edit-name"
-                        className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('name')}
                       />
                       {form.formState.errors.name && (
@@ -163,11 +178,11 @@ export default function BusinessPage({ params, searchParams }: {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-email" className="text-[#A67A5B] font-medium">Business Email</Label>
+                      <Label htmlFor="edit-email" className="text-[#8B6F47] font-medium text-sm">Business Email</Label>
                       <Input
                         id="edit-email"
                         type="email"
-                        className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('business_email')}
                       />
                       {form.formState.errors.business_email && (
@@ -177,10 +192,10 @@ export default function BusinessPage({ params, searchParams }: {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-address" className="text-[#A67A5B] font-medium">Address</Label>
+                      <Label htmlFor="edit-address" className="text-[#8B6F47] font-medium text-sm">Address</Label>
                       <Input
                         id="edit-address"
-                        className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('address')}
                       />
                       {form.formState.errors.address && (
@@ -190,27 +205,28 @@ export default function BusinessPage({ params, searchParams }: {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-phone" className="text-[#A67A5B] font-medium">Phone Number</Label>
+                      <Label htmlFor="edit-phone" className="text-[#8B6F47] font-medium text-sm">Phone Number</Label>
                       <Input
                         id="edit-phone"
-                        className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('phone_number')}
                       />
                     </div>
                     <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                      <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B]">
                         Cancel
                       </Button>
-                      <Button type="submit">Save Changes</Button>
+                      <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Save Changes</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleDelete}
                 disabled={isDeleting}
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 {isDeleting ? 'Deleting...' : 'Delete'}

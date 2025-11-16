@@ -101,7 +101,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
 
   if (!agentId) {
     return (
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <AlertCircle className="w-8 h-8 text-yellow-600" />
@@ -118,7 +118,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   return (
     <div className="space-y-6">
       {/* Upload Section */}
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Upload className="h-5 w-5" />
@@ -132,7 +132,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               dragActive 
-                ? 'border-blue-500 bg-blue-50' 
+                ? 'border-[#A67A5B] bg-[#FAF8F3]' 
                 : 'border-gray-300 hover:border-gray-400'
             }`}
             onDragEnter={handleDrag}
@@ -142,7 +142,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           >
             <div className="space-y-4">
               <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Upload className="w-6 h-6 text-blue-600" />
+                <Upload className="w-6 h-6 text-[#8B6F47]" />
               </div>
               <div>
                 <p className="text-lg font-medium">
@@ -172,7 +172,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
       </Card>
 
       {/* Documents List */}
-      <Card>
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
@@ -204,7 +204,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               {agentDocuments.map((document) => (
                 <div
                   key={document.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-[#FAF8F3]"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="text-2xl">
@@ -250,11 +250,11 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
       </Card>
 
       {/* Tips */}
-      <Card className="bg-blue-50 border-blue-200">
+      <Card className="bg-[#FAF8F3] border-[#E8DCC8]">
         <CardHeader>
-          <CardTitle className="text-blue-800">Pro Tips</CardTitle>
+          <CardTitle className="text-[#8B6F47]">Pro Tips</CardTitle>
         </CardHeader>
-        <CardContent className="text-blue-700">
+        <CardContent className="text-[#A67A5B]">
           <ul className="space-y-2 text-sm">
             <li>• Upload FAQ documents to help your agent answer common questions</li>
             <li>• Product manuals help your agent provide detailed technical support</li>
