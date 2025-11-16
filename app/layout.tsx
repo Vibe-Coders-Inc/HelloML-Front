@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Borel } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/context";
 
@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const borel = Borel({
+  variable: "--font-borel",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
 export const metadata: Metadata = {
-  title: "Voice Support - AI Voice Agents",
-  description: "Pick up the phone. Your AI handles it.",
+  title: "HelloML - Voice Agent Provisioning",
+  description: "Provision professional voice agents in minutes. No coding, no complexity—just results.",
 };
 
 export default function RootLayout({
@@ -26,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${borel.variable} antialiased`}
       >
         <AppProvider>
           {children}
