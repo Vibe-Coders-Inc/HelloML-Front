@@ -98,14 +98,15 @@ export default function DashboardPage() {
       <div className="absolute top-[75%] left-[35%] w-2 h-2 bg-[#8B6F47]/25 rounded-full animate-bounce shadow-md" style={{ animationDuration: '4.8s', animationDelay: '1.2s' }}></div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-8">
-              <Logo size="medium" lightMode />
-              <h1 className="text-2xl font-bold text-[#8B6F47]">Your Businesses</h1>
-            </div>
-            <Button variant="outline" onClick={logout}>
+      <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9]/40 shadow-md backdrop-blur-sm relative z-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between items-center h-28">
+            <Logo size="large" lightMode />
+            <Button
+              variant="outline"
+              onClick={logout}
+              className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+            >
               Logout
             </Button>
           </div>
