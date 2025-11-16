@@ -41,7 +41,7 @@ export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
 
   return (
     <div className={`flex items-center ${config.spacing}`}>
-      <h2 className={`${config.text} tracking-wider`}>
+      <h2 className={`${config.text} tracking-wider leading-none my-0`}>
         <span className={textColor} style={{ fontFamily: 'Borel, cursive' }}>
           hello
         </span>
