@@ -200,9 +200,9 @@ export default function AuthPage() {
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-[#D8CBA9]/30 p-1 rounded-xl">
-                  <TabsTrigger value="login" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">{authContent.tabs.login}</TabsTrigger>
-                  <TabsTrigger value="register" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">{authContent.tabs.register}</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 rounded-xl">
+                  <TabsTrigger value="login" className="rounded-lg">{authContent.tabs.login}</TabsTrigger>
+                  <TabsTrigger value="register" className="rounded-lg">{authContent.tabs.register}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="login" className="space-y-5 mt-6">
