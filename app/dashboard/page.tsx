@@ -122,7 +122,7 @@ export default function DashboardPage() {
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="shadow-lg hover:shadow-xl">
+              <Button className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                 <Plus className="h-4 w-4 mr-2" />
                 New Business
               </Button>
