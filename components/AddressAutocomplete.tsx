@@ -25,7 +25,7 @@ export function AddressAutocomplete({
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      types: ['address', 'establishment'],
+      types: ['establishment'],
     },
     debounce: 300,
   });
