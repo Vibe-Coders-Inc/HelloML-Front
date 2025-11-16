@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // Don’t fail the Vercel build because of ESLint errors
-    ignoreDuringBuilds: true,
-  },
+  // ESLint will now run during builds and fail on errors
   // If TypeScript errors also block you, uncomment:
   // typescript: { ignoreBuildErrors: true },
 };
