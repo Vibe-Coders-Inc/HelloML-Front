@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Borel } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/context";
+import { getMetadata } from "@/lib/content";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,10 +20,7 @@ const borel = Borel({
   weight: ["400"],
 });
 
-export const metadata: Metadata = {
-  title: "HelloML - Voice Agent Provisioning",
-  description: "Provision professional voice agents in minutes. No coding, no complexity—just results.",
-};
+export const metadata: Metadata = getMetadata();
 
 export default function RootLayout({
   children,
