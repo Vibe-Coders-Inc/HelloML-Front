@@ -40,7 +40,7 @@ export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
   const phoneIconColor = 'text-white';
 
   return (
-    <div className={`flex items-baseline ${config.spacing}`}>
+    <div className={`flex items-center ${config.spacing}`}>
       <h2 className={`${config.text} tracking-wider`}>
         <span className={textColor} style={{ fontFamily: 'Borel, cursive' }}>
           hello
