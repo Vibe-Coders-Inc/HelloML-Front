@@ -127,20 +127,20 @@ export default function DashboardPage() {
                 New Business
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8]">
               <DialogHeader>
-                <DialogTitle>Create New Business</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-[#8B6F47]">Create New Business</DialogTitle>
+                <DialogDescription className="text-[#A67A5B]/70">
                   Add a new business and let AI handle your customers 24/7.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[#A67A5B] font-medium">Business Name</Label>
+                  <Label htmlFor="name" className="text-[#8B6F47] font-medium text-sm">Business Name</Label>
                   <Input
                     id="name"
                     placeholder="Enter business name"
-                    className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                    className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                     {...form.register('name')}
                   />
                   {form.formState.errors.name && (
@@ -150,12 +150,12 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="business_email" className="text-[#A67A5B] font-medium">Business Email</Label>
+                  <Label htmlFor="business_email" className="text-[#8B6F47] font-medium text-sm">Business Email</Label>
                   <Input
                     id="business_email"
                     type="email"
                     placeholder="Enter business email"
-                    className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                    className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                     {...form.register('business_email')}
                   />
                   {form.formState.errors.business_email && (
@@ -165,11 +165,11 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="text-[#A67A5B] font-medium">Address</Label>
+                  <Label htmlFor="address" className="text-[#8B6F47] font-medium text-sm">Address</Label>
                   <Input
                     id="address"
                     placeholder="Enter business address"
-                    className="border-[#D8CBA9] focus:border-[#A67A5B] focus:ring-[#A67A5B]/20 rounded-xl"
+                    className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                     {...form.register('address')}
                   />
                   {form.formState.errors.address && (
@@ -179,10 +179,10 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B]">
                     Cancel
                   </Button>
-                  <Button type="submit" className="shadow-lg hover:shadow-xl">Create Business</Button>
+                  <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Create Business</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
