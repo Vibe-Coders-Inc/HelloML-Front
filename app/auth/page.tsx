@@ -13,19 +13,20 @@ import { Label } from '@/components/ui/label';
 import { useApp } from '@/lib/context';
 import { RotatingText } from '@/components/ui/rotating-text';
 import { Logo } from '@/components/Logo';
+import { authContent, commonContent, validationMessages } from '@/lib/content';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email(validationMessages.email.invalid),
+  password: z.string().min(6, validationMessages.password.tooShort),
 });
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  name: z.string().min(2, validationMessages.name.tooShort),
+  email: z.string().email(validationMessages.email.invalid),
+  password: z.string().min(6, validationMessages.password.tooShort),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don&apos;t match",
+  message: validationMessages.confirmPassword.noMatch,
   path: ["confirmPassword"],
 });
 
@@ -49,16 +50,16 @@ export default function AuthPage() {
   const onLogin = async (data: LoginForm) => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const success = await login(data.email, data.password);
       if (success) {
         router.push('/dashboard');
       } else {
-        setError('Invalid email or password');
+        setError(commonContent.errors.invalidCredentials);
       }
     } catch {
-      setError('An error occurred. Please try again.');
+      setError(commonContent.errors.genericError);
     } finally {
       setIsLoading(false);
     }
@@ -67,17 +68,17 @@ export default function AuthPage() {
   const onRegister = async (data: RegisterForm) => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       // Mock registration - just log in the user
       const success = await login(data.email, data.password);
       if (success) {
         router.push('/dashboard');
       } else {
-        setError('Registration failed. Please try again.');
+        setError(commonContent.errors.registrationFailed);
       }
     } catch {
-      setError('An error occurred. Please try again.');
+      setError(commonContent.errors.genericError);
     } finally {
       setIsLoading(false);
     }
@@ -86,17 +87,17 @@ export default function AuthPage() {
   const handleSocialAuth = async (provider: string) => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       // Mock social auth
       const success = await login(`${provider}@example.com`, 'password');
       if (success) {
         router.push('/dashboard');
       } else {
-        setError(`${provider} authentication failed`);
+        setError(commonContent.errors.socialAuthFailed(provider));
       }
     } catch {
-      setError('An error occurred. Please try again.');
+      setError(commonContent.errors.genericError);
     } finally {
       setIsLoading(false);
     }
@@ -149,21 +150,14 @@ export default function AuthPage() {
               <Logo size="hero" />
             </div>
             <h1 className="text-7xl font-bold mb-6 leading-tight">
-              Voice agents that <br />
+              {authContent.hero.headline} <br />
               <RotatingText
-                phrases={[
-                  'never sleep',
-                  'answer instantly',
-                  'scale with you',
-                  'just work',
-                  'sound human',
-                  'close deals'
-                ]}
+                phrases={authContent.hero.taglines}
                 className="text-[#FAF8F3] drop-shadow-lg"
               />
             </h1>
             <p className="text-2xl text-white/80 mb-12 leading-relaxed font-light">
-              Provision professional voice agents in minutes. No coding, no complexity—just results.
+              {authContent.hero.description}
             </p>
           </div>
 
@@ -199,26 +193,26 @@ export default function AuthPage() {
               <div className="flex justify-center mb-6">
                 <Logo size="large" lightMode />
               </div>
-              <CardTitle className="text-2xl font-bold text-[#8B6F47] mb-2">Get Started</CardTitle>
+              <CardTitle className="text-2xl font-bold text-[#8B6F47] mb-2">{authContent.card.title}</CardTitle>
               <CardDescription className="text-[#A67A5B]/70 text-base">
-                Provision your first voice agent in minutes
+                {authContent.card.description}
               </CardDescription>
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-[#D8CBA9]/30 p-1 rounded-xl">
-                  <TabsTrigger value="login" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">Login</TabsTrigger>
-                  <TabsTrigger value="register" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">Register</TabsTrigger>
+                  <TabsTrigger value="login" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">{authContent.tabs.login}</TabsTrigger>
+                  <TabsTrigger value="register" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">{authContent.tabs.register}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="login" className="space-y-5 mt-6">
                   <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email" className="text-[#8B6F47] font-medium text-sm">Email</Label>
+                      <Label htmlFor="login-email" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.email}</Label>
                       <Input
                         id="login-email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={authContent.forms.placeholders.email}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...loginForm.register('email')}
                       />
@@ -230,11 +224,11 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="login-password" className="text-[#8B6F47] font-medium text-sm">Password</Label>
+                      <Label htmlFor="login-password" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.password}</Label>
                       <Input
                         id="login-password"
                         type="password"
-                        placeholder="Enter your password"
+                        placeholder={authContent.forms.placeholders.password}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...loginForm.register('password')}
                       />
@@ -250,7 +244,7 @@ export default function AuthPage() {
                     )}
 
                     <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
-                      {isLoading ? 'Signing in...' : 'Sign In'}
+                      {isLoading ? commonContent.buttons.signingIn : commonContent.buttons.signIn}
                     </Button>
                   </form>
                 </TabsContent>
@@ -258,11 +252,11 @@ export default function AuthPage() {
                 <TabsContent value="register" className="space-y-4 mt-6">
                   <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="register-name" className="text-[#8B6F47] font-medium text-sm">Full Name</Label>
+                      <Label htmlFor="register-name" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.name}</Label>
                       <Input
                         id="register-name"
                         type="text"
-                        placeholder="Enter your full name"
+                        placeholder={authContent.forms.placeholders.name}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('name')}
                       />
@@ -274,11 +268,11 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="register-email" className="text-[#8B6F47] font-medium text-sm">Email</Label>
+                      <Label htmlFor="register-email" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.email}</Label>
                       <Input
                         id="register-email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={authContent.forms.placeholders.email}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('email')}
                       />
@@ -290,11 +284,11 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="register-password" className="text-[#8B6F47] font-medium text-sm">Password</Label>
+                      <Label htmlFor="register-password" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.password}</Label>
                       <Input
                         id="register-password"
                         type="password"
-                        placeholder="Create a password"
+                        placeholder={authContent.forms.placeholders.createPassword}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('password')}
                       />
@@ -306,11 +300,11 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="register-confirm" className="text-[#8B6F47] font-medium text-sm">Confirm Password</Label>
+                      <Label htmlFor="register-confirm" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.confirmPassword}</Label>
                       <Input
                         id="register-confirm"
                         type="password"
-                        placeholder="Confirm your password"
+                        placeholder={authContent.forms.placeholders.confirmPassword}
                         className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('confirmPassword')}
                       />
@@ -326,7 +320,7 @@ export default function AuthPage() {
                     )}
 
                     <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
-                      {isLoading ? 'Creating account...' : 'Create Account'}
+                      {isLoading ? commonContent.buttons.creatingAccount : commonContent.buttons.createAccount}
                     </Button>
                   </form>
                 </TabsContent>
@@ -339,7 +333,7 @@ export default function AuthPage() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] px-3 text-[#A67A5B]/50 font-medium">
-                      Or continue with
+                      {authContent.socialAuth.divider}
                     </span>
                   </div>
                 </div>
@@ -385,7 +379,7 @@ export default function AuthPage() {
               </div>
 
               <p className="mt-5 text-xs text-center text-[#A67A5B]/50">
-                By continuing you agree to our Terms and Privacy
+                {authContent.legal.terms}
               </p>
 
               {/* Quick Test Login Button */}
@@ -396,10 +390,10 @@ export default function AuthPage() {
                   disabled={isLoading}
                   className="w-full text-xs bg-[#FAF8F3] hover:bg-white text-[#8B6F47] border border-[#E8DCC8] rounded-xl h-10 transition-all duration-300"
                 >
-                  Quick Test Login
+                  {authContent.testLogin.button}
                 </Button>
                 <p className="text-xs text-center text-[#A67A5B]/40 mt-2">
-                  For testing purposes
+                  {authContent.testLogin.description}
                 </p>
               </div>
             </CardContent>
