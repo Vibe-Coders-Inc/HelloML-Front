@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface RotatingTextProps {
-  phrases: string[];
+  phrases: readonly string[];
   interval?: number;
   className?: string;
 }

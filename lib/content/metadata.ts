@@ -21,8 +21,8 @@ export const getMetadata = (options?: {
 }): Metadata => ({
   title: options?.title || siteMetadata.title.default,
   description: options?.description || siteMetadata.description,
-  keywords: siteMetadata.keywords,
-  authors: siteMetadata.authors,
+  keywords: [...siteMetadata.keywords],
+  authors: [...siteMetadata.authors],
   openGraph: {
     ...siteMetadata.openGraph,
     title: options?.title || siteMetadata.title.default,

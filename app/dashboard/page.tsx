@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useApp } from '@/lib/context';
 import { Logo } from '@/components/Logo';
+import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -166,11 +167,11 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address" className="text-[#8B6F47] font-medium text-sm">Address</Label>
-                  <Input
-                    id="address"
-                    placeholder="Enter business address"
+                  <AddressAutocomplete
+                    onSelect={(address) => form.setValue('address', address, { shouldValidate: true })}
+                    placeholder="Start typing to search for addresses..."
                     className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
-                    {...form.register('address')}
+                    value={form.watch('address') || ''}
                   />
                   {form.formState.errors.address && (
                     <p className="text-sm text-red-500">
