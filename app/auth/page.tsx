@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Zap, Shield, TrendingUp, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -168,31 +167,25 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <div className="space-y-5">
-            <div className="flex items-center space-x-5 group cursor-default">
-              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 backdrop-blur-sm border border-white/10">
-                <Zap className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-medium">Deploy in under 3 minutes</span>
-            </div>
-            <div className="flex items-center space-x-5 group cursor-default">
-              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 backdrop-blur-sm border border-white/10">
-                <Shield className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-medium">Enterprise-grade reliability</span>
-            </div>
-            <div className="flex items-center space-x-5 group cursor-default">
-              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 backdrop-blur-sm border border-white/10">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-medium">Scale from 10 to 10,000 calls</span>
-            </div>
-            <div className="flex items-center space-x-5 group cursor-default">
-              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 backdrop-blur-sm border border-white/10">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-medium">Natural conversations guaranteed</span>
-            </div>
+          {/* Decorative element */}
+          <div className="mt-8">
+            <svg width="400" height="80" viewBox="0 0 400 80" className="opacity-30">
+              <path
+                d="M0,40 Q50,10 100,40 T200,40 T300,40 T400,40"
+                stroke="white"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path
+                d="M0,50 Q50,20 100,50 T200,50 T300,50 T400,50"
+                stroke="white"
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.5"
+              />
+            </svg>
           </div>
         </div>
       </div>
