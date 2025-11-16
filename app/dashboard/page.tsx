@@ -101,7 +101,7 @@ export default function DashboardPage() {
       <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-8">
               <Logo size="medium" lightMode />
               <h1 className="text-2xl font-bold text-[#8B6F47]">Your Businesses</h1>
             </div>
