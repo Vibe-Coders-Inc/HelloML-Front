@@ -12,21 +12,25 @@ const sizeConfig = {
     text: 'text-3xl',
     phone: { container: 'w-8 h-8', icon: 'w-4 h-4' },
     spacing: 'space-x-2',
+    mlSpacing: 'ml-1.5',
   },
   medium: {
     text: 'text-4xl',
     phone: { container: 'w-10 h-10', icon: 'w-5 h-5' },
     spacing: 'space-x-2',
+    mlSpacing: 'ml-2',
   },
   large: {
     text: 'text-5xl',
     phone: { container: 'w-10 h-10', icon: 'w-5 h-5' },
     spacing: 'space-x-3',
+    mlSpacing: 'ml-3',
   },
   hero: {
     text: 'text-7xl',
     phone: { container: 'w-14 h-14', icon: 'w-7 h-7' },
     spacing: 'space-x-4',
+    mlSpacing: 'ml-4',
   },
 };
 
@@ -45,7 +49,7 @@ export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
         <span className={textColor} style={{ fontFamily: 'Borel, cursive' }}>
           hello
         </span>
-        <span className={`font-bold ${mlColor} ml-2`}>ML</span>
+        <span className={`font-bold ${mlColor} ${config.mlSpacing}`}>ML</span>
       </h2>
       <div
         className={`${config.phone.container} ${phoneContainerBg} rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-2xl animate-pulse`}
