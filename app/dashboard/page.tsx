@@ -14,6 +14,7 @@ import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useBusinesses, useCreateBusiness, useDeleteBusiness } from '@/lib/hooks/use-businesses';
 
 const businessSchema = z.object({
   name: z.string().min(1, 'Business name is required'),
@@ -24,9 +25,11 @@ const businessSchema = z.object({
 type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function DashboardPage() {
-  const { businesses, agents, createBusiness, deleteBusiness, isAuthenticated, logout } = useApp();
+  const { user, isAuthenticated, logout } = useApp();
+  const { data: businesses = [], isLoading: businessesLoading } = useBusinesses(user?.id || '');
+  const createBusinessMutation = useCreateBusiness();
+  const deleteBusinessMutation = useDeleteBusiness();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const router = useRouter();
 
   const form = useForm<BusinessForm>({
@@ -45,31 +48,25 @@ export default function DashboardPage() {
   }
 
   const onSubmit = (data: BusinessForm) => {
-    createBusiness(data);
-    form.reset();
-    setIsCreateDialogOpen(false);
+    if (!user) return;
+
+    createBusinessMutation.mutate(
+      {
+        owner_user_id: user.id,
+        ...data,
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          setIsCreateDialogOpen(false);
+        },
+      }
+    );
   };
 
   const handleDelete = async (businessId: number) => {
     if (window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      setIsDeleting(businessId);
-      deleteBusiness(businessId);
-      setIsDeleting(null);
-    }
-  };
-
-  const getAgentStatus = (businessId: number) => {
-    const agent = agents.find(a => a.business_id === businessId);
-    if (!agent) return 'None';
-    return agent.status.charAt(0).toUpperCase() + agent.status.slice(1);
-  };
-
-  const getAgentStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active': return 'text-[#8B6F47] bg-[#C9B790]/30';
-      case 'inactive': return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
-      case 'paused': return 'text-[#A67A5B] bg-[#FAF8F3]';
-      default: return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      deleteBusinessMutation.mutate(businessId);
     }
   };
 
@@ -183,7 +180,13 @@ export default function DashboardPage() {
                   <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B]">
                     Cancel
                   </Button>
-                  <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Create Business</Button>
+                  <Button
+                    type="submit"
+                    disabled={createBusinessMutation.isPending}
+                    className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    {createBusinessMutation.isPending ? 'Creating...' : 'Create Business'}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -233,11 +236,25 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {businesses.map((business) => {
-              const agentStatus = getAgentStatus(business.id);
-              const isDeletingThis = isDeleting === business.id;
-              
-              return (
+            {businessesLoading ? (
+              // Loading skeleton
+              [...Array(3)].map((_, i) => (
+                <Card key={i} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl animate-pulse">
+                  <CardHeader className="pb-6">
+                    <div className="h-6 bg-[#D8CBA9]/30 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-[#D8CBA9]/20 rounded w-1/2"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              businesses.map((business) => (
                 <Card key={business.id} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
                   <CardHeader className="pb-6">
                     <div className="flex justify-between items-start">
@@ -252,7 +269,7 @@ export default function DashboardPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(business.id)}
-                          disabled={isDeletingThis}
+                          disabled={deleteBusinessMutation.isPending}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -265,25 +282,18 @@ export default function DashboardPage() {
                         <Building2 className="h-4 w-4 mr-2" />
                         {business.address}
                       </div>
-                      
+
                       <div className="flex items-center text-sm text-[#A67A5B]/70">
                         <Phone className="h-4 w-4 mr-2" />
                         {business.phone_number || 'No number'}
                       </div>
-                      
+
                       <div className="flex items-center text-sm text-[#A67A5B]/70">
                         <Calendar className="h-4 w-4 mr-2" />
                         Created {formatDate(business.created_at)}
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[#A67A5B]/70">Agent Status:</span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAgentStatusColor(agentStatus)}`}>
-                          {agentStatus}
-                        </span>
-                      </div>
                     </div>
-                    
+
                     <div className="mt-4 flex space-x-2">
                       <Button
                         className="flex-1 shadow-lg hover:shadow-xl"
@@ -295,8 +305,8 @@ export default function DashboardPage() {
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))
+            )}
           </div>
         )}
       </div>
