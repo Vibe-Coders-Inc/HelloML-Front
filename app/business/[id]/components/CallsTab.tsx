@@ -121,7 +121,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
           <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
             <AlertCircle className="w-8 h-8 text-[#8B6F47]" />
           </div>
-          <CardTitle className="text-xl">No Agent Found</CardTitle>
+          <CardTitle className="text-xl text-[#8B6F47]">No Agent Found</CardTitle>
           <CardDescription className="text-[#A67A5B]/70">
             Create an agent first to view call logs
           </CardDescription>
