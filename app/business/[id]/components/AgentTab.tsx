@@ -7,13 +7,24 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Bot, Phone, Play, Pause, Trash2, Edit, TestTube } from 'lucide-react';
-import { Agent } from '@/lib/mock-data';
-import { useApp } from '@/lib/context';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/lib/hooks/use-agents';
+import type { AgentWithPhone } from '@/lib/types';
 
 const agentSchema = z.object({
+  name: z.string().min(1, 'Agent name is required'),
+  area_code: z.string().min(3, 'Area code is required').max(3, 'Area code must be 3 digits'),
+  model_type: z.string().min(1, 'Model type is required'),
+  temperature: z.number().min(0).max(2),
+  voice_model: z.string().min(1, 'Voice model is required'),
+  prompt: z.string().optional(),
+  greeting: z.string().min(1, 'Greeting is required'),
+  goodbye: z.string().min(1, 'Goodbye is required'),
+});
+
+const editAgentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   model_type: z.string().min(1, 'Model type is required'),
   temperature: z.number().min(0).max(2),
@@ -25,20 +36,37 @@ const agentSchema = z.object({
 });
 
 type AgentForm = z.infer<typeof agentSchema>;
+type EditAgentForm = z.infer<typeof editAgentSchema>;
 
 interface AgentTabProps {
   businessId: number;
-  agent?: Agent;
+  agent?: AgentWithPhone;
 }
 
 export default function AgentTab({ businessId, agent }: AgentTabProps) {
-  const { phoneNumbers, createAgent, updateAgent, deleteAgent, createPhoneNumber } = useApp();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const createAgentMutation = useCreateAgent();
+  const updateAgentMutation = useUpdateAgent();
+  const deleteAgentMutation = useDeleteAgent();
 
   const form = useForm<AgentForm>({
     resolver: zodResolver(agentSchema),
+    defaultValues: {
+      name: 'My Voice Agent',
+      area_code: '555',
+      model_type: 'gpt-4o-mini',
+      temperature: 0.7,
+      voice_model: 'Joanna',
+      prompt: '',
+      greeting: 'Hello! How can I help you today?',
+      goodbye: 'Thank you for calling. Have a great day!',
+    }
+  });
+
+  const editForm = useForm<EditAgentForm>({
+    resolver: zodResolver(editAgentSchema),
     defaultValues: {
       name: agent?.name || 'Agent',
       model_type: agent?.model_type || 'gpt-4o-mini',
@@ -51,48 +79,43 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     }
   });
 
-  const phoneNumber = phoneNumbers.find(phone => phone.agent_id === agent?.id);
-
   const onSubmit = (data: AgentForm) => {
-    if (agent) {
-      updateAgent(agent.id, data);
-      setIsEditDialogOpen(false);
-    } else {
-      createAgent({
-        ...data,
-        business_id: businessId,
-      });
-      setIsCreateDialogOpen(false);
-    }
-    form.reset();
+    createAgentMutation.mutate(
+      { business_id: businessId, ...data },
+      {
+        onSuccess: () => {
+          form.reset();
+          setIsCreateDialogOpen(false);
+        },
+      }
+    );
   };
 
-  const handleDelete = async () => {
+  const onEditSubmit = (data: EditAgentForm) => {
+    if (!agent) return;
+    updateAgentMutation.mutate(
+      { agentId: agent.id, data },
+      {
+        onSuccess: () => {
+          setIsEditDialogOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleDelete = () => {
     if (agent && window.confirm('Are you sure you want to delete this agent? This action cannot be undone.')) {
-      setIsDeleting(true);
-      deleteAgent(agent.id);
-      setIsDeleting(false);
+      deleteAgentMutation.mutate(agent.id);
     }
   };
 
   const handleToggleStatus = () => {
-    if (agent) {
-      const newStatus = agent.status === 'active' ? 'paused' : 'active';
-      updateAgent(agent.id, { status: newStatus });
-    }
-  };
-
-  const handleProvisionNumber = () => {
-    if (agent) {
-      createPhoneNumber({
-        agent_id: agent.id,
-        phone_number: `+1 (555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-        country: 'US',
-        area_code: '555',
-        status: 'provisioning',
-        webhook_url: `https://api.voice-support.com/webhook/agent-${agent.id}`,
-      });
-    }
+    if (!agent) return;
+    const newStatus = agent.status === 'active' ? 'paused' : 'active';
+    updateAgentMutation.mutate({
+      agentId: agent.id,
+      data: { status: newStatus },
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -178,7 +201,24 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                         </p>
                       )}
                     </div>
-                    
+
+                    <div className="space-y-2">
+                      <Label htmlFor="area_code">Area Code</Label>
+                      <Input
+                        id="area_code"
+                        placeholder="555"
+                        maxLength={3}
+                        {...form.register('area_code')}
+                      />
+                      {form.formState.errors.area_code && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.area_code.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="model_type">AI Model</Label>
                       <select
@@ -191,20 +231,20 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                         <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                       </select>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="voice_model">Voice Model</Label>
-                    <select
-                      id="voice_model"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                      {...form.register('voice_model')}
-                    >
-                      <option value="Joanna">Joanna (Female, US)</option>
-                      <option value="Alloy">Alloy (Neutral, US)</option>
-                      <option value="Amber">Amber (Female, US)</option>
-                      <option value="Riley">Riley (Female, US)</option>
-                    </select>
+                    <div className="space-y-2">
+                      <Label htmlFor="voice_model">Voice Model</Label>
+                      <select
+                        id="voice_model"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                        {...form.register('voice_model')}
+                      >
+                        <option value="Joanna">Joanna (Female, US)</option>
+                        <option value="Alloy">Alloy (Neutral, US)</option>
+                        <option value="Amber">Amber (Female, US)</option>
+                        <option value="Riley">Riley (Female, US)</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -254,7 +294,13 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                     <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Create Agent</Button>
+                    <Button
+                      type="submit"
+                      disabled={createAgentMutation.isPending}
+                      className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      {createAgentMutation.isPending ? 'Creating...' : 'Create Agent'}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -361,19 +407,22 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <span>Phone Number</span>
           </CardTitle>
           <CardDescription className="text-[#A67A5B]/70">
-            Configure phone number for your agent to receive calls
+            Phone number provisioned for your agent
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {phoneNumber ? (
+          {agent.phone_number ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-medium">{phoneNumber.phone_number}</p>
+                  <p className="text-lg font-medium">{agent.phone_number.phone_number}</p>
                   <p className="text-sm text-[#A67A5B]/70">
-                    Status: <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(phoneNumber.status)}`}>
-                      {phoneNumber.status}
+                    Status: <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(agent.phone_number.status)}`}>
+                      {agent.phone_number.status}
                     </span>
+                  </p>
+                  <p className="text-xs text-[#A67A5B]/70 mt-1">
+                    Area Code: {agent.phone_number.area_code} • {agent.phone_number.country}
                   </p>
                 </div>
                 <Button
@@ -381,8 +430,8 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                     // Mock test call
                     alert('Test call initiated! Your agent will answer shortly.');
                   }}
-                  disabled={phoneNumber.status !== 'active'}
-                  className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  disabled={agent.phone_number.status !== 'active'}
+                  className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <TestTube className="h-4 w-4 mr-2" />
                   Test Call
@@ -391,11 +440,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
           ) : (
             <div className="text-center space-y-4">
-              <p className="text-[#A67A5B]/70">No phone number provisioned yet</p>
-              <Button onClick={handleProvisionNumber} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                <Phone className="h-4 w-4 mr-2" />
-                Provision Phone Number
-              </Button>
+              <p className="text-[#A67A5B]/70">Phone number is being provisioned...</p>
             </div>
           )}
         </CardContent>
@@ -413,10 +458,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={deleteAgentMutation.isPending}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            {isDeleting ? 'Deleting...' : 'Delete Agent'}
+            {deleteAgentMutation.isPending ? 'Deleting...' : 'Delete Agent'}
           </Button>
         </CardContent>
       </Card>
@@ -430,13 +475,13 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   Update your agent configuration
                 </DialogDescription>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-name">Agent Name</Label>
                 <Input
                   id="edit-name"
-                  {...form.register('name')}
+                  {...editForm.register('name')}
                 />
               </div>
               <div className="space-y-2">
@@ -444,7 +489,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 <select
                   id="edit-model_type"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                  {...form.register('model_type')}
+                  {...editForm.register('model_type')}
                 >
                   <option value="gpt-4o-mini">GPT-4o Mini</option>
                   <option value="gpt-4o">GPT-4o</option>
@@ -458,7 +503,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <select
                 id="edit-voice_model"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                {...form.register('voice_model')}
+                {...editForm.register('voice_model')}
               >
                 <option value="Joanna">Joanna (Female, US)</option>
                 <option value="Alloy">Alloy (Neutral, US)</option>
@@ -468,14 +513,14 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-temperature">Temperature: {form.watch('temperature')}</Label>
+              <Label htmlFor="edit-temperature">Temperature: {editForm.watch('temperature')}</Label>
               <input
                 type="range"
                 min="0"
                 max="2"
                 step="0.05"
                 className="w-full"
-                {...form.register('temperature', { valueAsNumber: true })}
+                {...editForm.register('temperature', { valueAsNumber: true })}
               />
             </div>
 
@@ -484,7 +529,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <textarea
                 id="edit-prompt"
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-                {...form.register('prompt')}
+                {...editForm.register('prompt')}
               />
             </div>
 
@@ -492,7 +537,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <Label htmlFor="edit-greeting">Greeting Message</Label>
               <Input
                 id="edit-greeting"
-                {...form.register('greeting')}
+                {...editForm.register('greeting')}
               />
             </div>
 
@@ -500,7 +545,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <Label htmlFor="edit-goodbye">Goodbye Message</Label>
               <Input
                 id="edit-goodbye"
-                {...form.register('goodbye')}
+                {...editForm.register('goodbye')}
               />
             </div>
 
@@ -508,7 +553,13 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Save Changes</Button>
+              <Button
+                type="submit"
+                disabled={updateAgentMutation.isPending}
+                className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                {updateAgentMutation.isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

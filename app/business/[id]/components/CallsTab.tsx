@@ -6,31 +6,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PhoneCall, Search, Eye, Download, Copy, Clock, User, Bot, MessageSquare, AlertCircle } from 'lucide-react';
-import { Conversation } from '@/lib/mock-data';
-import { useApp } from '@/lib/context';
+import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/use-conversations';
 
 interface CallsTabProps {
   agentId?: number;
 }
 
 export default function CallsTab({ agentId }: CallsTabProps) {
-  const { conversations, messages, phoneNumbers } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
 
-  const agentConversations = agentId 
-    ? conversations.filter(conv => conv.agent_id === agentId)
-    : [];
+  const { data: conversationsData, isLoading: conversationsLoading } = useConversationsByAgent(
+    agentId || 0,
+    { limit: 100, offset: 0 }
+  );
 
-  const filteredConversations = agentConversations.filter(conv => 
+  const { data: messagesData, isLoading: messagesLoading } = useConversationMessages(
+    selectedConversationId || 0
+  );
+
+  // Extract conversations from paginated response
+  const agentConversations = conversationsData?.conversations || [];
+  const messages = messagesData?.messages || [];
+
+  const filteredConversations = agentConversations.filter(conv =>
     conv.caller_phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     conv.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const conversationMessages = selectedConversation 
-    ? messages.filter(msg => msg.conversation_id === selectedConversation.id)
-    : [];
+  const selectedConversation = agentConversations.find(c => c.id === selectedConversationId) || null;
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -64,18 +69,18 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleViewTranscript = (conversation: Conversation) => {
-    setSelectedConversation(conversation);
+  const handleViewTranscript = (conversationId: number) => {
+    setSelectedConversationId(conversationId);
     setIsTranscriptOpen(true);
   };
 
   const handleExportTranscript = () => {
-    if (!selectedConversation || conversationMessages.length === 0) return;
-    
-    const transcript = conversationMessages
+    if (!selectedConversation || messages.length === 0) return;
+
+    const transcript = messages
       .map(msg => `${msg.role.toUpperCase()}: ${msg.content}`)
       .join('\n\n');
-    
+
     const blob = new Blob([transcript], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = window.document.createElement('a');
@@ -86,12 +91,12 @@ export default function CallsTab({ agentId }: CallsTabProps) {
   };
 
   const handleCopyTranscript = () => {
-    if (!selectedConversation || conversationMessages.length === 0) return;
-    
-    const transcript = conversationMessages
+    if (!selectedConversation || messages.length === 0) return;
+
+    const transcript = messages
       .map(msg => `${msg.role.toUpperCase()}: ${msg.content}`)
       .join('\n\n');
-    
+
     navigator.clipboard.writeText(transcript);
     alert('Transcript copied to clipboard!');
   };
@@ -130,26 +135,8 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     );
   }
 
-  const phoneNumber = phoneNumbers.find(phone => phone.agent_id === agentId);
-  const hasPhoneNumber = phoneNumber && phoneNumber.status === 'active';
-
   return (
     <div className="space-y-6">
-      {/* Phone Number Status */}
-      {!hasPhoneNumber && (
-        <Card className="border-[#E8DCC8] bg-[#FAF8F3]">
-          <CardHeader>
-            <CardTitle className="text-[#8B6F47] flex items-center space-x-2">
-              <AlertCircle className="h-5 w-5" />
-              <span>No Phone Number Provisioned</span>
-            </CardTitle>
-            <CardDescription className="text-[#A67A5B]/70">
-              Provision a phone number to start receiving calls and view call logs here.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
-
       {/* Search and Filters */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
@@ -174,7 +161,12 @@ export default function CallsTab({ agentId }: CallsTabProps) {
             </div>
           </div>
 
-          {filteredConversations.length === 0 ? (
+          {conversationsLoading ? (
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
+              <p className="mt-4 text-[#A67A5B]/70">Loading conversations...</p>
+            </div>
+          ) : filteredConversations.length === 0 ? (
             <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
                 <PhoneCall className="w-8 h-8 text-[#8B6F47]" />
@@ -218,12 +210,12 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(conversation.status)}`}>
                       {conversation.status}
                     </span>
-                    <Dialog open={isTranscriptOpen && selectedConversation?.id === conversation.id} onOpenChange={setIsTranscriptOpen}>
+                    <Dialog open={isTranscriptOpen && selectedConversationId === conversation.id} onOpenChange={setIsTranscriptOpen}>
                       <DialogTrigger asChild>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewTranscript(conversation)}
+                          onClick={() => handleViewTranscript(conversation.id)}
                           className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                         >
                           <Eye className="h-4 w-4 mr-2" />
@@ -242,12 +234,17 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                         </DialogHeader>
                         
                         <div className="flex-1 overflow-y-auto space-y-4">
-                          {conversationMessages.length === 0 ? (
+                          {messagesLoading ? (
+                            <div className="text-center py-8">
+                              <div className="mx-auto w-12 h-12 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
+                              <p className="mt-4 text-[#A67A5B]/70">Loading messages...</p>
+                            </div>
+                          ) : messages.length === 0 ? (
                             <p className="text-center text-[#A67A5B]/70 py-8">
                               No messages found for this conversation
                             </p>
                           ) : (
-                            conversationMessages.map((message) => (
+                            messages.map((message) => (
                               <div key={message.id} className="flex space-x-3">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRoleColor(message.role)}`}>
                                   {getRoleIcon(message.role)}
@@ -270,7 +267,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                           <Button
                             variant="outline"
                             onClick={handleCopyTranscript}
-                            disabled={conversationMessages.length === 0}
+                            disabled={messagesLoading || messages.length === 0}
                             className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                           >
                             <Copy className="h-4 w-4 mr-2" />
@@ -279,7 +276,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                           <Button
                             variant="outline"
                             onClick={handleExportTranscript}
-                            disabled={conversationMessages.length === 0}
+                            disabled={messagesLoading || messages.length === 0}
                             className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                           >
                             <Download className="h-4 w-4 mr-2" />

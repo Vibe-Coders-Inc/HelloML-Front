@@ -8,9 +8,9 @@ import type { Conversation, EndConversationRequest } from '../types';
 export const conversationKeys = {
   all: ['conversations'] as const,
   lists: () => [...conversationKeys.all, 'list'] as const,
-  listByAgent: (agentId: number, options?: any) =>
+  listByAgent: (agentId: number, options?: { limit?: number; offset?: number }) =>
     [...conversationKeys.lists(), 'agent', agentId, options] as const,
-  listByBusiness: (businessId: number, options?: any) =>
+  listByBusiness: (businessId: number, options?: { limit?: number; offset?: number }) =>
     [...conversationKeys.lists(), 'business', businessId, options] as const,
   details: () => [...conversationKeys.all, 'detail'] as const,
   detail: (id: number) => [...conversationKeys.details(), id] as const,

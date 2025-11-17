@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useApp } from '@/lib/context';
 import { Logo } from '@/components/Logo';
+import { useBusiness, useUpdateBusiness, useDeleteBusiness } from '@/lib/hooks/use-businesses';
+import { useAgentByBusiness } from '@/lib/hooks/use-agents';
 import OverviewTab from './components/OverviewTab';
 import AgentTab from './components/AgentTab';
 import DocumentsTab from './components/DocumentsTab';
@@ -27,25 +29,26 @@ const businessSchema = z.object({
 
 type BusinessForm = z.infer<typeof businessSchema>;
 
-export default function BusinessPage({ params, searchParams }: { 
+export default function BusinessPage({ params, searchParams }: {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const { businesses, agents, isAuthenticated, updateBusiness, deleteBusiness } = useApp();
+  const { isAuthenticated } = useApp();
   const router = useRouter();
   const { id } = React.use(params);
   const resolvedSearch = React.use(searchParams);
   const [activeTab, setActiveTab] = useState(resolvedSearch?.tab || 'overview');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const businessId = parseInt(id);
+  const { data: business, isLoading: businessLoading } = useBusiness(businessId);
+  const { data: agent } = useAgentByBusiness(businessId);
+  const updateBusinessMutation = useUpdateBusiness();
+  const deleteBusinessMutation = useDeleteBusiness();
 
   const form = useForm<BusinessForm>({
     resolver: zodResolver(businessSchema),
   });
-
-  const businessId = parseInt(id);
-  const business = businesses.find(b => b.id === businessId);
-  const agent = agents.find(a => a.business_id === businessId);
 
   // Handle redirect when not authenticated
   useEffect(() => {
@@ -72,18 +75,37 @@ export default function BusinessPage({ params, searchParams }: {
 
   const onSubmit = (data: BusinessForm) => {
     if (business) {
-      updateBusiness(business.id, data);
-      setIsEditDialogOpen(false);
+      updateBusinessMutation.mutate(
+        { businessId: business.id, data },
+        {
+          onSuccess: () => {
+            setIsEditDialogOpen(false);
+          },
+        }
+      );
     }
   };
 
   const handleDelete = async () => {
     if (business && window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      setIsDeleting(true);
-      deleteBusiness(business.id);
-      router.push('/dashboard');
+      deleteBusinessMutation.mutate(business.id, {
+        onSuccess: () => {
+          router.push('/dashboard');
+        },
+      });
     }
   };
+
+  if (businessLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#E8DCC8] via-[#F5EFE6] to-[#D8CBA9]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#A67A5B]/30 border-t-[#8B6F47] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#8B6F47] font-medium">Loading business...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!business) {
     return (
@@ -198,11 +220,11 @@ export default function BusinessPage({ params, searchParams }: {
                 variant="outline"
                 size="sm"
                 onClick={handleDelete}
-                disabled={isDeleting}
+                disabled={deleteBusinessMutation.isPending}
                 className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {isDeleting ? 'Deleting...' : 'Delete'}
+                {deleteBusinessMutation.isPending ? 'Deleting...' : 'Delete'}
               </Button>
             </div>
           </div>
@@ -252,11 +274,11 @@ export default function BusinessPage({ params, searchParams }: {
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
-            <OverviewTab business={business} agent={agent} />
+            <OverviewTab business={business} agent={agent || undefined} />
           </TabsContent>
 
           <TabsContent value="agent" className="mt-6">
-            <AgentTab businessId={businessId} agent={agent} />
+            <AgentTab businessId={businessId} agent={agent || undefined} />
           </TabsContent>
 
           <TabsContent value="documents" className="mt-6">

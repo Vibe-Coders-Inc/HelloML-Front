@@ -302,7 +302,7 @@ class ApiClient {
     query: string,
     k = 5,
     minSimilarity = 0.7
-  ): Promise<any[]> {
+  ): Promise<unknown[]> {
     return this.fetch('/rag/semantic-search', {
       method: 'POST',
       body: JSON.stringify({

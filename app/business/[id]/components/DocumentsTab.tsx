@@ -4,39 +4,33 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Upload, Download, Trash2, File, AlertCircle } from 'lucide-react';
-import { Document } from '@/lib/mock-data';
-import { useApp } from '@/lib/context';
+import { useDocuments, useUploadPDFDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 
 interface DocumentsTabProps {
   agentId?: number;
 }
 
 export default function DocumentsTab({ agentId }: DocumentsTabProps) {
-  const { documents, createDocument, deleteDocument } = useApp();
-  const [isUploading, setIsUploading] = useState(false);
+  const { data: documents = [], isLoading } = useDocuments(agentId || 0);
+  const uploadPDFMutation = useUploadPDFDocument();
+  const deleteDocumentMutation = useDeleteDocument();
+
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const agentDocuments = agentId ? documents.filter(doc => doc.agent_id === agentId) : [];
-
   const handleFileUpload = async (files: FileList) => {
-    setIsUploading(true);
-    
+    if (!agentId) return;
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
-      // Mock file upload - in real app, upload to storage
-      const mockStorageUrl = `/storage/docs/${Date.now()}-${file.name}`;
-      
-      createDocument({
-        agent_id: agentId!,
+
+      // Upload PDF file
+      uploadPDFMutation.mutate({
+        agentId,
+        file,
         filename: file.name,
-        storage_url: mockStorageUrl,
-        file_type: file.type || file.name.split('.').pop() || 'unknown',
       });
     }
-    
-    setIsUploading(false);
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -65,17 +59,17 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
     }
   };
 
-  const handleDownload = (doc: Document) => {
-    // Mock download - in real app, download from storage
+  const handleDownload = (storageUrl: string, filename: string) => {
+    // Download from storage URL
     const link = window.document.createElement('a');
-    link.href = doc.storage_url;
-    link.download = doc.filename;
+    link.href = storageUrl;
+    link.download = filename;
     link.click();
   };
 
   const handleDelete = (documentId: number) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
-      deleteDocument(documentId);
+      deleteDocumentMutation.mutate(documentId);
     }
   };
 
@@ -125,7 +119,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             <span>Upload Documents</span>
           </CardTitle>
           <CardDescription className="text-[#A67A5B]/70">
-            Feed your agent with knowledge documents. Supported formats: PDF, TXT, DOCX, CSV
+            Feed your agent with knowledge documents. Supported format: PDF
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -154,16 +148,16 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               </div>
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
+                disabled={uploadPDFMutation.isPending}
                 className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                {isUploading ? 'Uploading...' : 'Choose Files'}
+                {uploadPDFMutation.isPending ? 'Uploading...' : 'Choose Files'}
               </Button>
               <input
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept=".pdf,.txt,.docx,.csv"
+                accept=".pdf"
                 onChange={handleFileInput}
                 className="hidden"
               />
@@ -184,7 +178,12 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {agentDocuments.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
+              <p className="mt-4 text-[#A67A5B]/70">Loading documents...</p>
+            </div>
+          ) : documents.length === 0 ? (
             <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
                 <File className="w-8 h-8 text-[#8B6F47]" />
@@ -202,7 +201,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {agentDocuments.map((document) => (
+              {documents.map((document) => (
                 <div
                   key={document.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-[#FAF8F3]"
@@ -230,7 +229,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownload(document)}
+                      onClick={() => handleDownload(document.storage_url, document.filename)}
                       className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                     >
                       <Download className="h-4 w-4 mr-2" />
@@ -240,6 +239,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(document.id)}
+                      disabled={deleteDocumentMutation.isPending}
                       className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                     >
                       <Trash2 className="h-4 w-4" />

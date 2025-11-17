@@ -3,23 +3,23 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Phone, Activity, TrendingUp, Bot, PhoneCall } from 'lucide-react';
-import { Business, Agent } from '@/lib/mock-data';
-import { useApp } from '@/lib/context';
 import { useRouter } from 'next/navigation';
+import { useConversationStats } from '@/lib/hooks/use-conversations';
+import type { Business, AgentWithPhone } from '@/lib/types';
 
 interface OverviewTabProps {
   business: Business;
-  agent?: Agent;
+  agent?: AgentWithPhone;
 }
 
 export default function OverviewTab({ business, agent }: OverviewTabProps) {
-  const { phoneNumbers, conversations } = useApp();
   const router = useRouter();
 
-  const phoneNumber = phoneNumbers.find(phone => phone.agent_id === agent?.id);
-  const businessConversations = conversations.filter(conv => conv.agent_id === agent?.id);
-  const totalCalls = businessConversations.length;
-  const completedCalls = businessConversations.filter(conv => conv.status === 'completed').length;
+  const { data: stats } = useConversationStats(agent?.id || 0);
+
+  const phoneNumber = agent?.phone_number;
+  const totalCalls = stats?.total_conversations || 0;
+  const completedCalls = stats?.completed || 0;
 
   const getAgentStatus = () => {
     if (!agent) return 'None';
