@@ -119,8 +119,8 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       <div className="space-y-6">
         <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
           <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Bot className="w-8 h-8 text-blue-600" />
+            <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
+              <Bot className="w-8 h-8 text-[#8B6F47]" />
             </div>
             <CardTitle className="text-2xl">Create Your First AI Agent</CardTitle>
             <CardDescription className="text-lg">
@@ -151,15 +151,15 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="lg" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                   <Bot className="h-5 w-5 mr-2" />
                   Create Your Agent
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] max-w-2xl">
                 <DialogHeader>
-                <DialogTitle>Create Your AI Agent</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-[#8B6F47]">Create Your AI Agent</DialogTitle>
+                <DialogDescription className="text-[#A67A5B]/70">
                   Configure your voice agent to handle customer calls
                 </DialogDescription>
                 </DialogHeader>
@@ -251,10 +251,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   </div>
 
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
                       Cancel
                     </Button>
-                    <Button type="submit">Create Agent</Button>
+                    <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Create Agent</Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -279,7 +279,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   {agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
                 </span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-[#A67A5B]/70">
                 Created {formatDate(agent.created_at)} • Last updated {formatDate(agent.updated_at)}
               </CardDescription>
             </div>
@@ -288,6 +288,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleToggleStatus}
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
               >
                 {agent.status === 'active' ? (
                   <>
@@ -305,6 +306,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditDialogOpen(true)}
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
@@ -358,7 +360,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <Phone className="h-5 w-5" />
             <span>Phone Number</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             Configure phone number for your agent to receive calls
           </CardDescription>
         </CardHeader>
@@ -380,6 +382,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                     alert('Test call initiated! Your agent will answer shortly.');
                   }}
                   disabled={phoneNumber.status !== 'active'}
+                  className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <TestTube className="h-4 w-4 mr-2" />
                   Test Call
@@ -389,7 +392,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
           ) : (
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">No phone number provisioned yet</p>
-              <Button onClick={handleProvisionNumber}>
+              <Button onClick={handleProvisionNumber} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                 <Phone className="h-4 w-4 mr-2" />
                 Provision Phone Number
               </Button>
@@ -402,7 +405,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle className="text-red-600">Danger Zone</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             These actions cannot be undone
           </CardDescription>
         </CardHeader>
@@ -420,10 +423,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] max-w-2xl">
           <DialogHeader>
-                <DialogTitle>Edit Agent</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-[#8B6F47]">Edit Agent</DialogTitle>
+                <DialogDescription className="text-[#A67A5B]/70">
                   Update your agent configuration
                 </DialogDescription>
           </DialogHeader>
@@ -502,10 +505,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Save Changes</Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -107,10 +107,10 @@ export default function CallsTab({ agentId }: CallsTabProps) {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'user': return 'bg-blue-100 text-blue-800';
-      case 'agent': return 'bg-green-100 text-green-800';
-      case 'system': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'user': return 'bg-[#C9B790]/30 text-[#8B6F47]';
+      case 'agent': return 'bg-[#D8CBA9]/30 text-[#A67A5B]';
+      case 'system': return 'bg-[#FAF8F3] text-[#A67A5B]/70';
+      default: return 'bg-[#FAF8F3] text-[#A67A5B]/70';
     }
   };
 
@@ -118,11 +118,11 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     return (
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="w-8 h-8 text-yellow-600" />
+          <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="w-8 h-8 text-[#8B6F47]" />
           </div>
           <CardTitle className="text-xl">No Agent Found</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             Create an agent first to view call logs
           </CardDescription>
         </CardHeader>
@@ -137,13 +137,13 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     <div className="space-y-6">
       {/* Phone Number Status */}
       {!hasPhoneNumber && (
-        <Card className="border-yellow-200 bg-yellow-50">
+        <Card className="border-[#E8DCC8] bg-[#FAF8F3]">
           <CardHeader>
-            <CardTitle className="text-yellow-800 flex items-center space-x-2">
+            <CardTitle className="text-[#8B6F47] flex items-center space-x-2">
               <AlertCircle className="h-5 w-5" />
               <span>No Phone Number Provisioned</span>
             </CardTitle>
-            <CardDescription className="text-yellow-700">
+            <CardDescription className="text-[#A67A5B]/70">
               Provision a phone number to start receiving calls and view call logs here.
             </CardDescription>
           </CardHeader>
@@ -157,7 +157,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
             <PhoneCall className="h-5 w-5" />
             <span>Call Logs</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             View and analyze all conversations with your voice agent
           </CardDescription>
         </CardHeader>
@@ -169,7 +169,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                 placeholder="Search by phone number or status..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl"
               />
             </div>
           </div>
@@ -224,18 +224,19 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewTranscript(conversation)}
+                          className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                      <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
                         <DialogHeader>
-                          <DialogTitle className="flex items-center space-x-2">
+                          <DialogTitle className="text-[#8B6F47] flex items-center space-x-2">
                             <MessageSquare className="h-5 w-5" />
                             <span>Call Transcript</span>
                           </DialogTitle>
-                          <DialogDescription>
+                          <DialogDescription className="text-[#A67A5B]/70">
                             Conversation with {conversation.caller_phone} on {formatDate(conversation.started_at)}
                           </DialogDescription>
                         </DialogHeader>
@@ -270,6 +271,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                             variant="outline"
                             onClick={handleCopyTranscript}
                             disabled={conversationMessages.length === 0}
+                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Copy
@@ -278,6 +280,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                             variant="outline"
                             onClick={handleExportTranscript}
                             disabled={conversationMessages.length === 0}
+                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                           >
                             <Download className="h-4 w-4 mr-2" />
                             Export
@@ -320,7 +323,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                 <div className="text-sm text-muted-foreground">Failed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">
+                <div className="text-2xl font-bold text-[#8B6F47]">
                   {Math.round(
                     (agentConversations.filter(c => c.status === 'completed').length / 
                      agentConversations.length) * 100

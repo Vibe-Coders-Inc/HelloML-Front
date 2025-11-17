@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useApp } from '@/lib/context';
+import { Logo } from '@/components/Logo';
 import OverviewTab from './components/OverviewTab';
 import AgentTab from './components/AgentTab';
 import DocumentsTab from './components/DocumentsTab';
@@ -117,37 +118,9 @@ export default function BusinessPage({ params, searchParams }: {
 
       {/* Header */}
       <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9]/40 shadow-lg backdrop-blur-sm relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                onClick={() => router.push('/dashboard')}
-                className="mr-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-[#A67A5B]">{business.name}</h1>
-                <div className="flex items-center space-x-4 text-sm text-[#A67A5B]/70">
-                  <div className="flex items-center">
-                    <Mail className="h-4 w-4 mr-1" />
-                    {business.business_email}
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {business.address}
-                  </div>
-                  {business.phone_number && (
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-1" />
-                      {business.phone_number}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between items-center h-28">
+            <Logo size="large" lightMode />
             <div className="flex items-center space-x-2">
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
@@ -236,7 +209,40 @@ export default function BusinessPage({ params, searchParams }: {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Business Details Section */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6 relative z-10">
+        <div className="flex items-center mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/dashboard')}
+            className="text-[#8B6F47] hover:bg-[#FAF8F3] hover:text-[#A67A5B]"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+        <div className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl rounded-xl p-6">
+          <h1 className="text-3xl font-bold text-[#8B6F47] mb-4">{business.name}</h1>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center text-[#A67A5B]/70">
+              <Mail className="h-5 w-5 mr-2 text-[#A67A5B]" />
+              <span className="text-sm">{business.business_email}</span>
+            </div>
+            <div className="flex items-center text-[#A67A5B]/70">
+              <MapPin className="h-5 w-5 mr-2 text-[#A67A5B]" />
+              <span className="text-sm">{business.address}</span>
+            </div>
+            {business.phone_number && (
+              <div className="flex items-center text-[#A67A5B]/70">
+                <Phone className="h-5 w-5 mr-2 text-[#A67A5B]" />
+                <span className="text-sm">{business.phone_number}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-[#D8CBA9]/30 p-1 rounded-xl">
             <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">Overview</TabsTrigger>

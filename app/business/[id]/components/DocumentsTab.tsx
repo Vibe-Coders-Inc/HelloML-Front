@@ -103,11 +103,11 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
     return (
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-            <AlertCircle className="w-8 h-8 text-yellow-600" />
+          <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="w-8 h-8 text-[#8B6F47]" />
           </div>
           <CardTitle className="text-xl">No Agent Found</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             Create an agent first to upload documents
           </CardDescription>
         </CardHeader>
@@ -124,7 +124,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             <Upload className="h-5 w-5" />
             <span>Upload Documents</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             Feed your agent with knowledge documents. Supported formats: PDF, TXT, DOCX, CSV
           </CardDescription>
         </CardHeader>
@@ -141,7 +141,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             onDrop={handleDrop}
           >
             <div className="space-y-4">
-              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="mx-auto w-12 h-12 bg-[#C9B790]/30 rounded-full flex items-center justify-center">
                 <Upload className="w-6 h-6 text-[#8B6F47]" />
               </div>
               <div>
@@ -155,6 +155,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
+                className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 {isUploading ? 'Uploading...' : 'Choose Files'}
               </Button>
@@ -178,15 +179,15 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             <FileText className="h-5 w-5" />
             <span>Knowledge Base</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#A67A5B]/70">
             Documents that your agent can reference during conversations
           </CardDescription>
         </CardHeader>
         <CardContent>
           {agentDocuments.length === 0 ? (
             <div className="text-center py-8">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <File className="w-8 h-8 text-gray-400" />
+              <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
+                <File className="w-8 h-8 text-[#8B6F47]" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No documents yet
@@ -194,7 +195,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               <p className="text-gray-500 mb-4">
                 Upload some documents to help your agent answer questions better
               </p>
-              <Button onClick={() => fileInputRef.current?.click()}>
+              <Button onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Your First Document
               </Button>
@@ -230,6 +231,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDownload(document)}
+                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Download
@@ -238,6 +240,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(document.id)}
+                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
