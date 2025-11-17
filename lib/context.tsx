@@ -47,8 +47,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [user, isHydrated]);
 
   const login = (userId: string, name?: string, email?: string) => {
+    // Convert simple user IDs to UUID format for database compatibility
+    const uuidMap: Record<string, string> = {
+      'user-1': '00000000-0000-0000-0000-000000000001',
+      'user-2': '00000000-0000-0000-0000-000000000002',
+      'user-3': '00000000-0000-0000-0000-000000000003',
+    };
+
+    const actualUserId = uuidMap[userId] || userId;
+
     const newUser: User = {
-      id: userId,
+      id: actualUserId,
       name: name || `User ${userId}`,
       email: email || `${userId}@example.com`,
     };
