@@ -34,30 +34,21 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isAuthenticated } = useApp();
+  const { login, register, isAuthenticated, signInWithProvider } = useApp();
   const router = useRouter();
 
-  const loginForm = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const registerForm = useForm<RegisterForm>({
-    resolver: zodResolver(registerSchema),
-  });
+  const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+  const registerForm = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
 
   const onLogin = async (data: LoginForm) => {
     setIsLoading(true);
     setError('');
-    
     try {
-      const success = await login(data.email, data.password);
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError('Invalid email or password');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const ok = await login(data.email, data.password);
+      if (ok) router.push('/dashboard');
+      else setError('Invalid email or password');
+    } catch (err: any) {
+      setError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -66,73 +57,64 @@ export default function AuthPage() {
   const onRegister = async (data: RegisterForm) => {
     setIsLoading(true);
     setError('');
-    
     try {
-      // Mock registration - just log in the user
-      const success = await login(data.email, data.password);
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError('Registration failed. Please try again.');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const ok = await register(data.email, data.password, data.name);
+      // If email confirmation is enabled, consider routing to a "check your email" page instead.
+      if (ok) router.push('/dashboard');
+      else setError('Registration failed. Please try again.');
+    } catch (err: any) {
+      setError(err?.message ?? 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialAuth = async (provider: string) => {
+  const handleSocialAuth = async (provider: 'Google' | 'GitHub' | 'Apple' | 'Microsoft') => {
     setIsLoading(true);
     setError('');
-    
     try {
-      // Mock social auth
-      const success = await login(`${provider}@example.com`, 'password');
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError(`${provider} authentication failed`);
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+      const map = {
+        Google: 'google',
+        GitHub: 'github',
+        Apple: 'apple',
+        Microsoft: 'azure', // or 'azuread' depending on your Supabase project
+      } as const;
+      // @ts-expect-error mapping is safe here
+      await signInWithProvider(map[provider], `${window.location.origin}/auth/callback`);
+      // OAuth redirects; no router.push here.
+    } catch (err: any) {
+      setError(err?.message ?? `${provider} authentication failed`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle redirect when authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
+    if (isAuthenticated) router.push('/dashboard');
   }, [isAuthenticated, router]);
 
-  if (isAuthenticated) {
-    return null;
-  }
+  if (isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF2DC] to-[#D8CBA9] flex">
       {/* Left Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#A67A5B] to-[#C9B790] text-white p-12 flex-col justify-center relative overflow-hidden">
-        {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
         <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-white/5 rounded-full"></div>
         <div className="max-w-md relative z-10">
-            <div className="mb-8">
-              <div className="w-12 h-12 bg-white/25 rounded-xl flex items-center justify-center mb-6 shadow-lg backdrop-blur-sm">
-                <Phone className="w-6 h-6" />
-              </div>
-              <h1 className="text-4xl font-bold mb-4 leading-tight">
-                Pick up the phone.<br />
-                Your AI handles it.
-              </h1>
-              <p className="text-xl text-white/90 mb-8 leading-relaxed">
-                Transform your business with AI voice agents that never sleep, never get tired, and always sound amazing!
-              </p>
+          <div className="mb-8">
+            <div className="w-12 h-12 bg-white/25 rounded-xl flex items-center justify-center mb-6 shadow-lg backdrop-blur-sm">
+              <Phone className="w-6 h-6" />
             </div>
+            <h1 className="text-4xl font-bold mb-4 leading-tight">
+              Pick up the phone.<br />
+              Your AI handles it.
+            </h1>
+            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+              Transform your business with AI voice agents that never sleep, never get tired, and always sound amazing!
+            </p>
+          </div>
 
           <div className="space-y-6">
             <div className="flex items-center space-x-4 group">
@@ -353,16 +335,16 @@ export default function AuthPage() {
               <p className="mt-6 text-xs text-center text-[#A67A5B]/60">
                 By continuing you agree to our Terms and Privacy. We promise to keep your data safe!
               </p>
-              
-              {/* Quick Test Login Button */}
+
+              {/* Optional tester: keep or remove */}
               <div className="mt-6 pt-6 border-t border-[#D8CBA9]">
                 <Button
                   variant="secondary"
-                  onClick={() => handleSocialAuth('Test')}
+                  onClick={() => handleSocialAuth('Google')}
                   disabled={isLoading}
                   className="w-full text-sm bg-[#D8CBA9]/20 hover:bg-[#D8CBA9]/30 text-[#A67A5B] border border-[#D8CBA9] rounded-xl h-10 transition-all duration-300"
                 >
-                  Quick Test Login (Skip Auth)
+                  Quick Test (Google OAuth)
                 </Button>
                 <p className="text-xs text-center text-[#A67A5B]/50 mt-2">
                   For testing purposes only
