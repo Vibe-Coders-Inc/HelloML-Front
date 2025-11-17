@@ -161,6 +161,16 @@ class ApiClient {
     });
   }
 
+  async provisionPhoneNumber(agentId: number, areaCode: string): Promise<PhoneNumber> {
+    return this.fetch<PhoneNumber>(`/phone/provision`, {
+      method: 'POST',
+      body: JSON.stringify({
+        agent_id: agentId,
+        area_code: areaCode,
+      }),
+    });
+  }
+
   // Conversation endpoints
   async getConversation(
     conversationId: number,

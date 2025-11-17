@@ -1,38 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bot, Phone, Play, Pause, Trash2, Edit, TestTube } from 'lucide-react';
+import { Bot, Phone, Play, Pause, Trash2, Edit, TestTube, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/lib/hooks/use-agents';
+import { useDeletePhoneByAgent, useProvisionPhoneNumber } from '@/lib/hooks/use-phone-numbers';
 import type { AgentWithPhone } from '@/lib/types';
 
 const agentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   area_code: z.string().min(3, 'Area code is required').max(3, 'Area code must be 3 digits'),
   model_type: z.string().min(1, 'Model type is required'),
-  temperature: z.number().min(0).max(2),
+  temperature: z.number().min(0.6).max(1.2),
   voice_model: z.string().min(1, 'Voice model is required'),
   prompt: z.string().optional(),
-  greeting: z.string().min(1, 'Greeting is required'),
-  goodbye: z.string().min(1, 'Goodbye is required'),
+  greeting: z.string()
+    .min(1, 'Greeting is required')
+    .max(500, 'Greeting must be less than 500 characters')
+    .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
+  goodbye: z.string()
+    .min(1, 'Goodbye is required')
+    .max(500, 'Goodbye must be less than 500 characters')
+    .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
+  // OpenAI Realtime API configuration
+  max_response_output_tokens: z.number().optional(),
+  turn_detection_type: z.enum(['semantic_vad', 'server_vad', 'none']).optional(),
+  turn_detection_threshold: z.number().min(0).max(1).optional(),
+  turn_detection_silence_duration_ms: z.number().min(0).optional(),
+  turn_detection_interrupt_response: z.boolean().optional(),
+  turn_detection_eagerness: z.enum(['low', 'medium', 'high', 'auto']).optional(),
+  turn_detection_create_response: z.boolean().optional(),
 });
 
 const editAgentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   model_type: z.string().min(1, 'Model type is required'),
-  temperature: z.number().min(0).max(2),
+  temperature: z.number().min(0.6).max(1.2),
   voice_model: z.string().min(1, 'Voice model is required'),
   prompt: z.string().optional(),
-  greeting: z.string().min(1, 'Greeting is required'),
-  goodbye: z.string().min(1, 'Goodbye is required'),
+  greeting: z.string()
+    .min(1, 'Greeting is required')
+    .max(500, 'Greeting must be less than 500 characters')
+    .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
+  goodbye: z.string()
+    .min(1, 'Goodbye is required')
+    .max(500, 'Goodbye must be less than 500 characters')
+    .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
   status: z.enum(['inactive', 'active', 'paused']),
+  // OpenAI Realtime API configuration
+  max_response_output_tokens: z.number().optional(),
+  turn_detection_type: z.enum(['semantic_vad', 'server_vad', 'none']).optional(),
+  turn_detection_threshold: z.number().min(0).max(1).optional(),
+  turn_detection_silence_duration_ms: z.number().min(0).optional(),
+  turn_detection_interrupt_response: z.boolean().optional(),
+  turn_detection_eagerness: z.enum(['low', 'medium', 'high', 'auto']).optional(),
+  turn_detection_create_response: z.boolean().optional(),
 });
 
 type AgentForm = z.infer<typeof agentSchema>;
@@ -46,22 +75,32 @@ interface AgentTabProps {
 export default function AgentTab({ businessId, agent }: AgentTabProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [provisionAreaCode, setProvisionAreaCode] = useState('555');
 
   const createAgentMutation = useCreateAgent();
   const updateAgentMutation = useUpdateAgent();
   const deleteAgentMutation = useDeleteAgent();
+  const deletePhoneByAgentMutation = useDeletePhoneByAgent();
+  const provisionPhoneMutation = useProvisionPhoneNumber();
 
   const form = useForm<AgentForm>({
     resolver: zodResolver(agentSchema),
     defaultValues: {
       name: 'My Voice Agent',
       area_code: '555',
-      model_type: 'gpt-4o-mini',
-      temperature: 0.7,
-      voice_model: 'Joanna',
+      model_type: 'gpt-realtime',
+      temperature: 0.8,
+      voice_model: 'alloy',
       prompt: '',
       greeting: 'Hello! How can I help you today?',
       goodbye: 'Thank you for calling. Have a great day!',
+      max_response_output_tokens: undefined,
+      turn_detection_type: 'server_vad',
+      turn_detection_threshold: 0.5,
+      turn_detection_silence_duration_ms: 700,
+      turn_detection_interrupt_response: true,
+      turn_detection_eagerness: 'auto',
+      turn_detection_create_response: true,
     }
   });
 
@@ -69,23 +108,64 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     resolver: zodResolver(editAgentSchema),
     defaultValues: {
       name: agent?.name || 'Agent',
-      model_type: agent?.model_type || 'gpt-4o-mini',
-      temperature: agent?.temperature || 0.7,
-      voice_model: agent?.voice_model || 'Joanna',
+      model_type: agent?.model_type || 'gpt-realtime',
+      temperature: agent?.temperature || 0.8,
+      voice_model: agent?.voice_model || 'alloy',
       prompt: agent?.prompt || '',
       greeting: agent?.greeting || 'Hello! How can I help you today?',
       goodbye: agent?.goodbye || 'Thank you for calling. Have a great day!',
       status: agent?.status || 'inactive',
+      max_response_output_tokens: agent?.max_response_output_tokens,
+      turn_detection_type: agent?.turn_detection_type || 'server_vad',
+      turn_detection_threshold: agent?.turn_detection_threshold || 0.5,
+      turn_detection_silence_duration_ms: agent?.turn_detection_silence_duration_ms || 700,
+      turn_detection_interrupt_response: agent?.turn_detection_interrupt_response ?? true,
+      turn_detection_eagerness: agent?.turn_detection_eagerness || 'auto',
+      turn_detection_create_response: agent?.turn_detection_create_response ?? true,
     }
   });
 
+  // Reset edit form when agent data changes
+  useEffect(() => {
+    if (agent) {
+      editForm.reset({
+        name: agent.name,
+        model_type: agent.model_type,
+        temperature: agent.temperature,
+        voice_model: agent.voice_model,
+        prompt: agent.prompt || '',
+        greeting: agent.greeting,
+        goodbye: agent.goodbye,
+        status: agent.status,
+        max_response_output_tokens: agent.max_response_output_tokens,
+        turn_detection_type: agent.turn_detection_type || 'server_vad',
+        turn_detection_threshold: agent.turn_detection_threshold || 0.5,
+        turn_detection_silence_duration_ms: agent.turn_detection_silence_duration_ms || 700,
+        turn_detection_interrupt_response: agent.turn_detection_interrupt_response ?? true,
+        turn_detection_eagerness: agent.turn_detection_eagerness || 'auto',
+        turn_detection_create_response: agent.turn_detection_create_response ?? true,
+      });
+    }
+  }, [agent, editForm]);
+
   const onSubmit = (data: AgentForm) => {
+    console.log('[AgentTab] Creating agent with data:', { business_id: businessId, ...data });
     createAgentMutation.mutate(
       { business_id: businessId, ...data },
       {
-        onSuccess: () => {
+        onSuccess: (createdAgent) => {
+          console.log('[AgentTab] Agent created successfully:', createdAgent);
+          if (createdAgent.phone_number) {
+            console.log('[AgentTab] Phone number included in response:', createdAgent.phone_number);
+          } else {
+            console.warn('[AgentTab] WARNING: No phone number in agent creation response!');
+            console.warn('[AgentTab] Backend may not be provisioning phones automatically.');
+          }
           form.reset();
           setIsCreateDialogOpen(false);
+        },
+        onError: (error) => {
+          console.error('[AgentTab] Failed to create agent:', error);
         },
       }
     );
@@ -118,12 +198,38 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     });
   };
 
+  const handleDeletePhoneNumber = () => {
+    if (!agent) return;
+    if (window.confirm('Are you sure you want to delete this phone number?\n\nTo get a new phone number, you will need to delete and recreate the agent.')) {
+      deletePhoneByAgentMutation.mutate(agent.id);
+    }
+  };
+
+  const handleProvisionPhone = () => {
+    if (!agent) return;
+
+    // Validate area code
+    if (!/^\d{3}$/.test(provisionAreaCode)) {
+      alert('Please enter a valid 3-digit area code (e.g., 555, 212, 415)');
+      return;
+    }
+
+    provisionPhoneMutation.mutate(
+      { agentId: agent.id, areaCode: provisionAreaCode },
+      {
+        onError: (error) => {
+          alert(`Failed to provision phone number: ${error.message}`);
+        },
+      }
+    );
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active': return 'text-[#8B6F47] bg-[#C9B790]/30';
-      case 'inactive': return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      case 'inactive': return 'text-[#8B6F47] bg-[#D8CBA9]/30';
       case 'paused': return 'text-[#A67A5B] bg-[#FAF8F3]';
-      default: return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      default: return 'text-[#8B6F47] bg-[#D8CBA9]/30';
     }
   };
 
@@ -182,17 +288,18 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] max-w-2xl">
                 <DialogHeader>
                 <DialogTitle className="text-[#8B6F47]">Create Your AI Agent</DialogTitle>
-                <DialogDescription className="text-[#A67A5B]/70">
+                <DialogDescription className="text-[#8B6F47]">
                   Configure your voice agent to handle customer calls
                 </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Agent Name</Label>
+                      <Label htmlFor="name" className="text-[#8B6F47]">Agent Name</Label>
                       <Input
                         id="name"
                         placeholder="My Voice Agent"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('name')}
                       />
                       {form.formState.errors.name && (
@@ -203,11 +310,12 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="area_code">Area Code</Label>
+                      <Label htmlFor="area_code" className="text-[#8B6F47]">Area Code</Label>
                       <Input
                         id="area_code"
                         placeholder="555"
                         maxLength={3}
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...form.register('area_code')}
                       />
                       {form.formState.errors.area_code && (
@@ -220,72 +328,165 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="model_type">AI Model</Label>
+                      <Label htmlFor="model_type" className="text-[#8B6F47]">Realtime Model</Label>
                       <select
                         id="model_type"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
                         {...form.register('model_type')}
                       >
-                        <option value="gpt-4o-mini">GPT-4o Mini</option>
-                        <option value="gpt-4o">GPT-4o</option>
-                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="gpt-realtime">GPT Realtime (Latest)</option>
+                        <option value="gpt-4o-realtime-preview">GPT-4o Realtime Preview</option>
+                        <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                       </select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="voice_model">Voice Model</Label>
+                      <Label htmlFor="voice_model" className="text-[#8B6F47]">Voice</Label>
                       <select
                         id="voice_model"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
                         {...form.register('voice_model')}
                       >
-                        <option value="Joanna">Joanna (Female, US)</option>
-                        <option value="Alloy">Alloy (Neutral, US)</option>
-                        <option value="Amber">Amber (Female, US)</option>
-                        <option value="Riley">Riley (Female, US)</option>
+                        <option value="alloy">Alloy (Neutral)</option>
+                        <option value="echo">Echo (Male)</option>
+                        <option value="fable">Fable (British Male)</option>
+                        <option value="onyx">Onyx (Deep Male)</option>
+                        <option value="nova">Nova (Female)</option>
+                        <option value="shimmer">Shimmer (Soft Female)</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="temperature">Temperature: {form.watch('temperature')}</Label>
+                    <Label htmlFor="temperature">Temperature: {form.watch('temperature')?.toFixed(2)}</Label>
                     <input
                       type="range"
-                      min="0"
-                      max="2"
+                      min="0.6"
+                      max="1.2"
                       step="0.05"
-                      className="w-full"
+                      className="w-full accent-[#A67A5B]"
                       {...form.register('temperature', { valueAsNumber: true })}
                     />
-                    <p className="text-xs text-[#A67A5B]/70">
-                      Lower values = more focused, Higher values = more creative
+                    <p className="text-xs text-[#A67A5B]">
+                      Lower = more consistent and focused, Higher = more creative and varied
                     </p>
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="turn_detection_type" className="text-[#8B6F47]">Turn Detection</Label>
+                      <select
+                        id="turn_detection_type"
+                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
+                        {...form.register('turn_detection_type')}
+                      >
+                        <option value="semantic_vad">Semantic (Smart)</option>
+                        <option value="server_vad">Server (Simple)</option>
+                        <option value="none">None (Manual)</option>
+                      </select>
+                      <p className="text-xs text-[#A67A5B]">How the agent detects when user finishes speaking</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="turn_detection_silence_duration_ms" className="text-[#8B6F47]">Silence Duration (ms)</Label>
+                      <Input
+                        id="turn_detection_silence_duration_ms"
+                        type="number"
+                        min="0"
+                        step="50"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47]"
+                        {...form.register('turn_detection_silence_duration_ms', { valueAsNumber: true })}
+                      />
+                      <p className="text-xs text-[#A67A5B]">Silence before ending turn (200-1000ms typical)</p>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="prompt">System Prompt (Optional)</Label>
+                    <Label htmlFor="max_response_output_tokens" className="text-[#8B6F47]">Max Response Tokens (Optional)</Label>
+                    <Input
+                      id="max_response_output_tokens"
+                      type="number"
+                      min="50"
+                      max="4096"
+                      placeholder="Leave empty for unlimited"
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                      {...form.register('max_response_output_tokens', { valueAsNumber: true, setValueAs: v => v === '' ? undefined : Number(v) })}
+                    />
+                    <p className="text-xs text-[#A67A5B]">Limit response length (leave empty for no limit)</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="turn_detection_create_response"
+                        className="w-4 h-4 rounded border-[#E8DCC8] text-[#A67A5B] focus:ring-[#A67A5B]"
+                        {...form.register('turn_detection_create_response')}
+                      />
+                      <Label htmlFor="turn_detection_create_response" className="text-[#8B6F47] cursor-pointer">
+                        Auto-create response after turn detection
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="turn_detection_interrupt_response"
+                        className="w-4 h-4 rounded border-[#E8DCC8] text-[#A67A5B] focus:ring-[#A67A5B]"
+                        {...form.register('turn_detection_interrupt_response')}
+                      />
+                      <Label htmlFor="turn_detection_interrupt_response" className="text-[#8B6F47] cursor-pointer">
+                        Allow user interruptions
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* Eagerness - only for semantic_vad */}
+                  {form.watch('turn_detection_type') === 'semantic_vad' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="turn_detection_eagerness" className="text-[#8B6F47]">Eagerness (Semantic VAD only)</Label>
+                      <select
+                        id="turn_detection_eagerness"
+                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
+                        {...form.register('turn_detection_eagerness')}
+                      >
+                        <option value="auto">Auto (Recommended)</option>
+                        <option value="low">Low (Wait longer)</option>
+                        <option value="medium">Medium (Balanced)</option>
+                        <option value="high">High (Respond quickly)</option>
+                      </select>
+                      <p className="text-xs text-[#A67A5B]">Controls how eagerly the agent responds after detecting speech</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="prompt" className="text-[#8B6F47]">System Prompt (Optional)</Label>
                     <textarea
                       id="prompt"
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                      className="flex min-h-[80px] w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] placeholder:text-[#A67A5B]/40 focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
                       placeholder="You are a helpful customer service agent..."
                       {...form.register('prompt')}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="greeting">Greeting Message</Label>
+                    <Label htmlFor="greeting" className="text-[#8B6F47]">Greeting Message</Label>
                     <Input
                       id="greeting"
                       placeholder="Hello! How can I help you today?"
+                      maxLength={500}
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                       {...form.register('greeting')}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="goodbye">Goodbye Message</Label>
+                    <Label htmlFor="goodbye" className="text-[#8B6F47]">Goodbye Message</Label>
                     <Input
                       id="goodbye"
                       placeholder="Thank you for calling. Have a great day!"
+                      maxLength={500}
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                       {...form.register('goodbye')}
                     />
                   </div>
@@ -318,14 +519,14 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
                 <Bot className="h-5 w-5" />
                 <span>{agent.name}</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(agent.status)}`}>
                   {agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
                 </span>
               </CardTitle>
-              <CardDescription className="text-[#A67A5B]/70">
+              <CardDescription className="text-[#8B6F47]">
                 Created {formatDate(agent.created_at)} • Last updated {formatDate(agent.updated_at)}
               </CardDescription>
             </div>
@@ -364,35 +565,35 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-sm text-[#A67A5B]/70">AI Model</h4>
-                <p className="text-sm">{agent.model_type}</p>
+                <h4 className="font-medium text-sm text-[#8B6F47]">AI Model</h4>
+                <p className="text-sm text-[#8B6F47] font-medium">{agent.model_type}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-[#A67A5B]/70">Voice Model</h4>
-                <p className="text-sm">{agent.voice_model}</p>
+                <h4 className="font-medium text-sm text-[#8B6F47]">Voice Model</h4>
+                <p className="text-sm text-[#8B6F47] font-medium">{agent.voice_model}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-[#A67A5B]/70">Temperature</h4>
-                <p className="text-sm">{agent.temperature}</p>
+                <h4 className="font-medium text-sm text-[#8B6F47]">Temperature</h4>
+                <p className="text-sm text-[#8B6F47] font-medium">{agent.temperature}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-sm text-[#A67A5B]/70">Greeting</h4>
-                <p className="text-sm italic">&quot;{agent.greeting}&quot;</p>
+                <h4 className="font-medium text-sm text-[#8B6F47]">Greeting</h4>
+                <p className="text-sm text-[#8B6F47] italic">&quot;{agent.greeting}&quot;</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-[#A67A5B]/70">Goodbye</h4>
-                <p className="text-sm italic">&quot;{agent.goodbye}&quot;</p>
+                <h4 className="font-medium text-sm text-[#8B6F47]">Goodbye</h4>
+                <p className="text-sm text-[#8B6F47] italic">&quot;{agent.goodbye}&quot;</p>
               </div>
             </div>
           </div>
 
           {agent.prompt && (
             <div>
-              <h4 className="font-medium text-sm text-[#A67A5B]/70 mb-2">System Prompt</h4>
+              <h4 className="font-medium text-sm text-[#8B6F47] mb-2">System Prompt</h4>
               <div className="bg-[#FAF8F3] p-3 rounded-md">
-                <p className="text-sm">{agent.prompt}</p>
+                <p className="text-sm text-[#8B6F47]">{agent.prompt}</p>
               </div>
             </div>
           )}
@@ -402,45 +603,164 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       {/* Phone Number Section */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
             <Phone className="h-5 w-5" />
             <span>Phone Number</span>
           </CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#8B6F47]">
             Phone number provisioned for your agent
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {agent.phone_number ? (
+          {agent.phone_number?.status === 'active' ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-lg font-medium">{agent.phone_number.phone_number}</p>
-                  <p className="text-sm text-[#A67A5B]/70">
-                    Status: <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(agent.phone_number.status)}`}>
-                      {agent.phone_number.status}
+                <div className="flex-1">
+                  <p className="text-2xl font-bold text-[#8B6F47] mb-2">{agent.phone_number.phone_number}</p>
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(agent.phone_number.status)}`}>
+                      {agent.phone_number.status.toUpperCase()}
                     </span>
-                  </p>
-                  <p className="text-xs text-[#A67A5B]/70 mt-1">
-                    Area Code: {agent.phone_number.area_code} • {agent.phone_number.country}
-                  </p>
+                    <span className="text-sm text-[#A67A5B]">
+                      {agent.phone_number.area_code} • {agent.phone_number.country}
+                    </span>
+                  </div>
                 </div>
-                <Button
-                  onClick={() => {
-                    // Mock test call
-                    alert('Test call initiated! Your agent will answer shortly.');
-                  }}
-                  disabled={agent.phone_number.status !== 'active'}
-                  className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <TestTube className="h-4 w-4 mr-2" />
-                  Test Call
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => {
+                      alert('Test call initiated! Your agent will answer shortly.');
+                    }}
+                    className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <TestTube className="h-4 w-4 mr-2" />
+                    Test Call
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleDeletePhoneNumber}
+                    disabled={deletePhoneByAgentMutation.isPending}
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {deletePhoneByAgentMutation.isPending ? 'Deleting...' : 'Delete Number'}
+                  </Button>
+                </div>
               </div>
             </div>
+          ) : agent.phone_number?.status === 'provisioning' ? (
+            <div className="text-center space-y-4 py-6">
+              <style jsx>{`
+                @keyframes phone-ring {
+                  0%, 100% { transform: rotate(0deg); }
+                  10%, 30% { transform: rotate(-15deg); }
+                  20%, 40% { transform: rotate(15deg); }
+                  50% { transform: rotate(0deg); }
+                }
+                @keyframes pulse-ring {
+                  0%, 100% { opacity: 1; transform: scale(1); }
+                  50% { opacity: 0.5; transform: scale(1.1); }
+                }
+                .phone-ringing {
+                  animation: phone-ring 2s ease-in-out infinite;
+                }
+                .ring-pulse {
+                  animation: pulse-ring 2s ease-in-out infinite;
+                }
+              `}</style>
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 ring-pulse">
+                    <div className="w-20 h-20 rounded-full bg-[#8B6F47]/10 border-2 border-[#8B6F47]/30"></div>
+                  </div>
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#C9B790]/40 to-[#8B6F47]/20 rounded-full flex items-center justify-center relative z-10">
+                    <Phone className="h-10 w-10 text-[#8B6F47] phone-ringing" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-semibold text-[#8B6F47]">Provisioning phone number...</p>
+                  <p className="text-sm text-[#A67A5B] mt-1">This usually takes 10-30 seconds</p>
+                  <div className="flex items-center justify-center space-x-1 mt-3">
+                    <div className="w-2 h-2 bg-[#8B6F47] rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-[#8B6F47] rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-[#8B6F47] rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : agent.phone_number?.status === 'failed' ? (
+            <div className="text-center space-y-4 py-6">
+              <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <Phone className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-lg font-medium text-red-600">Provisioning Failed</p>
+                <p className="text-sm text-[#A67A5B] mt-1">
+                  Phone number provisioning failed during agent creation. To fix this, you need to:
+                </p>
+                <ol className="text-sm text-[#A67A5B] mt-2 ml-4 list-decimal space-y-1">
+                  <li>Delete this agent (in Danger Zone below)</li>
+                  <li>Create a new agent with the same settings</li>
+                  <li>Check browser console for error details</li>
+                </ol>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleDeletePhoneNumber}
+                disabled={deletePhoneByAgentMutation.isPending}
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {deletePhoneByAgentMutation.isPending ? 'Deleting...' : 'Delete Failed Phone Number'}
+              </Button>
+            </div>
           ) : (
-            <div className="text-center space-y-4">
-              <p className="text-[#A67A5B]/70">Phone number is being provisioned...</p>
+            <div className="text-center space-y-4 py-6">
+              <div className="mx-auto w-12 h-12 bg-[#C9B790]/30 rounded-full flex items-center justify-center">
+                <Phone className="h-6 w-6 text-[#8B6F47]" />
+              </div>
+              <div className="space-y-4">
+                <p className="text-[#8B6F47] font-medium">No Phone Number</p>
+                <p className="text-sm text-[#A67A5B] mb-4">
+                  Provision a phone number for this agent
+                </p>
+                <div className="max-w-xs mx-auto space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="area-code" className="text-[#8B6F47] text-sm">
+                      Area Code
+                    </Label>
+                    <Input
+                      id="area-code"
+                      type="text"
+                      maxLength={3}
+                      value={provisionAreaCode}
+                      onChange={(e) => setProvisionAreaCode(e.target.value.replace(/\D/g, ''))}
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl text-center text-lg text-[#8B6F47] font-semibold"
+                      disabled={provisionPhoneMutation.isPending}
+                    />
+                    <p className="text-xs text-[#A67A5B]">
+                      Enter a 3-digit area code (e.g., 555, 212, 415)
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleProvisionPhone}
+                    disabled={provisionPhoneMutation.isPending || provisionAreaCode.length !== 3}
+                    className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    {provisionPhoneMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Provisioning...
+                      </>
+                    ) : (
+                      <>
+                        <Phone className="h-4 w-4 mr-2" />
+                        Provision Phone Number
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
@@ -450,7 +770,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle className="text-red-600">Danger Zone</CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#8B6F47]">
             These actions cannot be undone
           </CardDescription>
         </CardHeader>
@@ -471,24 +791,25 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
         <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] max-w-2xl">
           <DialogHeader>
                 <DialogTitle className="text-[#8B6F47]">Edit Agent</DialogTitle>
-                <DialogDescription className="text-[#A67A5B]/70">
+                <DialogDescription className="text-[#8B6F47]">
                   Update your agent configuration
                 </DialogDescription>
           </DialogHeader>
           <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Agent Name</Label>
+                <Label htmlFor="edit-name" className="text-[#8B6F47]">Agent Name</Label>
                 <Input
                   id="edit-name"
+                  className="bg-white text-[#8B6F47] border-[#D8CBA9]"
                   {...editForm.register('name')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-model_type">AI Model</Label>
+                <Label htmlFor="edit-model_type" className="text-[#8B6F47]">AI Model</Label>
                 <select
                   id="edit-model_type"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
                   {...editForm.register('model_type')}
                 >
                   <option value="gpt-4o-mini">GPT-4o Mini</option>
@@ -499,10 +820,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-voice_model">Voice Model</Label>
+              <Label htmlFor="edit-voice_model" className="text-[#8B6F47]">Voice Model</Label>
               <select
                 id="edit-voice_model"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
                 {...editForm.register('voice_model')}
               >
                 <option value="Joanna">Joanna (Female, US)</option>
@@ -513,38 +834,46 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-temperature">Temperature: {editForm.watch('temperature')}</Label>
+              <Label htmlFor="edit-temperature" className="text-[#8B6F47]">Temperature: {editForm.watch('temperature')}</Label>
               <input
                 type="range"
                 min="0"
                 max="2"
                 step="0.05"
-                className="w-full"
+                className="w-full accent-[#8B6F47]"
                 {...editForm.register('temperature', { valueAsNumber: true })}
               />
+              <p className="text-xs text-[#A67A5B]">
+                Lower values = more focused, Higher values = more creative
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-prompt">System Prompt (Optional)</Label>
+              <Label htmlFor="edit-prompt" className="text-[#8B6F47]">System Prompt (Optional)</Label>
               <textarea
                 id="edit-prompt"
-                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                className="flex min-h-[80px] w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
+                placeholder="You are a helpful customer service agent..."
                 {...editForm.register('prompt')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-greeting">Greeting Message</Label>
+              <Label htmlFor="edit-greeting" className="text-[#8B6F47]">Greeting Message</Label>
               <Input
                 id="edit-greeting"
+                className="bg-white text-[#8B6F47] border-[#D8CBA9]"
+                maxLength={500}
                 {...editForm.register('greeting')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-goodbye">Goodbye Message</Label>
+              <Label htmlFor="edit-goodbye" className="text-[#8B6F47]">Goodbye Message</Label>
               <Input
                 id="edit-goodbye"
+                className="bg-white text-[#8B6F47] border-[#D8CBA9]"
+                maxLength={500}
                 {...editForm.register('goodbye')}
               />
             </div>

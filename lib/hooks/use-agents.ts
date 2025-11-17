@@ -31,6 +31,11 @@ export function useAgentByBusiness(businessId: number) {
     queryKey: agentKeys.list(businessId),
     queryFn: () => apiClient.getAgentByBusiness(businessId),
     enabled: !!businessId,
+    // Poll every 5 seconds when phone number is provisioning
+    refetchInterval: (query) => {
+      const agent = query.state.data as AgentWithPhone | undefined;
+      return agent?.phone_number?.status === 'provisioning' ? 5000 : false;
+    },
   });
 }
 

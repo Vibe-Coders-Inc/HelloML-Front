@@ -42,8 +42,8 @@ export default function CallsTab({ agentId }: CallsTabProps) {
       case 'completed': return 'text-[#8B6F47] bg-[#C9B790]/30';
       case 'in_progress': return 'text-[#A67A5B] bg-[#FAF8F3]';
       case 'failed': return 'text-red-600 bg-red-100';
-      case 'cancelled': return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
-      default: return 'text-[#A67A5B]/50 bg-[#D8CBA9]/30';
+      case 'cancelled': return 'text-[#8B6F47] bg-[#D8CBA9]/30';
+      default: return 'text-[#8B6F47] bg-[#D8CBA9]/30';
     }
   };
 
@@ -114,8 +114,8 @@ export default function CallsTab({ agentId }: CallsTabProps) {
     switch (role) {
       case 'user': return 'bg-[#C9B790]/30 text-[#8B6F47]';
       case 'agent': return 'bg-[#D8CBA9]/30 text-[#A67A5B]';
-      case 'system': return 'bg-[#FAF8F3] text-[#A67A5B]/70';
-      default: return 'bg-[#FAF8F3] text-[#A67A5B]/70';
+      case 'system': return 'bg-[#FAF8F3] text-[#A67A5B]';
+      default: return 'bg-[#FAF8F3] text-[#A67A5B]';
     }
   };
 
@@ -127,7 +127,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
             <AlertCircle className="w-8 h-8 text-[#8B6F47]" />
           </div>
           <CardTitle className="text-xl text-[#8B6F47]">No Agent Found</CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#A67A5B]">
             Create an agent first to view call logs
           </CardDescription>
         </CardHeader>
@@ -140,11 +140,11 @@ export default function CallsTab({ agentId }: CallsTabProps) {
       {/* Search and Filters */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
             <PhoneCall className="h-5 w-5" />
             <span>Call Logs</span>
           </CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#A67A5B]">
             View and analyze all conversations with your voice agent
           </CardDescription>
         </CardHeader>
@@ -164,7 +164,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
           {conversationsLoading ? (
             <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
-              <p className="mt-4 text-[#A67A5B]/70">Loading conversations...</p>
+              <p className="mt-4 text-[#A67A5B]">Loading conversations...</p>
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="text-center py-8">
@@ -174,7 +174,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
               <h3 className="text-lg font-medium text-[#8B6F47] mb-2">
                 {agentConversations.length === 0 ? 'No calls yet' : 'No calls match your search'}
               </h3>
-              <p className="text-[#A67A5B]/70">
+              <p className="text-[#A67A5B]">
                 {agentConversations.length === 0
                   ? 'Calls will appear here once your agent starts receiving them'
                   : 'Try adjusting your search terms'
@@ -193,10 +193,10 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                       <PhoneCall className="h-5 w-5 text-[#8B6F47]" />
                     </div>
                     <div>
-                      <h4 className="font-medium">
+                      <h4 className="font-medium text-[#8B6F47]">
                         {conversation.caller_phone || 'Unknown Caller'}
                       </h4>
-                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]/70">
+                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]">
                         <span className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {formatDate(conversation.started_at)}
@@ -228,7 +228,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                             <MessageSquare className="h-5 w-5" />
                             <span>Call Transcript</span>
                           </DialogTitle>
-                          <DialogDescription className="text-[#A67A5B]/70">
+                          <DialogDescription className="text-[#A67A5B]">
                             Conversation with {conversation.caller_phone} on {formatDate(conversation.started_at)}
                           </DialogDescription>
                         </DialogHeader>
@@ -237,10 +237,10 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                           {messagesLoading ? (
                             <div className="text-center py-8">
                               <div className="mx-auto w-12 h-12 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
-                              <p className="mt-4 text-[#A67A5B]/70">Loading messages...</p>
+                              <p className="mt-4 text-[#A67A5B]">Loading messages...</p>
                             </div>
                           ) : messages.length === 0 ? (
-                            <p className="text-center text-[#A67A5B]/70 py-8">
+                            <p className="text-center text-[#A67A5B] py-8">
                               No messages found for this conversation
                             </p>
                           ) : (
@@ -251,12 +251,12 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex items-center space-x-2 mb-1">
-                                    <span className="font-medium capitalize">{message.role}</span>
-                                    <span className="text-xs text-[#A67A5B]/70">
+                                    <span className="font-medium capitalize text-[#8B6F47]">{message.role}</span>
+                                    <span className="text-xs text-[#A67A5B]">
                                       {formatDate(message.created_at)}
                                     </span>
                                   </div>
-                                  <p className="text-sm">{message.content}</p>
+                                  <p className="text-sm text-[#8B6F47]">{message.content}</p>
                                 </div>
                               </div>
                             ))
@@ -297,7 +297,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
       {agentConversations.length > 0 && (
         <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
-          <CardTitle>Call Statistics</CardTitle>
+          <CardTitle className="text-[#8B6F47]">Call Statistics</CardTitle>
         </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -305,19 +305,19 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                 <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.length}
                 </div>
-                <div className="text-sm text-[#A67A5B]/70">Total Calls</div>
+                <div className="text-sm text-[#A67A5B]">Total Calls</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.filter(c => c.status === 'completed').length}
                 </div>
-                <div className="text-sm text-[#A67A5B]/70">Completed</div>
+                <div className="text-sm text-[#A67A5B]">Completed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   {agentConversations.filter(c => c.status === 'failed').length}
                 </div>
-                <div className="text-sm text-[#A67A5B]/70">Failed</div>
+                <div className="text-sm text-[#A67A5B]">Failed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#8B6F47]">
@@ -326,7 +326,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                      agentConversations.length) * 100
                   )}%
                 </div>
-                <div className="text-sm text-[#A67A5B]/70">Success Rate</div>
+                <div className="text-sm text-[#A67A5B]">Success Rate</div>
               </div>
             </div>
           </CardContent>

@@ -4,6 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import { getMetadata } from "@/lib/content";
+import { FooterWrapper } from "@/components/FooterWrapper";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +41,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${borel.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="pb-20">{children}</div>
+          <FooterWrapper />
+          <Toaster position="top-right" richColors />
+        </Providers>
       </body>
     </html>
   );

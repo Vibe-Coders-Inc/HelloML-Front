@@ -4,7 +4,8 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Upload, Download, Trash2, File, AlertCircle } from 'lucide-react';
-import { useDocuments, useUploadPDFDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
+import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
+import { toast } from 'sonner';
 
 interface DocumentsTabProps {
   agentId?: number;
@@ -13,23 +14,121 @@ interface DocumentsTabProps {
 export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   const { data: documents = [], isLoading } = useDocuments(agentId || 0);
   const uploadPDFMutation = useUploadPDFDocument();
+  const uploadTextMutation = useUploadTextDocument();
   const deleteDocumentMutation = useDeleteDocument();
 
   const [dragActive, setDragActive] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // File size limit: 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
   const handleFileUpload = async (files: FileList) => {
-    if (!agentId) return;
+    if (!agentId) {
+      toast.error('No agent selected');
+      console.error('[DocumentsTab] Upload failed: No agent ID');
+      return;
+    }
+
+    // Clear any previous errors
+    setUploadError(null);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
-      // Upload PDF file
-      uploadPDFMutation.mutate({
-        agentId,
-        file,
-        filename: file.name,
+      console.log('[DocumentsTab] Processing file:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        extension: fileExtension,
       });
+
+      // Validate file type
+      if (fileExtension !== 'txt' && fileExtension !== 'pdf') {
+        const errorMsg = `Invalid file type: ${file.name}. Only PDF and TXT files are supported.`;
+        setUploadError(errorMsg);
+        toast.error(errorMsg);
+        console.error('[DocumentsTab]', errorMsg);
+        continue;
+      }
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        const errorMsg = `File too large: ${file.name}. Maximum size is 10MB.`;
+        setUploadError(errorMsg);
+        toast.error(errorMsg);
+        console.error('[DocumentsTab]', errorMsg);
+        continue;
+      }
+
+      if (fileExtension === 'txt') {
+        // Read and upload text file
+        console.log('[DocumentsTab] Reading text file:', file.name);
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          console.log('[DocumentsTab] Text file read successfully, uploading...');
+
+          uploadTextMutation.mutate(
+            {
+              agent_id: agentId,
+              filename: file.name,
+              text,
+              file_type: 'text/plain',
+              storage_url: '',
+            },
+            {
+              onSuccess: (data) => {
+                console.log('[DocumentsTab] Text upload successful:', data);
+                toast.success(`${file.name} uploaded successfully`);
+                setUploadError(null);
+              },
+              onError: (error) => {
+                const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
+                console.error('[DocumentsTab] Text upload failed:', error);
+                setUploadError(errorMsg);
+                toast.error(errorMsg);
+              },
+            }
+          );
+        };
+
+        reader.onerror = () => {
+          const errorMsg = `Failed to read file: ${file.name}`;
+          console.error('[DocumentsTab] FileReader error');
+          setUploadError(errorMsg);
+          toast.error(errorMsg);
+        };
+
+        reader.readAsText(file);
+      } else if (fileExtension === 'pdf') {
+        // Upload PDF file
+        console.log('[DocumentsTab] Uploading PDF:', file.name);
+
+        uploadPDFMutation.mutate(
+          {
+            agentId,
+            file,
+            filename: file.name,
+          },
+          {
+            onSuccess: (data) => {
+              console.log('[DocumentsTab] PDF upload successful:', data);
+              toast.success(`${file.name} uploaded successfully`);
+              setUploadError(null);
+            },
+            onError: (error) => {
+              const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
+              console.error('[DocumentsTab] PDF upload failed:', error);
+              setUploadError(errorMsg);
+              toast.error(errorMsg);
+            },
+          }
+        );
+      }
     }
   };
 
@@ -67,9 +166,20 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
     link.click();
   };
 
-  const handleDelete = (documentId: number) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
-      deleteDocumentMutation.mutate(documentId);
+  const handleDelete = (documentId: number, filename: string) => {
+    if (window.confirm(`Are you sure you want to delete ${filename}?`)) {
+      console.log('[DocumentsTab] Deleting document:', { documentId, filename });
+
+      deleteDocumentMutation.mutate(documentId, {
+        onSuccess: () => {
+          console.log('[DocumentsTab] Document deleted successfully:', filename);
+          toast.success(`${filename} deleted successfully`);
+        },
+        onError: (error) => {
+          console.error('[DocumentsTab] Delete failed:', error);
+          toast.error(`Failed to delete ${filename}: ${error.message}`);
+        },
+      });
     }
   };
 
@@ -101,7 +211,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             <AlertCircle className="w-8 h-8 text-[#8B6F47]" />
           </div>
           <CardTitle className="text-xl text-[#8B6F47]">No Agent Found</CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#A67A5B]">
             Create an agent first to upload documents
           </CardDescription>
         </CardHeader>
@@ -114,12 +224,12 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
       {/* Upload Section */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
             <Upload className="h-5 w-5" />
             <span>Upload Documents</span>
           </CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
-            Feed your agent with knowledge documents. Supported format: PDF
+          <CardDescription className="text-[#A67A5B]">
+            Feed your agent with knowledge documents. Supported formats: PDF, TXT
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,10 +249,10 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                 <Upload className="w-6 h-6 text-[#8B6F47]" />
               </div>
               <div>
-                <p className="text-lg font-medium">
+                <p className="text-lg font-medium text-[#8B6F47]">
                   {dragActive ? 'Drop files here' : 'Drag & drop files here'}
                 </p>
-                <p className="text-sm text-[#A67A5B]/70">
+                <p className="text-sm text-[#A67A5B]">
                   or click to browse files
                 </p>
               </div>
@@ -157,23 +267,42 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept=".pdf"
+                accept=".pdf,.txt"
                 onChange={handleFileInput}
                 className="hidden"
               />
             </div>
           </div>
+
+          {/* Error Display */}
+          {uploadError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Upload Error</p>
+                <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Upload Status */}
+          {(uploadPDFMutation.isPending || uploadTextMutation.isPending) && (
+            <div className="mt-4 p-3 bg-[#FAF8F3] border border-[#E8DCC8] rounded-lg flex items-center space-x-3">
+              <div className="w-5 h-5 border-2 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
+              <p className="text-sm text-[#8B6F47] font-medium">Uploading document...</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Documents List */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+          <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
             <FileText className="h-5 w-5" />
             <span>Knowledge Base</span>
           </CardTitle>
-          <CardDescription className="text-[#A67A5B]/70">
+          <CardDescription className="text-[#A67A5B]">
             Documents that your agent can reference during conversations
           </CardDescription>
         </CardHeader>
@@ -181,7 +310,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           {isLoading ? (
             <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 border-4 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
-              <p className="mt-4 text-[#A67A5B]/70">Loading documents...</p>
+              <p className="mt-4 text-[#A67A5B]">Loading documents...</p>
             </div>
           ) : documents.length === 0 ? (
             <div className="text-center py-8">
@@ -191,13 +320,9 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               <h3 className="text-lg font-medium text-[#8B6F47] mb-2">
                 No documents yet
               </h3>
-              <p className="text-[#A67A5B]/70 mb-4">
-                Upload some documents to help your agent answer questions better
+              <p className="text-[#A67A5B]">
+                Upload some documents using the section above to help your agent answer questions better
               </p>
-              <Button onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Your First Document
-              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -211,8 +336,8 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       {getFileIcon(document.file_type)}
                     </div>
                     <div>
-                      <h4 className="font-medium">{document.filename}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]/70">
+                      <h4 className="font-medium text-[#8B6F47]">{document.filename}</h4>
+                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]">
                         <span>{document.file_type.toUpperCase()}</span>
                         <span>•</span>
                         <span>Uploaded {formatDate(document.uploaded_at)}</span>
@@ -238,7 +363,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(document.id)}
+                      onClick={() => handleDelete(document.id, document.filename)}
                       disabled={deleteDocumentMutation.isPending}
                       className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
                     >

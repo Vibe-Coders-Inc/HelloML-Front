@@ -49,6 +49,22 @@ export function useDeletePhoneByAgent() {
     onSuccess: (_, agentId) => {
       queryClient.invalidateQueries({ queryKey: phoneKeys.all });
       queryClient.removeQueries({ queryKey: phoneKeys.byAgent(agentId) });
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
+    },
+  });
+}
+
+export function useProvisionPhoneNumber() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ agentId, areaCode }: { agentId: number; areaCode: string }) =>
+      apiClient.provisionPhoneNumber(agentId, areaCode),
+    onSuccess: (newPhone, variables) => {
+      queryClient.invalidateQueries({ queryKey: phoneKeys.all });
+      queryClient.invalidateQueries({ queryKey: phoneKeys.byAgent(variables.agentId) });
+      queryClient.setQueryData(phoneKeys.byAgent(variables.agentId), newPhone);
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
     },
   });
 }

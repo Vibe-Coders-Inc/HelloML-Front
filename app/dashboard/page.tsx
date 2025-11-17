@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useBusinesses, useCreateBusiness, useDeleteBusiness } from '@/lib/hooks/use-businesses';
+import { useAgentByBusiness } from '@/lib/hooks/use-agents';
+import type { Business } from '@/lib/types';
 
 const businessSchema = z.object({
   name: z.string().min(1, 'Business name is required'),
@@ -23,6 +25,98 @@ const businessSchema = z.object({
 });
 
 type BusinessForm = z.infer<typeof businessSchema>;
+
+interface BusinessCardProps {
+  business: Business;
+  onDelete: (businessId: number) => void;
+  isDeleting: boolean;
+}
+
+function BusinessCard({ business, onDelete, isDeleting }: BusinessCardProps) {
+  const router = useRouter();
+  const { data: agent, isLoading: agentLoading } = useAgentByBusiness(business.id);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getPhoneDisplay = () => {
+    if (agentLoading) {
+      return <span className="text-[#A67A5B]/60">Loading...</span>;
+    }
+
+    if (!agent) {
+      return <span className="text-[#A67A5B]/70">No agent</span>;
+    }
+
+    if (!agent.phone_number) {
+      return <span className="text-[#A67A5B]/70">No phone number</span>;
+    }
+
+    if (agent.phone_number.status === 'provisioning') {
+      return <span className="text-[#A67A5B]">Provisioning...</span>;
+    }
+
+    return <span className="text-[#8B6F47] font-medium">{agent.phone_number.phone_number}</span>;
+  };
+
+  return (
+    <Card className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
+      <CardHeader className="pb-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-xl font-semibold text-[#8B6F47]">{business.name}</CardTitle>
+            <CardDescription className="mt-1.5 text-[#A67A5B] text-sm">
+              {business.business_email}
+            </CardDescription>
+          </div>
+          <div className="flex space-x-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(business.id)}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="flex items-center text-sm text-[#A67A5B]">
+            <Building2 className="h-4 w-4 mr-2" />
+            {business.address}
+          </div>
+
+          <div className="flex items-center text-sm">
+            <Phone className="h-4 w-4 mr-2 text-[#A67A5B]" />
+            {getPhoneDisplay()}
+          </div>
+
+          <div className="flex items-center text-sm text-[#A67A5B]">
+            <Calendar className="h-4 w-4 mr-2" />
+            Created {formatDate(business.created_at)}
+          </div>
+        </div>
+
+        <div className="mt-4 flex space-x-2">
+          <Button
+            className="flex-1 shadow-lg hover:shadow-xl"
+            onClick={() => router.push(`/business/${business.id}`)}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Open
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function DashboardPage() {
   const { user, isAuthenticated, logout } = useApp();
@@ -70,14 +164,6 @@ export default function DashboardPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] via-[#F5EFE6] to-[#D8CBA9] relative overflow-hidden">
       {/* Decorative background elements */}
@@ -116,7 +202,7 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-3xl font-bold text-[#8B6F47]">Your Voice Agents</h2>
-            <p className="text-base text-[#A67A5B]/70 font-light mt-2">Manage your AI-powered voice agents and watch your business grow!</p>
+            <p className="text-base text-[#A67A5B] font-light mt-2">Manage your AI-powered voice agents and watch your business grow!</p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -128,7 +214,7 @@ export default function DashboardPage() {
             <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8]">
               <DialogHeader>
                 <DialogTitle className="text-[#8B6F47]">Create New Business</DialogTitle>
-                <DialogDescription className="text-[#A67A5B]/70">
+                <DialogDescription className="text-[#A67A5B]">
                   Add a new business and let AI handle your customers 24/7.
                 </DialogDescription>
               </DialogHeader>
@@ -229,7 +315,7 @@ export default function DashboardPage() {
                 <Building2 className="h-12 w-12 text-white" />
               </div>
               <h3 className="mt-6 text-xl font-semibold text-[#8B6F47]">Ready to build something amazing?</h3>
-              <p className="mt-2 text-base text-[#A67A5B]/70 font-light max-w-md mx-auto">
+              <p className="mt-2 text-base text-[#A67A5B] font-light max-w-md mx-auto">
                 Your first AI voice agent is just one click away. Let&apos;s make it happen!
               </p>
               <div className="mt-6">
@@ -256,58 +342,13 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {businesses.map((business) => (
-                <Card key={business.id} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-                  <CardHeader className="pb-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl font-semibold text-[#8B6F47]">{business.name}</CardTitle>
-                        <CardDescription className="mt-1.5 text-[#A67A5B]/70 text-sm">
-                          {business.business_email}
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(business.id)}
-                          disabled={deleteBusinessMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center text-sm text-[#A67A5B]/70">
-                        <Building2 className="h-4 w-4 mr-2" />
-                        {business.address}
-                      </div>
-
-                      <div className="flex items-center text-sm text-[#A67A5B]/70">
-                        <Phone className="h-4 w-4 mr-2" />
-                        {business.phone_number || 'No number'}
-                      </div>
-
-                      <div className="flex items-center text-sm text-[#A67A5B]/70">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Created {formatDate(business.created_at)}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex space-x-2">
-                      <Button
-                        className="flex-1 shadow-lg hover:shadow-xl"
-                        onClick={() => router.push(`/business/${business.id}`)}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            }
+              <BusinessCard
+                key={business.id}
+                business={business}
+                onDelete={handleDelete}
+                isDeleting={deleteBusinessMutation.isPending}
+              />
+            ))}
           </div>
         )}
       </div>

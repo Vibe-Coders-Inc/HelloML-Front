@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Mail, MapPin, Phone, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Mail, MapPin, Phone, Edit, Trash2, Check, X, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -39,6 +39,10 @@ export default function BusinessPage({ params, searchParams }: {
   const resolvedSearch = React.use(searchParams);
   const [activeTab, setActiveTab] = useState(resolvedSearch?.tab || 'overview');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [tempEmail, setTempEmail] = useState('');
+  const [tempAddress, setTempAddress] = useState('');
 
   const businessId = parseInt(id);
   const { data: business, isLoading: businessLoading } = useBusiness(businessId);
@@ -69,6 +73,13 @@ export default function BusinessPage({ params, searchParams }: {
     }
   }, [business, form]);
 
+  // Sync activeTab state with URL changes
+  useEffect(() => {
+    if (resolvedSearch?.tab && resolvedSearch.tab !== activeTab) {
+      setActiveTab(resolvedSearch.tab);
+    }
+  }, [resolvedSearch?.tab, activeTab]);
+
   if (!isAuthenticated) {
     return null;
   }
@@ -93,6 +104,68 @@ export default function BusinessPage({ params, searchParams }: {
           router.push('/dashboard');
         },
       });
+    }
+  };
+
+  const handleEmailClick = () => {
+    setTempEmail(business?.business_email || '');
+    setEditingEmail(true);
+  };
+
+  const handleAddressClick = () => {
+    setTempAddress(business?.address || '');
+    setEditingAddress(true);
+  };
+
+  const handleEmailSave = () => {
+    if (business) {
+      updateBusinessMutation.mutate(
+        { businessId: business.id, data: { business_email: tempEmail } },
+        {
+          onSuccess: () => {
+            setEditingEmail(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleAddressSave = () => {
+    if (business) {
+      updateBusinessMutation.mutate(
+        { businessId: business.id, data: { address: tempAddress } },
+        {
+          onSuccess: () => {
+            setEditingAddress(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleEmailCancel = () => {
+    setEditingEmail(false);
+    setTempEmail('');
+  };
+
+  const handleAddressCancel = () => {
+    setEditingAddress(false);
+    setTempAddress('');
+  };
+
+  const handleEmailKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleEmailSave();
+    } else if (e.key === 'Escape') {
+      handleEmailCancel();
+    }
+  };
+
+  const handleAddressKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAddressSave();
+    } else if (e.key === 'Escape') {
+      handleAddressCancel();
     }
   };
 
@@ -154,7 +227,7 @@ export default function BusinessPage({ params, searchParams }: {
                 <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8]">
                   <DialogHeader>
                     <DialogTitle className="text-[#8B6F47]">Edit Business</DialogTitle>
-                    <DialogDescription className="text-[#A67A5B]/70">
+                    <DialogDescription className="text-[#A67A5B]">
                       Update your business information
                     </DialogDescription>
                   </DialogHeader>
@@ -245,21 +318,96 @@ export default function BusinessPage({ params, searchParams }: {
         </div>
         <div className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl rounded-xl p-6">
           <h1 className="text-3xl font-bold text-[#8B6F47] mb-4">{business.name}</h1>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center text-[#A67A5B]/70">
-              <Mail className="h-5 w-5 mr-2 text-[#A67A5B]" />
-              <span className="text-sm">{business.business_email}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Email Field - Inline Editable */}
+            <div className="flex items-center text-[#A67A5B] group">
+              <Mail className="h-5 w-5 mr-2 text-[#A67A5B] flex-shrink-0" />
+              {editingEmail ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <Input
+                    type="email"
+                    value={tempEmail}
+                    onChange={(e) => setTempEmail(e.target.value)}
+                    onKeyDown={handleEmailKeyDown}
+                    placeholder="Enter email..."
+                    className="text-sm h-8 bg-white border-[#D8CBA9] focus:border-[#A67A5B]"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleEmailSave}
+                    className="h-8 w-8 p-0 hover:bg-[#C9B790]/30"
+                    disabled={updateBusinessMutation.isPending}
+                  >
+                    <Check className="h-4 w-4 text-green-600" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleEmailCancel}
+                    className="h-8 w-8 p-0 hover:bg-red-100"
+                  >
+                    <X className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-sm font-medium">{business.business_email || 'Not provided'}</span>
+                  <button
+                    onClick={handleEmailClick}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Pencil className="h-3 w-3 text-[#A67A5B] hover:text-[#8B6F47]" />
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="flex items-center text-[#A67A5B]/70">
-              <MapPin className="h-5 w-5 mr-2 text-[#A67A5B]" />
-              <span className="text-sm">{business.address}</span>
+
+            {/* Address Field - Inline Editable */}
+            <div className="flex items-center text-[#A67A5B] group">
+              <MapPin className="h-5 w-5 mr-2 text-[#A67A5B] flex-shrink-0" />
+              {editingAddress ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <Input
+                    type="text"
+                    value={tempAddress}
+                    onChange={(e) => setTempAddress(e.target.value)}
+                    onKeyDown={handleAddressKeyDown}
+                    placeholder="Enter address..."
+                    className="text-sm h-8 bg-white border-[#D8CBA9] focus:border-[#A67A5B]"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleAddressSave}
+                    className="h-8 w-8 p-0 hover:bg-[#C9B790]/30"
+                    disabled={updateBusinessMutation.isPending}
+                  >
+                    <Check className="h-4 w-4 text-green-600" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleAddressCancel}
+                    className="h-8 w-8 p-0 hover:bg-red-100"
+                  >
+                    <X className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-sm font-medium">{business.address || 'Not provided'}</span>
+                  <button
+                    onClick={handleAddressClick}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Pencil className="h-3 w-3 text-[#A67A5B] hover:text-[#8B6F47]" />
+                  </button>
+                </div>
+              )}
             </div>
-            {business.phone_number && (
-              <div className="flex items-center text-[#A67A5B]/70">
-                <Phone className="h-5 w-5 mr-2 text-[#A67A5B]" />
-                <span className="text-sm">{business.phone_number}</span>
-              </div>
-            )}
           </div>
         </div>
       </div>
