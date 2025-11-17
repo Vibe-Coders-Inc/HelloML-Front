@@ -26,7 +26,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       try {
         const parsedUser = JSON.parse(stored);
-        setUser(parsedUser);
+        // Clear old user IDs that aren't UUIDs (for migration)
+        const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsedUser.id);
+        if (!isValidUUID) {
+          console.log('Clearing old incompatible user ID');
+          localStorage.removeItem(USER_STORAGE_KEY);
+        } else {
+          setUser(parsedUser);
+        }
       } catch (error) {
         console.error('Failed to parse stored user:', error);
         localStorage.removeItem(USER_STORAGE_KEY);
