@@ -131,19 +131,19 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
               <div className="space-y-2">
                 <h4 className="font-semibold">Smart Responses</h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[#A67A5B]/70">
                   Your agent will understand context and provide helpful answers
                 </p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-semibold">Always Available</h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[#A67A5B]/70">
                   Never miss a call with 24/7 availability
                 </p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-semibold">Analytics</h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[#A67A5B]/70">
                   Track performance and optimize your agent
                 </p>
               </div>
@@ -217,7 +217,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                       className="w-full"
                       {...form.register('temperature', { valueAsNumber: true })}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[#A67A5B]/70">
                       Lower values = more focused, Higher values = more creative
                     </p>
                   </div>
@@ -318,25 +318,25 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground">AI Model</h4>
+                <h4 className="font-medium text-sm text-[#A67A5B]/70">AI Model</h4>
                 <p className="text-sm">{agent.model_type}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Voice Model</h4>
+                <h4 className="font-medium text-sm text-[#A67A5B]/70">Voice Model</h4>
                 <p className="text-sm">{agent.voice_model}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Temperature</h4>
+                <h4 className="font-medium text-sm text-[#A67A5B]/70">Temperature</h4>
                 <p className="text-sm">{agent.temperature}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Greeting</h4>
+                <h4 className="font-medium text-sm text-[#A67A5B]/70">Greeting</h4>
                 <p className="text-sm italic">&quot;{agent.greeting}&quot;</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Goodbye</h4>
+                <h4 className="font-medium text-sm text-[#A67A5B]/70">Goodbye</h4>
                 <p className="text-sm italic">&quot;{agent.goodbye}&quot;</p>
               </div>
             </div>
@@ -344,8 +344,8 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
           {agent.prompt && (
             <div>
-              <h4 className="font-medium text-sm text-muted-foreground mb-2">System Prompt</h4>
-              <div className="bg-gray-50 p-3 rounded-md">
+              <h4 className="font-medium text-sm text-[#A67A5B]/70 mb-2">System Prompt</h4>
+              <div className="bg-[#FAF8F3] p-3 rounded-md">
                 <p className="text-sm">{agent.prompt}</p>
               </div>
             </div>
@@ -370,7 +370,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-medium">{phoneNumber.phone_number}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[#A67A5B]/70">
                     Status: <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(phoneNumber.status)}`}>
                       {phoneNumber.status}
                     </span>
@@ -391,7 +391,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
           ) : (
             <div className="text-center space-y-4">
-              <p className="text-muted-foreground">No phone number provisioned yet</p>
+              <p className="text-[#A67A5B]/70">No phone number provisioned yet</p>
               <Button onClick={handleProvisionNumber} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                 <Phone className="h-4 w-4 mr-2" />
                 Provision Phone Number

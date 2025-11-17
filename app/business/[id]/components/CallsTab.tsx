@@ -164,7 +164,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
         <CardContent>
           <div className="flex items-center space-x-4 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#A67A5B]" />
               <Input
                 placeholder="Search by phone number or status..."
                 value={searchTerm}
@@ -176,14 +176,14 @@ export default function CallsTab({ agentId }: CallsTabProps) {
 
           {filteredConversations.length === 0 ? (
             <div className="text-center py-8">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <PhoneCall className="w-8 h-8 text-gray-400" />
+              <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
+                <PhoneCall className="w-8 h-8 text-[#8B6F47]" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-[#8B6F47] mb-2">
                 {agentConversations.length === 0 ? 'No calls yet' : 'No calls match your search'}
               </h3>
-              <p className="text-gray-500">
-                {agentConversations.length === 0 
+              <p className="text-[#A67A5B]/70">
+                {agentConversations.length === 0
                   ? 'Calls will appear here once your agent starts receiving them'
                   : 'Try adjusting your search terms'
                 }
@@ -204,7 +204,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                       <h4 className="font-medium">
                         {conversation.caller_phone || 'Unknown Caller'}
                       </h4>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]/70">
                         <span className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {formatDate(conversation.started_at)}
@@ -243,7 +243,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                         
                         <div className="flex-1 overflow-y-auto space-y-4">
                           {conversationMessages.length === 0 ? (
-                            <p className="text-center text-muted-foreground py-8">
+                            <p className="text-center text-[#A67A5B]/70 py-8">
                               No messages found for this conversation
                             </p>
                           ) : (
@@ -255,7 +255,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                                 <div className="flex-1">
                                   <div className="flex items-center space-x-2 mb-1">
                                     <span className="font-medium capitalize">{message.role}</span>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-xs text-[#A67A5B]/70">
                                       {formatDate(message.created_at)}
                                     </span>
                                   </div>
@@ -308,28 +308,28 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                 <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.length}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Calls</div>
+                <div className="text-sm text-[#A67A5B]/70">Total Calls</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#8B6F47]">
                   {agentConversations.filter(c => c.status === 'completed').length}
                 </div>
-                <div className="text-sm text-muted-foreground">Completed</div>
+                <div className="text-sm text-[#A67A5B]/70">Completed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   {agentConversations.filter(c => c.status === 'failed').length}
                 </div>
-                <div className="text-sm text-muted-foreground">Failed</div>
+                <div className="text-sm text-[#A67A5B]/70">Failed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#8B6F47]">
                   {Math.round(
-                    (agentConversations.filter(c => c.status === 'completed').length / 
+                    (agentConversations.filter(c => c.status === 'completed').length /
                      agentConversations.length) * 100
                   )}%
                 </div>
-                <div className="text-sm text-muted-foreground">Success Rate</div>
+                <div className="text-sm text-[#A67A5B]/70">Success Rate</div>
               </div>
             </div>
           </CardContent>

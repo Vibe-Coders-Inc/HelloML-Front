@@ -131,9 +131,9 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         <CardContent>
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive 
-                ? 'border-[#A67A5B] bg-[#FAF8F3]' 
-                : 'border-gray-300 hover:border-gray-400'
+              dragActive
+                ? 'border-[#A67A5B] bg-[#FAF8F3]'
+                : 'border-[#D8CBA9] hover:border-[#A67A5B]'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -148,7 +148,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                 <p className="text-lg font-medium">
                   {dragActive ? 'Drop files here' : 'Drag & drop files here'}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[#A67A5B]/70">
                   or click to browse files
                 </p>
               </div>
@@ -189,10 +189,10 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
                 <File className="w-8 h-8 text-[#8B6F47]" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-[#8B6F47] mb-2">
                 No documents yet
               </h3>
-              <p className="text-gray-500 mb-4">
+              <p className="text-[#A67A5B]/70 mb-4">
                 Upload some documents to help your agent answer questions better
               </p>
               <Button onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
@@ -213,7 +213,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                     </div>
                     <div>
                       <h4 className="font-medium">{document.filename}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]/70">
                         <span>{document.file_type.toUpperCase()}</span>
                         <span>•</span>
                         <span>Uploaded {formatDate(document.uploaded_at)}</span>
