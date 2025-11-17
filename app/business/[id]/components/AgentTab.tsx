@@ -122,28 +122,28 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <div className="mx-auto w-16 h-16 bg-[#C9B790]/30 rounded-full flex items-center justify-center mb-4">
               <Bot className="w-8 h-8 text-[#8B6F47]" />
             </div>
-            <CardTitle className="text-2xl">Create Your First AI Agent</CardTitle>
-            <CardDescription className="text-lg">
+            <CardTitle className="text-2xl text-[#8B6F47]">Create Your First AI Agent</CardTitle>
+            <CardDescription className="text-lg text-[#8B6F47]">
               Build a voice agent that handles your customer calls 24/7
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
               <div className="space-y-2">
-                <h4 className="font-semibold">Smart Responses</h4>
-                <p className="text-sm text-[#A67A5B]/70">
+                <h4 className="font-semibold text-[#8B6F47]">Smart Responses</h4>
+                <p className="text-sm text-[#8B6F47]">
                   Your agent will understand context and provide helpful answers
                 </p>
               </div>
               <div className="space-y-2">
-                <h4 className="font-semibold">Always Available</h4>
-                <p className="text-sm text-[#A67A5B]/70">
+                <h4 className="font-semibold text-[#8B6F47]">Always Available</h4>
+                <p className="text-sm text-[#8B6F47]">
                   Never miss a call with 24/7 availability
                 </p>
               </div>
               <div className="space-y-2">
-                <h4 className="font-semibold">Analytics</h4>
-                <p className="text-sm text-[#A67A5B]/70">
+                <h4 className="font-semibold text-[#8B6F47]">Analytics</h4>
+                <p className="text-sm text-[#8B6F47]">
                   Track performance and optimize your agent
                 </p>
               </div>
