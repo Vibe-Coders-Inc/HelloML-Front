@@ -194,7 +194,26 @@ export default function DashboardPage() {
         </div>
 
         {/* Businesses Grid */}
-        {businesses.length === 0 ? (
+        {businessesLoading ? (
+          // Loading skeleton
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl animate-pulse">
+                <CardHeader className="pb-6">
+                  <div className="h-6 bg-[#D8CBA9]/30 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-[#D8CBA9]/20 rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : businesses.length === 0 ? (
           <div className="text-center py-12 relative">
             {/* Gradient blob behind empty state */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#A67A5B]/10 rounded-full blur-3xl"></div>
@@ -236,25 +255,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {businessesLoading ? (
-              // Loading skeleton
-              [...Array(3)].map((_, i) => (
-                <Card key={i} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl animate-pulse">
-                  <CardHeader className="pb-6">
-                    <div className="h-6 bg-[#D8CBA9]/30 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-[#D8CBA9]/20 rounded w-1/2"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
-                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
-                      <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              businesses.map((business) => (
+            {businesses.map((business) => (
                 <Card key={business.id} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
                   <CardHeader className="pb-6">
                     <div className="flex justify-between items-start">
@@ -306,7 +307,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
               ))
-            )}
+            }
           </div>
         )}
       </div>
