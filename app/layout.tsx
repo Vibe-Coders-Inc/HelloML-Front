@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Borel } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import { AppProvider } from "@/lib/context";
+import { Providers } from "./providers";
 import { getMetadata } from "@/lib/content";
 
 const geistSans = Geist({
@@ -39,9 +39,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${borel.variable} antialiased`}
       >
-        <AppProvider>
-          {children}
-        </AppProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

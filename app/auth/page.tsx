@@ -52,12 +52,9 @@ export default function AuthPage() {
     setError('');
 
     try {
-      const success = await login(data.email, data.password);
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError(commonContent.errors.invalidCredentials);
-      }
+      // Mock login - use email as user ID
+      login(data.email.split('@')[0], data.email.split('@')[0], data.email);
+      router.push('/dashboard');
     } catch {
       setError(commonContent.errors.genericError);
     } finally {
@@ -71,12 +68,8 @@ export default function AuthPage() {
 
     try {
       // Mock registration - just log in the user
-      const success = await login(data.email, data.password);
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError(commonContent.errors.registrationFailed);
-      }
+      login(data.email.split('@')[0], data.name, data.email);
+      router.push('/dashboard');
     } catch {
       setError(commonContent.errors.genericError);
     } finally {
@@ -90,12 +83,27 @@ export default function AuthPage() {
 
     try {
       // Mock social auth
-      const success = await login(`${provider}@example.com`, 'password');
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError(commonContent.errors.socialAuthFailed(provider));
-      }
+      login(`${provider.toLowerCase()}-user`, `${provider} User`, `${provider.toLowerCase()}@example.com`);
+      router.push('/dashboard');
+    } catch {
+      setError(commonContent.errors.genericError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDevLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const userId = formData.get('userId') as string || 'user-1';
+      const name = formData.get('name') as string || undefined;
+
+      login(userId, name);
+      router.push('/dashboard');
     } catch {
       setError(commonContent.errors.genericError);
     } finally {
@@ -382,18 +390,42 @@ export default function AuthPage() {
                 {authContent.legal.terms}
               </p>
 
-              {/* Quick Test Login Button */}
+              {/* Developer Login */}
               <div className="mt-5 pt-5 border-t border-[#E8DCC8]">
-                <Button
-                  variant="secondary"
-                  onClick={() => handleSocialAuth('Test')}
-                  disabled={isLoading}
-                  className="w-full text-xs bg-[#FAF8F3] hover:bg-white text-[#8B6F47] border border-[#E8DCC8] rounded-xl h-10 transition-all duration-300"
-                >
-                  {authContent.testLogin.button}
-                </Button>
+                <h3 className="text-sm font-medium text-[#8B6F47] mb-3 text-center">Developer Login</h3>
+                <form onSubmit={handleDevLogin} className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="dev-userId" className="text-xs text-[#8B6F47]">User ID</Label>
+                    <Input
+                      id="dev-userId"
+                      name="userId"
+                      type="text"
+                      placeholder="user-1"
+                      defaultValue="user-1"
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-10 text-sm text-[#8B6F47]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dev-name" className="text-xs text-[#8B6F47]">Name (optional)</Label>
+                    <Input
+                      id="dev-name"
+                      name="name"
+                      type="text"
+                      placeholder="Test User"
+                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-10 text-sm text-[#8B6F47]"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    disabled={isLoading}
+                    className="w-full text-xs bg-[#FAF8F3] hover:bg-white text-[#8B6F47] border border-[#E8DCC8] rounded-xl h-10 transition-all duration-300"
+                  >
+                    Login as Developer
+                  </Button>
+                </form>
                 <p className="text-xs text-center text-[#A67A5B]/40 mt-2">
-                  {authContent.testLogin.description}
+                  For development and testing purposes
                 </p>
               </div>
             </CardContent>
