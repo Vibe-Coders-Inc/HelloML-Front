@@ -36,7 +36,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isAuthenticated } = useApp();
+  const { signIn, signUp, signInWithGoogle, isAuthenticated } = useApp();
   const router = useRouter();
 
   const loginForm = useForm<LoginForm>({
@@ -52,11 +52,10 @@ export default function AuthPage() {
     setError('');
 
     try {
-      // Mock login - use email as user ID
-      login(data.email.split('@')[0], data.email.split('@')[0], data.email);
+      await signIn(data.email, data.password);
       router.push('/dashboard');
-    } catch {
-      setError(commonContent.errors.genericError);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : commonContent.errors.genericError);
     } finally {
       setIsLoading(false);
     }
@@ -67,46 +66,30 @@ export default function AuthPage() {
     setError('');
 
     try {
-      // Mock registration - just log in the user
-      login(data.email.split('@')[0], data.name, data.email);
-      router.push('/dashboard');
-    } catch {
-      setError(commonContent.errors.genericError);
-    } finally {
+      await signUp(data.email, data.password, data.name);
+      // Show success message - user needs to verify email
+      setError('Check your email to verify your account!');
+      setIsLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : commonContent.errors.genericError);
       setIsLoading(false);
     }
   };
 
   const handleSocialAuth = async (provider: string) => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // Mock social auth
-      login(`${provider.toLowerCase()}-user`, `${provider} User`, `${provider.toLowerCase()}@example.com`);
-      router.push('/dashboard');
-    } catch {
-      setError(commonContent.errors.genericError);
-    } finally {
-      setIsLoading(false);
+    if (provider.toLowerCase() !== 'google') {
+      setError(`${provider} authentication coming soon!`);
+      return;
     }
-  };
 
-  const handleDevLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const userId = formData.get('userId') as string || 'user-1';
-      const name = formData.get('name') as string || undefined;
-
-      login(userId, name);
-      router.push('/dashboard');
-    } catch {
-      setError(commonContent.errors.genericError);
-    } finally {
+      await signInWithGoogle();
+      // OAuth will redirect, no need to manually navigate
+    } catch (err) {
+      setError(err instanceof Error ? err.message : commonContent.errors.genericError);
       setIsLoading(false);
     }
   };
@@ -346,7 +329,7 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="mt-5">
                   <Button
                     variant="outline"
                     onClick={() => handleSocialAuth('Google')}
@@ -359,29 +342,7 @@ export default function AuthPage() {
                       <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleSocialAuth('Apple')}
-                    disabled={isLoading}
-                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white rounded-xl h-12 transition-all duration-300 text-[#8B6F47]"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                    </svg>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleSocialAuth('Microsoft')}
-                    disabled={isLoading}
-                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white rounded-xl h-12 transition-all duration-300"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                      <path fill="#f25022" d="M1 1h10v10H1z"/>
-                      <path fill="#00a4ef" d="M13 1h10v10H13z"/>
-                      <path fill="#7fba00" d="M1 13h10v10H1z"/>
-                      <path fill="#ffb900" d="M13 13h10v10H13z"/>
-                    </svg>
+                    <span className="ml-2">Continue with Google</span>
                   </Button>
                 </div>
               </div>
@@ -390,44 +351,6 @@ export default function AuthPage() {
                 {authContent.legal.terms}
               </p>
 
-              {/* Developer Login */}
-              <div className="mt-5 pt-5 border-t border-[#E8DCC8]">
-                <h3 className="text-sm font-medium text-[#8B6F47] mb-3 text-center">Developer Login</h3>
-                <form onSubmit={handleDevLogin} className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="dev-userId" className="text-xs text-[#8B6F47]">User ID</Label>
-                    <Input
-                      id="dev-userId"
-                      name="userId"
-                      type="text"
-                      placeholder="user-1"
-                      defaultValue="user-1"
-                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-10 text-sm text-[#8B6F47]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dev-name" className="text-xs text-[#8B6F47]">Name (optional)</Label>
-                    <Input
-                      id="dev-name"
-                      name="name"
-                      type="text"
-                      placeholder="Test User"
-                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-10 text-sm text-[#8B6F47]"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    disabled={isLoading}
-                    className="w-full text-xs bg-[#FAF8F3] hover:bg-white text-[#8B6F47] border border-[#E8DCC8] rounded-xl h-10 transition-all duration-300"
-                  >
-                    Login as Developer
-                  </Button>
-                </form>
-                <p className="text-xs text-center text-[#A67A5B]/40 mt-2">
-                  For development and testing purposes
-                </p>
-              </div>
             </CardContent>
           </Card>
         </div>

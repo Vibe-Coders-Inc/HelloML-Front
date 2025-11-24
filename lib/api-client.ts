@@ -17,6 +17,7 @@ import type {
   EndConversationRequest,
   ApiError,
 } from './types';
+import { createClient } from './supabase/client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -27,10 +28,17 @@ class ApiClient {
   ): Promise<T> {
     const url = `${API_URL}${endpoint}`;
 
+    // Get Supabase session for JWT token
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(session?.access_token && {
+          'Authorization': `Bearer ${session.access_token}`,
+        }),
         ...options.headers,
       },
     };

@@ -119,7 +119,7 @@ function BusinessCard({ business, onDelete, isDeleting }: BusinessCardProps) {
 }
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, logout } = useApp();
+  const { user, isAuthenticated, signOut } = useApp();
   const { data: businesses = [], isLoading: businessesLoading } = useBusinesses(user?.id || '');
   const createBusinessMutation = useCreateBusiness();
   const deleteBusinessMutation = useDeleteBusiness();
@@ -164,6 +164,11 @@ export default function DashboardPage() {
     }
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/auth');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] via-[#F5EFE6] to-[#D8CBA9] relative overflow-hidden">
       {/* Decorative background elements */}
@@ -186,13 +191,20 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex justify-between items-center h-28">
             <Logo size="large" lightMode />
-            <Button
-              variant="outline"
-              onClick={logout}
-              className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
-            >
-              Logout
-            </Button>
+            <div className="flex items-center gap-4">
+              {user?.user_metadata?.name && (
+                <span className="text-[#8B6F47] font-medium">
+                  Hello, {user.user_metadata.name}
+                </span>
+              )}
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+              >
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
