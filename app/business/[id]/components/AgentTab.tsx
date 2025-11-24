@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bot, Phone, Play, Pause, Trash2, Edit, TestTube, Loader2 } from 'lucide-react';
+import { Bot, Phone, Play, Pause, Trash2, Edit, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,7 +19,6 @@ const agentSchema = z.object({
   area_code: z.string().min(3, 'Area code is required').max(3, 'Area code must be 3 digits'),
   model_type: z.string().min(1, 'Model type is required'),
   temperature: z.number().min(0.6).max(1.2),
-  voice_model: z.string().min(1, 'Voice model is required'),
   prompt: z.string().optional(),
   greeting: z.string()
     .min(1, 'Greeting is required')
@@ -29,21 +28,12 @@ const agentSchema = z.object({
     .min(1, 'Goodbye is required')
     .max(500, 'Goodbye must be less than 500 characters')
     .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
-  // OpenAI Realtime API configuration
-  max_response_output_tokens: z.number().optional(),
-  turn_detection_type: z.enum(['semantic_vad', 'server_vad', 'none']).optional(),
-  turn_detection_threshold: z.number().min(0).max(1).optional(),
-  turn_detection_silence_duration_ms: z.number().min(0).optional(),
-  turn_detection_interrupt_response: z.boolean().optional(),
-  turn_detection_eagerness: z.enum(['low', 'medium', 'high', 'auto']).optional(),
-  turn_detection_create_response: z.boolean().optional(),
 });
 
 const editAgentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   model_type: z.string().min(1, 'Model type is required'),
   temperature: z.number().min(0.6).max(1.2),
-  voice_model: z.string().min(1, 'Voice model is required'),
   prompt: z.string().optional(),
   greeting: z.string()
     .min(1, 'Greeting is required')
@@ -54,14 +44,6 @@ const editAgentSchema = z.object({
     .max(500, 'Goodbye must be less than 500 characters')
     .refine(val => !/(.)\1{10,}/.test(val), 'Please avoid excessive repeated characters'),
   status: z.enum(['inactive', 'active', 'paused']),
-  // OpenAI Realtime API configuration
-  max_response_output_tokens: z.number().optional(),
-  turn_detection_type: z.enum(['semantic_vad', 'server_vad', 'none']).optional(),
-  turn_detection_threshold: z.number().min(0).max(1).optional(),
-  turn_detection_silence_duration_ms: z.number().min(0).optional(),
-  turn_detection_interrupt_response: z.boolean().optional(),
-  turn_detection_eagerness: z.enum(['low', 'medium', 'high', 'auto']).optional(),
-  turn_detection_create_response: z.boolean().optional(),
 });
 
 type AgentForm = z.infer<typeof agentSchema>;
@@ -90,17 +72,9 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       area_code: '555',
       model_type: 'gpt-realtime',
       temperature: 0.8,
-      voice_model: 'alloy',
       prompt: '',
       greeting: 'Hello! How can I help you today?',
       goodbye: 'Thank you for calling. Have a great day!',
-      max_response_output_tokens: undefined,
-      turn_detection_type: 'server_vad',
-      turn_detection_threshold: 0.5,
-      turn_detection_silence_duration_ms: 700,
-      turn_detection_interrupt_response: true,
-      turn_detection_eagerness: 'auto',
-      turn_detection_create_response: true,
     }
   });
 
@@ -110,18 +84,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       name: agent?.name || 'Agent',
       model_type: agent?.model_type || 'gpt-realtime',
       temperature: agent?.temperature || 0.8,
-      voice_model: agent?.voice_model || 'alloy',
       prompt: agent?.prompt || '',
       greeting: agent?.greeting || 'Hello! How can I help you today?',
       goodbye: agent?.goodbye || 'Thank you for calling. Have a great day!',
       status: agent?.status || 'inactive',
-      max_response_output_tokens: agent?.max_response_output_tokens,
-      turn_detection_type: agent?.turn_detection_type || 'server_vad',
-      turn_detection_threshold: agent?.turn_detection_threshold || 0.5,
-      turn_detection_silence_duration_ms: agent?.turn_detection_silence_duration_ms || 700,
-      turn_detection_interrupt_response: agent?.turn_detection_interrupt_response ?? true,
-      turn_detection_eagerness: agent?.turn_detection_eagerness || 'auto',
-      turn_detection_create_response: agent?.turn_detection_create_response ?? true,
     }
   });
 
@@ -132,18 +98,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
         name: agent.name,
         model_type: agent.model_type,
         temperature: agent.temperature,
-        voice_model: agent.voice_model,
         prompt: agent.prompt || '',
         greeting: agent.greeting,
         goodbye: agent.goodbye,
         status: agent.status,
-        max_response_output_tokens: agent.max_response_output_tokens,
-        turn_detection_type: agent.turn_detection_type || 'server_vad',
-        turn_detection_threshold: agent.turn_detection_threshold || 0.5,
-        turn_detection_silence_duration_ms: agent.turn_detection_silence_duration_ms || 700,
-        turn_detection_interrupt_response: agent.turn_detection_interrupt_response ?? true,
-        turn_detection_eagerness: agent.turn_detection_eagerness || 'auto',
-        turn_detection_create_response: agent.turn_detection_create_response ?? true,
       });
     }
   }, [agent, editForm]);
@@ -173,11 +131,17 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
   const onEditSubmit = (data: EditAgentForm) => {
     if (!agent) return;
+    console.log('[AgentTab] Updating agent with data:', { agentId: agent.id, data });
     updateAgentMutation.mutate(
       { agentId: agent.id, data },
       {
-        onSuccess: () => {
+        onSuccess: (updatedAgent) => {
+          console.log('[AgentTab] Agent updated successfully:', updatedAgent);
           setIsEditDialogOpen(false);
+        },
+        onError: (error) => {
+          console.error('[AgentTab] Failed to update agent:', error);
+          alert(`Failed to update agent: ${error.message}`);
         },
       }
     );
@@ -339,22 +303,6 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                         <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                       </select>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="voice_model" className="text-[#8B6F47]">Voice</Label>
-                      <select
-                        id="voice_model"
-                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
-                        {...form.register('voice_model')}
-                      >
-                        <option value="alloy">Alloy (Neutral)</option>
-                        <option value="echo">Echo (Male)</option>
-                        <option value="fable">Fable (British Male)</option>
-                        <option value="onyx">Onyx (Deep Male)</option>
-                        <option value="nova">Nova (Female)</option>
-                        <option value="shimmer">Shimmer (Soft Female)</option>
-                      </select>
-                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -371,93 +319,6 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                       Lower = more consistent and focused, Higher = more creative and varied
                     </p>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="turn_detection_type" className="text-[#8B6F47]">Turn Detection</Label>
-                      <select
-                        id="turn_detection_type"
-                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
-                        {...form.register('turn_detection_type')}
-                      >
-                        <option value="semantic_vad">Semantic (Smart)</option>
-                        <option value="server_vad">Server (Simple)</option>
-                        <option value="none">None (Manual)</option>
-                      </select>
-                      <p className="text-xs text-[#A67A5B]">How the agent detects when user finishes speaking</p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="turn_detection_silence_duration_ms" className="text-[#8B6F47]">Silence Duration (ms)</Label>
-                      <Input
-                        id="turn_detection_silence_duration_ms"
-                        type="number"
-                        min="0"
-                        step="50"
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47]"
-                        {...form.register('turn_detection_silence_duration_ms', { valueAsNumber: true })}
-                      />
-                      <p className="text-xs text-[#A67A5B]">Silence before ending turn (200-1000ms typical)</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="max_response_output_tokens" className="text-[#8B6F47]">Max Response Tokens (Optional)</Label>
-                    <Input
-                      id="max_response_output_tokens"
-                      type="number"
-                      min="50"
-                      max="4096"
-                      placeholder="Leave empty for unlimited"
-                      className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
-                      {...form.register('max_response_output_tokens', { valueAsNumber: true, setValueAs: v => v === '' ? undefined : Number(v) })}
-                    />
-                    <p className="text-xs text-[#A67A5B]">Limit response length (leave empty for no limit)</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="turn_detection_create_response"
-                        className="w-4 h-4 rounded border-[#E8DCC8] text-[#A67A5B] focus:ring-[#A67A5B]"
-                        {...form.register('turn_detection_create_response')}
-                      />
-                      <Label htmlFor="turn_detection_create_response" className="text-[#8B6F47] cursor-pointer">
-                        Auto-create response after turn detection
-                      </Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="turn_detection_interrupt_response"
-                        className="w-4 h-4 rounded border-[#E8DCC8] text-[#A67A5B] focus:ring-[#A67A5B]"
-                        {...form.register('turn_detection_interrupt_response')}
-                      />
-                      <Label htmlFor="turn_detection_interrupt_response" className="text-[#8B6F47] cursor-pointer">
-                        Allow user interruptions
-                      </Label>
-                    </div>
-                  </div>
-
-                  {/* Eagerness - only for semantic_vad */}
-                  {form.watch('turn_detection_type') === 'semantic_vad' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="turn_detection_eagerness" className="text-[#8B6F47]">Eagerness (Semantic VAD only)</Label>
-                      <select
-                        id="turn_detection_eagerness"
-                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
-                        {...form.register('turn_detection_eagerness')}
-                      >
-                        <option value="auto">Auto (Recommended)</option>
-                        <option value="low">Low (Wait longer)</option>
-                        <option value="medium">Medium (Balanced)</option>
-                        <option value="high">High (Respond quickly)</option>
-                      </select>
-                      <p className="text-xs text-[#A67A5B]">Controls how eagerly the agent responds after detecting speech</p>
-                    </div>
-                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="prompt" className="text-[#8B6F47]">System Prompt (Optional)</Label>
@@ -569,10 +430,6 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 <p className="text-sm text-[#8B6F47] font-medium">{agent.model_type}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-[#8B6F47]">Voice Model</h4>
-                <p className="text-sm text-[#8B6F47] font-medium">{agent.voice_model}</p>
-              </div>
-              <div>
                 <h4 className="font-medium text-sm text-[#8B6F47]">Temperature</h4>
                 <p className="text-sm text-[#8B6F47] font-medium">{agent.temperature}</p>
               </div>
@@ -627,15 +484,6 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  <Button
-                    onClick={() => {
-                      alert('Test call initiated! Your agent will answer shortly.');
-                    }}
-                    className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  >
-                    <TestTube className="h-4 w-4 mr-2" />
-                    Test Call
-                  </Button>
                   <Button
                     variant="outline"
                     onClick={handleDeletePhoneNumber}
@@ -806,45 +654,31 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-model_type" className="text-[#8B6F47]">AI Model</Label>
+                <Label htmlFor="edit-model_type" className="text-[#8B6F47]">Realtime Model</Label>
                 <select
                   id="edit-model_type"
                   className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
                   {...editForm.register('model_type')}
                 >
-                  <option value="gpt-4o-mini">GPT-4o Mini</option>
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                  <option value="gpt-realtime">GPT Realtime (Latest)</option>
+                  <option value="gpt-4o-realtime-preview">GPT-4o Realtime Preview</option>
+                  <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-voice_model" className="text-[#8B6F47]">Voice Model</Label>
-              <select
-                id="edit-voice_model"
-                className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
-                {...editForm.register('voice_model')}
-              >
-                <option value="Joanna">Joanna (Female, US)</option>
-                <option value="Alloy">Alloy (Neutral, US)</option>
-                <option value="Amber">Amber (Female, US)</option>
-                <option value="Riley">Riley (Female, US)</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-temperature" className="text-[#8B6F47]">Temperature: {editForm.watch('temperature')}</Label>
+              <Label htmlFor="edit-temperature" className="text-[#8B6F47]">Temperature: {editForm.watch('temperature')?.toFixed(2)}</Label>
               <input
                 type="range"
-                min="0"
-                max="2"
+                min="0.6"
+                max="1.2"
                 step="0.05"
                 className="w-full accent-[#8B6F47]"
                 {...editForm.register('temperature', { valueAsNumber: true })}
               />
               <p className="text-xs text-[#A67A5B]">
-                Lower values = more focused, Higher values = more creative
+                Lower = more consistent and focused, Higher = more creative and varied
               </p>
             </div>
 

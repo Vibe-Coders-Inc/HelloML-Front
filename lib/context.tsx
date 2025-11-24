@@ -1,78 +1,82 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from './types';
+import { User } from '@supabase/supabase-js';
+import { createClient } from './supabase/client';
 
 interface AppContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (userId: string, name?: string, email?: string) => void;
-  logout: () => void;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const USER_STORAGE_KEY = 'helloml_user';
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
 
   const isAuthenticated = !!user;
 
-  // Load user from localStorage on mount
+  // Initialize auth state and listen for changes
   useEffect(() => {
-    const stored = localStorage.getItem(USER_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsedUser = JSON.parse(stored);
-        // Clear old user IDs that aren't UUIDs (for migration)
-        const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsedUser.id);
-        if (!isValidUUID) {
-          console.log('Clearing old incompatible user ID');
-          localStorage.removeItem(USER_STORAGE_KEY);
-        } else {
-          setUser(parsedUser);
-        }
-      } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem(USER_STORAGE_KEY);
-      }
-    }
-    setIsHydrated(true);
-  }, []);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
 
-  // Save user to localStorage when it changes
-  useEffect(() => {
-    if (!isHydrated) return;
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
 
-    if (user) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(USER_STORAGE_KEY);
-    }
-  }, [user, isHydrated]);
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
-  const login = (userId: string, name?: string, email?: string) => {
-    // Convert simple user IDs to UUID format for database compatibility
-    const uuidMap: Record<string, string> = {
-      'user-1': '00000000-0000-0000-0000-000000000001',
-      'user-2': '00000000-0000-0000-0000-000000000002',
-      'user-3': '00000000-0000-0000-0000-000000000003',
-    };
-
-    const actualUserId = uuidMap[userId] || userId;
-
-    const newUser: User = {
-      id: actualUserId,
-      name: name || `User ${userId}`,
-      email: email || `${userId}@example.com`,
-    };
-    setUser(newUser);
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
   };
 
-  const logout = () => {
-    setUser(null);
+  const signUp = async (email: string, password: string, name: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) throw error;
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) throw error;
+  };
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
 
   return (
@@ -80,8 +84,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isAuthenticated,
-        login,
-        logout,
+        isLoading,
+        signIn,
+        signUp,
+        signInWithGoogle,
+        signOut,
       }}
     >
       {children}

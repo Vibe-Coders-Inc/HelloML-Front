@@ -21,23 +21,12 @@ export interface Agent {
   name: string;
   model_type: string;
   temperature: number;
-  voice_model: string;
   prompt?: string;
   greeting: string;
   goodbye: string;
   status: 'inactive' | 'active' | 'paused';
   created_at: string;
   updated_at: string;
-  // OpenAI Realtime API configuration
-  modalities?: string[];
-  max_response_output_tokens?: number;
-  turn_detection_type?: 'semantic_vad' | 'server_vad' | 'none';
-  turn_detection_threshold?: number;
-  turn_detection_prefix_padding_ms?: number;
-  turn_detection_silence_duration_ms?: number;
-  turn_detection_interrupt_response?: boolean;
-  turn_detection_eagerness?: 'low' | 'medium' | 'high' | 'auto';
-  turn_detection_create_response?: boolean;
 }
 
 export interface Document {
@@ -146,41 +135,19 @@ export interface CreateAgentRequest {
   name?: string;
   model_type?: string;
   temperature?: number;
-  voice_model?: string;
   prompt?: string;
   greeting?: string;
   goodbye?: string;
-  // OpenAI Realtime API configuration
-  modalities?: string[];
-  max_response_output_tokens?: number;
-  turn_detection_type?: 'semantic_vad' | 'server_vad' | 'none';
-  turn_detection_threshold?: number;
-  turn_detection_prefix_padding_ms?: number;
-  turn_detection_silence_duration_ms?: number;
-  turn_detection_interrupt_response?: boolean;
-  turn_detection_eagerness?: 'low' | 'medium' | 'high' | 'auto';
-  turn_detection_create_response?: boolean;
 }
 
 export interface UpdateAgentRequest {
   name?: string;
   model_type?: string;
   temperature?: number;
-  voice_model?: string;
   prompt?: string;
   greeting?: string;
   goodbye?: string;
   status?: 'inactive' | 'active' | 'paused';
-  // OpenAI Realtime API configuration
-  modalities?: string[];
-  max_response_output_tokens?: number;
-  turn_detection_type?: 'semantic_vad' | 'server_vad' | 'none';
-  turn_detection_threshold?: number;
-  turn_detection_prefix_padding_ms?: number;
-  turn_detection_silence_duration_ms?: number;
-  turn_detection_interrupt_response?: boolean;
-  turn_detection_eagerness?: 'low' | 'medium' | 'high' | 'auto';
-  turn_detection_create_response?: boolean;
 }
 
 export interface UploadTextDocumentRequest {

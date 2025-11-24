@@ -211,28 +211,6 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <Card className="flex-1 bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-lg text-[#8B6F47]">Test Your Agent</CardTitle>
-                <CardDescription className="text-[#A67A5B]">
-                  Make a test call to see how your agent performs
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={() => {
-                    // Mock test call
-                    alert('Test call initiated! Your agent will answer shortly.');
-                  }}
-                  className="w-full sm:w-auto bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                  disabled={!phoneNumber}
-                >
-                  <PhoneCall className="h-4 w-4 mr-2" />
-                  Test Call
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="flex-1 bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
-              <CardHeader>
                 <CardTitle className="text-lg text-[#8B6F47]">View Analytics</CardTitle>
                 <CardDescription className="text-[#A67A5B]">
                   Check detailed call analytics and performance metrics
