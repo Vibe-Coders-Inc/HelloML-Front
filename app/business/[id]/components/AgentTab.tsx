@@ -396,7 +396,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleToggleStatus}
-                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
               >
                 {agent.status === 'active' ? (
                   <>
@@ -414,7 +414,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditDialogOpen(true)}
-                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
@@ -627,6 +627,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteAgentMutation.isPending}
+            className="hover:text-red-700"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {deleteAgentMutation.isPending ? 'Deleting...' : 'Delete Agent'}

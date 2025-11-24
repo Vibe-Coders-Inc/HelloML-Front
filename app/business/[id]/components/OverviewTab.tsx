@@ -220,7 +220,7 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
                 <Button
                   onClick={() => router.push(`/business/${business.id}?tab=calls`)}
                   variant="outline"
-                  className="w-full sm:w-auto border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                  className="w-full sm:w-auto border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
                 >
                   <Activity className="h-4 w-4 mr-2" />
                   View Calls

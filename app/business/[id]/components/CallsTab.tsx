@@ -216,7 +216,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewTranscript(conversation.id)}
-                          className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                          className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           View
@@ -268,7 +268,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                             variant="outline"
                             onClick={handleCopyTranscript}
                             disabled={messagesLoading || messages.length === 0}
-                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Copy
@@ -277,7 +277,7 @@ export default function CallsTab({ agentId }: CallsTabProps) {
                             variant="outline"
                             onClick={handleExportTranscript}
                             disabled={messagesLoading || messages.length === 0}
-                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                            className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
                           >
                             <Download className="h-4 w-4 mr-2" />
                             Export

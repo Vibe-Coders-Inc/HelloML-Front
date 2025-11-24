@@ -219,7 +219,7 @@ export default function BusinessPage({ params, searchParams }: {
             <div className="flex items-center space-x-2">
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
+                  <Button variant="outline" size="sm" className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all">
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Business
                   </Button>
@@ -294,7 +294,7 @@ export default function BusinessPage({ params, searchParams }: {
                 size="sm"
                 onClick={handleDelete}
                 disabled={deleteBusinessMutation.isPending}
-                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-red-50 hover:border-red-300 hover:text-red-600 shadow-sm hover:shadow-md transition-all"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 {deleteBusinessMutation.isPending ? 'Deleting...' : 'Delete'}
