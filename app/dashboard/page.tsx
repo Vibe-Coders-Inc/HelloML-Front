@@ -200,7 +200,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 onClick={handleLogout}
-                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
               >
                 Logout
               </Button>

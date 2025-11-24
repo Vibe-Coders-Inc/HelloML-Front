@@ -355,7 +355,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDownload(document.storage_url, document.filename)}
-                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Download
@@ -365,7 +365,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                       size="sm"
                       onClick={() => handleDelete(document.id, document.filename)}
                       disabled={deleteDocumentMutation.isPending}
-                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all"
+                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-red-50 hover:border-red-300 hover:text-red-600 shadow-sm hover:shadow-md transition-all"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

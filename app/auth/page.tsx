@@ -192,8 +192,8 @@ export default function AuthPage() {
             <CardContent className="px-8 pb-8">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 rounded-xl">
-                  <TabsTrigger value="login" className="rounded-lg">{authContent.tabs.login}</TabsTrigger>
-                  <TabsTrigger value="register" className="rounded-lg">{authContent.tabs.register}</TabsTrigger>
+                  <TabsTrigger value="login" className="rounded-lg cursor-pointer">{authContent.tabs.login}</TabsTrigger>
+                  <TabsTrigger value="register" className="rounded-lg cursor-pointer">{authContent.tabs.register}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="login" className="space-y-5 mt-6">
@@ -334,7 +334,7 @@ export default function AuthPage() {
                     variant="outline"
                     onClick={() => handleSocialAuth('Google')}
                     disabled={isLoading}
-                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white rounded-xl h-12 transition-all duration-300 text-[#8B6F47]"
+                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white hover:text-[#8B6F47] rounded-xl h-12 transition-all duration-300 text-[#8B6F47]"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
