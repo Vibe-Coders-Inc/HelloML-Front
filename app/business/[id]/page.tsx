@@ -75,10 +75,15 @@ export default function BusinessPage({ params, searchParams }: {
 
   // Sync activeTab state with URL changes
   useEffect(() => {
-    if (resolvedSearch?.tab && resolvedSearch.tab !== activeTab) {
+    if (resolvedSearch?.tab) {
       setActiveTab(resolvedSearch.tab);
     }
-  }, [resolvedSearch?.tab, activeTab]);
+  }, [resolvedSearch?.tab]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    router.push(`/business/${id}?tab=${value}`, { scroll: false });
+  };
 
   if (!isAuthenticated) {
     return null;
@@ -413,7 +418,7 @@ export default function BusinessPage({ params, searchParams }: {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-[#D8CBA9]/30 p-1 rounded-xl">
             <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">Overview</TabsTrigger>
             <TabsTrigger value="agent" className="data-[state=active]:bg-white data-[state=active]:text-[#A67A5B] data-[state=active]:shadow-md rounded-lg font-medium">Agent</TabsTrigger>
