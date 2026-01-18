@@ -108,18 +108,63 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] to-[#C9B790] flex flex-col lg:flex-row relative">
       {/* Mobile/Tablet Hero Header - visible below lg breakpoint */}
-      <div className="lg:hidden bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#C9B790] text-white py-6 sm:py-8 px-4 sm:px-6 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12 blur-2xl"></div>
+      <div className="lg:hidden bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#C9B790] text-white py-8 sm:py-12 md:py-16 px-4 sm:px-6 relative overflow-hidden">
+        {/* Animated decorative background elements */}
+        <div className="absolute top-0 right-0 w-40 sm:w-56 h-40 sm:h-56 bg-white/5 rounded-full -translate-y-20 translate-x-20 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/5 rounded-full translate-y-16 -translate-x-16 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 right-1/4 w-24 sm:w-32 h-24 sm:h-32 bg-white/5 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+
+        {/* Floating animated circles */}
+        <div className="absolute top-[15%] left-[10%] w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white/30 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s' }}></div>
+        <div className="absolute top-[25%] right-[15%] w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/25 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
+        <div className="absolute top-[60%] left-[20%] w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '6s', animationDelay: '2s' }}></div>
+        <div className="absolute top-[70%] right-[25%] w-2 h-2 bg-white/35 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5.5s', animationDelay: '0.5s' }}></div>
+        <div className="absolute top-[40%] left-[75%] w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/25 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}></div>
+        <div className="absolute top-[85%] left-[40%] w-2 h-2 bg-white/30 rounded-full animate-bounce shadow-md" style={{ animationDuration: '5s', animationDelay: '2.5s' }}></div>
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="h-full w-full" style={{
+            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent)',
+            backgroundSize: '30px 30px'
+          }}></div>
+        </div>
 
         <div className="relative z-10 text-center">
-          <div className="flex justify-center mb-3 sm:mb-4">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <Logo size="responsive-hero" />
           </div>
-          <p className="text-sm sm:text-base text-white/80 max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-tight">
+            {authContent.hero.headline} <br />
+            <RotatingText
+              phrases={authContent.hero.taglines}
+              className="text-[#FAF8F3] drop-shadow-lg"
+            />
+          </h1>
+          <p className="text-sm sm:text-base md:text-lg text-white/80 max-w-md mx-auto leading-relaxed">
             {authContent.hero.description}
           </p>
+
+          {/* Decorative wave element */}
+          <div className="mt-6 sm:mt-8 flex justify-center">
+            <svg width="200" height="40" viewBox="0 0 200 40" className="opacity-30 w-40 sm:w-48 md:w-52">
+              <path
+                d="M0,20 Q25,5 50,20 T100,20 T150,20 T200,20"
+                stroke="white"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path
+                d="M0,25 Q25,10 50,25 T100,25 T150,25 T200,25"
+                stroke="white"
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.5"
+              />
+            </svg>
+          </div>
         </div>
       </div>
 
