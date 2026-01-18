@@ -106,8 +106,24 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] to-[#C9B790] flex relative">
-      {/* Left Hero Section - 60% width */}
+    <div className="min-h-screen bg-gradient-to-br from-[#E8DCC8] to-[#C9B790] flex flex-col lg:flex-row relative">
+      {/* Mobile/Tablet Hero Header - visible below lg breakpoint */}
+      <div className="lg:hidden bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#C9B790] text-white py-6 sm:py-8 px-4 sm:px-6 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12 blur-2xl"></div>
+
+        <div className="relative z-10 text-center">
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <Logo size="responsive-hero" />
+          </div>
+          <p className="text-sm sm:text-base text-white/80 max-w-md mx-auto">
+            {authContent.hero.description}
+          </p>
+        </div>
+      </div>
+
+      {/* Left Hero Section - 60% width, desktop only */}
       <div className="hidden lg:flex lg:w-[60%] bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#C9B790] text-white flex-col justify-center items-center relative overflow-hidden">
         {/* Animated decorative background elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48 blur-3xl animate-pulse"></div>
@@ -175,36 +191,36 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Right Auth Section - 40% width */}
-      <div className="w-full lg:w-[40%] flex items-center justify-center p-8 lg:p-10">
+      {/* Right Auth Section - 40% width on desktop, full width on mobile/tablet */}
+      <div className="w-full lg:w-[40%] flex items-center justify-center p-4 sm:p-6 lg:p-10 flex-1 lg:flex-none">
         <div className="w-full max-w-lg">
           <Card className="shadow-2xl border-0 bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] backdrop-blur-sm">
-            <CardHeader className="text-center pb-6 pt-10">
-              {/* HelloML Logo - Auth Card */}
-              <div className="flex justify-center mb-6">
-                <Logo size="large" lightMode />
+            <CardHeader className="text-center pb-4 sm:pb-6 pt-6 sm:pt-8 lg:pt-10">
+              {/* HelloML Logo - Auth Card - hidden on mobile since we show it in header */}
+              <div className="hidden sm:flex justify-center mb-4 sm:mb-6">
+                <Logo size="responsive-card" lightMode />
               </div>
-              <CardTitle className="text-2xl font-bold text-[#8B6F47] mb-2">{authContent.card.title}</CardTitle>
-              <CardDescription className="text-[#A67A5B]/70 text-base">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-[#8B6F47] mb-1 sm:mb-2">{authContent.card.title}</CardTitle>
+              <CardDescription className="text-[#A67A5B]/70 text-sm sm:text-base">
                 {authContent.card.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-8 pb-8">
+            <CardContent className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 rounded-xl">
                   <TabsTrigger value="login" className="rounded-lg cursor-pointer">{authContent.tabs.login}</TabsTrigger>
                   <TabsTrigger value="register" className="rounded-lg cursor-pointer">{authContent.tabs.register}</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="login" className="space-y-5 mt-6">
-                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-5">
+                <TabsContent value="login" className="space-y-4 sm:space-y-5 mt-4 sm:mt-6">
+                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4 sm:space-y-5">
                     <div className="space-y-2">
                       <Label htmlFor="login-email" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.email}</Label>
                       <Input
                         id="login-email"
                         type="email"
                         placeholder={authContent.forms.placeholders.email}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...loginForm.register('email')}
                       />
                       {loginForm.formState.errors.email && (
@@ -220,7 +236,7 @@ export default function AuthPage() {
                         id="login-password"
                         type="password"
                         placeholder={authContent.forms.placeholders.password}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...loginForm.register('password')}
                       />
                       {loginForm.formState.errors.password && (
@@ -234,21 +250,21 @@ export default function AuthPage() {
                       <p className="text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">{error}</p>
                     )}
 
-                    <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
+                    <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-11 sm:h-12 lg:h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
                       {isLoading ? commonContent.buttons.signingIn : commonContent.buttons.signIn}
                     </Button>
                   </form>
                 </TabsContent>
 
-                <TabsContent value="register" className="space-y-4 mt-6">
-                  <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                <TabsContent value="register" className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
+                  <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-3 sm:space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="register-name" className="text-[#8B6F47] font-medium text-sm">{authContent.forms.labels.name}</Label>
                       <Input
                         id="register-name"
                         type="text"
                         placeholder={authContent.forms.placeholders.name}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('name')}
                       />
                       {registerForm.formState.errors.name && (
@@ -264,7 +280,7 @@ export default function AuthPage() {
                         id="register-email"
                         type="email"
                         placeholder={authContent.forms.placeholders.email}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('email')}
                       />
                       {registerForm.formState.errors.email && (
@@ -280,7 +296,7 @@ export default function AuthPage() {
                         id="register-password"
                         type="password"
                         placeholder={authContent.forms.placeholders.createPassword}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('password')}
                       />
                       {registerForm.formState.errors.password && (
@@ -296,7 +312,7 @@ export default function AuthPage() {
                         id="register-confirm"
                         type="password"
                         placeholder={authContent.forms.placeholders.confirmPassword}
-                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+                        className="bg-[#FAF8F3] border-[#E8DCC8] focus:border-[#A67A5B] focus:ring-2 focus:ring-[#A67A5B]/10 rounded-xl h-11 sm:h-12 lg:h-14 text-[#8B6F47] placeholder:text-[#A67A5B]/40"
                         {...registerForm.register('confirmPassword')}
                       />
                       {registerForm.formState.errors.confirmPassword && (
@@ -310,14 +326,14 @@ export default function AuthPage() {
                       <p className="text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">{error}</p>
                     )}
 
-                    <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
+                    <Button type="submit" className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-11 sm:h-12 lg:h-14 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" disabled={isLoading}>
                       {isLoading ? commonContent.buttons.creatingAccount : commonContent.buttons.createAccount}
                     </Button>
                   </form>
                 </TabsContent>
               </Tabs>
 
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-[#E8DCC8]" />
@@ -329,12 +345,12 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-4 sm:mt-5">
                   <Button
                     variant="outline"
                     onClick={() => handleSocialAuth('Google')}
                     disabled={isLoading}
-                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white hover:text-[#8B6F47] rounded-xl h-12 transition-all duration-300 text-[#8B6F47]"
+                    className="w-full bg-[#FAF8F3] border-[#E8DCC8] hover:border-[#A67A5B] hover:bg-white hover:text-[#8B6F47] rounded-xl h-10 sm:h-11 lg:h-12 transition-all duration-300 text-[#8B6F47]"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -347,7 +363,7 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              <p className="mt-5 text-xs text-center text-[#A67A5B]/50">
+              <p className="mt-4 sm:mt-5 text-xs text-center text-[#A67A5B]/50">
                 {authContent.legal.terms}
               </p>
 
