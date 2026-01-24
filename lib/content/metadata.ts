@@ -23,6 +23,14 @@ export const getMetadata = (options?: {
   description: options?.description || siteMetadata.description,
   keywords: [...siteMetadata.keywords],
   authors: [...siteMetadata.authors],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
   openGraph: {
     ...siteMetadata.openGraph,
     title: options?.title || siteMetadata.title.default,
