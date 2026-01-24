@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
         {/* Introduction */}
         <div className="prose prose-stone max-w-none text-[#5a4a3a]">
           <p className="mb-6">
-            This Privacy Notice for HelloML ("<strong>we</strong>," "<strong>us</strong>," or "<strong>our</strong>"), describes how and why we might access, collect, store, use, and/or share ("<strong>process</strong>") your personal information when you use our services ("<strong>Services</strong>"), including when you:
+            This Privacy Notice for HelloML (&quot;<strong>we</strong>,&quot; &quot;<strong>us</strong>,&quot; or &quot;<strong>our</strong>&quot;), describes how and why we might access, collect, store, use, and/or share (&quot;<strong>process</strong>&quot;) your personal information when you use our services (&quot;<strong>Services</strong>&quot;), including when you:
           </p>
 
           <ul className="list-disc pl-6 mb-6 space-y-2">
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-4">
-            <strong>Do we process any sensitive personal information?</strong> Some of the information may be considered "special" or "sensitive" in certain jurisdictions, for example your racial or ethnic origins, sexual orientation, and religious beliefs. We do not process sensitive personal information.
+            <strong>Do we process any sensitive personal information?</strong> Some of the information may be considered &quot;special&quot; or &quot;sensitive&quot; in certain jurisdictions, for example your racial or ethnic origins, sexual orientation, and religious beliefs. We do not process sensitive personal information.
           </p>
 
           <p className="mb-4">
@@ -131,7 +131,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-4">
-            <strong>Social Media Login Data.</strong> We may provide you with the option to register with us using your existing social media account details, like your Facebook, X, or other social media account. If you choose to register in this way, we will collect certain profile information about you from the social media provider, as described in the section called "<a href="#section7" className="text-[#8B6F47] underline">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</a>" below.
+            <strong>Social Media Login Data.</strong> We may provide you with the option to register with us using your existing social media account details, like your Facebook, X, or other social media account. If you choose to register in this way, we will collect certain profile information about you from the social media provider, as described in the section called &quot;<a href="#section7" className="text-[#8B6F47] underline">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</a>&quot; below.
           </p>
 
           <p className="mb-4">
@@ -157,7 +157,7 @@ export default function PrivacyPolicyPage() {
 
           <ul className="list-disc pl-6 mb-6 space-y-2">
             <li><strong>To facilitate account creation and authentication and otherwise manage user accounts.</strong> We may process your information so you can create and log in to your account, as well as keep your account in working order.</li>
-            <li><strong>To save or protect an individual's vital interest.</strong> We may process your information when necessary to save or protect an individual's vital interest, such as to prevent harm.</li>
+            <li><strong>To save or protect an individual&apos;s vital interest.</strong> We may process your information when necessary to save or protect an individual&apos;s vital interest, such as to prevent harm.</li>
           </ul>
 
           {/* Section 3 */}
@@ -237,7 +237,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-6">
-            To the extent these online tracking technologies are deemed to be a "sale"/"sharing" (which includes targeted advertising, as defined under the applicable laws) under applicable US state laws, you can opt out of these online tracking technologies by submitting a request as described below under section "<a href="#section13" className="text-[#8B6F47] underline">DO UNITED STATES RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a>"
+            To the extent these online tracking technologies are deemed to be a &quot;sale&quot;/&quot;sharing&quot; (which includes targeted advertising, as defined under the applicable laws) under applicable US state laws, you can opt out of these online tracking technologies by submitting a request as described below under section &quot;<a href="#section13" className="text-[#8B6F47] underline">DO UNITED STATES RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a>&quot;
           </p>
 
           <p className="mb-6">
@@ -252,13 +252,13 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-4">
-            As part of our Services, we offer products, features, or tools powered by artificial intelligence, machine learning, or similar technologies (collectively, "AI Products"). These tools are designed to enhance your experience and provide you with innovative solutions. The terms in this Privacy Notice govern your use of the AI Products within our Services.
+            As part of our Services, we offer products, features, or tools powered by artificial intelligence, machine learning, or similar technologies (collectively, &quot;AI Products&quot;). These tools are designed to enhance your experience and provide you with innovative solutions. The terms in this Privacy Notice govern your use of the AI Products within our Services.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">Use of AI Technologies</h3>
 
           <p className="mb-4">
-            We provide the AI Products through third-party service providers ("AI Service Providers"), including OpenAI. As outlined in this Privacy Notice, your input, output, and personal information will be shared with and processed by these AI Service Providers to enable your use of our AI Products for purposes outlined in "<a href="#section3" className="text-[#8B6F47] underline">WHAT LEGAL BASES DO WE RELY ON TO PROCESS YOUR PERSONAL INFORMATION?</a>" You must not use the AI Products in any way that violates the terms or policies of any AI Service Provider.
+            We provide the AI Products through third-party service providers (&quot;AI Service Providers&quot;), including OpenAI. As outlined in this Privacy Notice, your input, output, and personal information will be shared with and processed by these AI Service Providers to enable your use of our AI Products for purposes outlined in &quot;<a href="#section3" className="text-[#8B6F47] underline">WHAT LEGAL BASES DO WE RELY ON TO PROCESS YOUR PERSONAL INFORMATION?</a>&quot; You must not use the AI Products in any way that violates the terms or policies of any AI Service Provider.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">Our AI Products</h3>
@@ -276,7 +276,7 @@ export default function PrivacyPolicyPage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">How We Process Your Data Using AI</h3>
 
           <p className="mb-6">
-            All personal information processed using our AI Products is handled in line with our Privacy Notice and our agreement with third parties. This ensures high security and safeguards your personal information throughout the process, giving you peace of mind about your data's safety.
+            All personal information processed using our AI Products is handled in line with our Privacy Notice and our agreement with third parties. This ensures high security and safeguards your personal information throughout the process, giving you peace of mind about your data&apos;s safety.
           </p>
 
           {/* Section 7 */}
@@ -328,7 +328,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-6">
-            We do not knowingly collect, solicit data from, or market to children under 18 years of age or the equivalent age as specified by law in your jurisdiction, nor do we knowingly sell such personal information. By using the Services, you represent that you are at least 18 or the equivalent age as specified by law in your jurisdiction or that you are the parent or guardian of such a minor and consent to such minor dependent's use of the Services. If we learn that personal information from users less than 18 years of age or the equivalent age as specified by law in your jurisdiction has been collected, we will deactivate the account and take reasonable measures to promptly delete such data from our records. If you become aware of any data we may have collected from children under age 18 or the equivalent age as specified by law in your jurisdiction, please contact us at <a href="mailto:noah@helloml.app?subject=Minor%20Data%20Concern" className="text-[#8B6F47] underline">noah@helloml.app</a>.
+            We do not knowingly collect, solicit data from, or market to children under 18 years of age or the equivalent age as specified by law in your jurisdiction, nor do we knowingly sell such personal information. By using the Services, you represent that you are at least 18 or the equivalent age as specified by law in your jurisdiction or that you are the parent or guardian of such a minor and consent to such minor dependent&apos;s use of the Services. If we learn that personal information from users less than 18 years of age or the equivalent age as specified by law in your jurisdiction has been collected, we will deactivate the account and take reasonable measures to promptly delete such data from our records. If you become aware of any data we may have collected from children under age 18 or the equivalent age as specified by law in your jurisdiction, please contact us at <a href="mailto:noah@helloml.app?subject=Minor%20Data%20Concern" className="text-[#8B6F47] underline">noah@helloml.app</a>.
           </p>
 
           {/* Section 11 */}
@@ -339,7 +339,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-4">
-            In some regions (like the EEA, UK, Switzerland, and Canada), you have certain rights under applicable data protection laws. These may include the right (i) to request access and obtain a copy of your personal information, (ii) to request rectification or erasure; (iii) to restrict the processing of your personal information; (iv) if applicable, to data portability; and (v) not to be subject to automated decision-making. If a decision that produces legal or similarly significant effects is made solely by automated means, we will inform you, explain the main factors, and offer a simple way to request human review. In certain circumstances, you may also have the right to object to the processing of your personal information. You can make such a request by contacting us by using the contact details provided in the section "<a href="#section15" className="text-[#8B6F47] underline">HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</a>" below.
+            In some regions (like the EEA, UK, Switzerland, and Canada), you have certain rights under applicable data protection laws. These may include the right (i) to request access and obtain a copy of your personal information, (ii) to request rectification or erasure; (iii) to restrict the processing of your personal information; (iv) if applicable, to data portability; and (v) not to be subject to automated decision-making. If a decision that produces legal or similarly significant effects is made solely by automated means, we will inform you, explain the main factors, and offer a simple way to request human review. In certain circumstances, you may also have the right to object to the processing of your personal information. You can make such a request by contacting us by using the contact details provided in the section &quot;<a href="#section15" className="text-[#8B6F47] underline">HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</a>&quot; below.
           </p>
 
           <p className="mb-4">
@@ -355,7 +355,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p id="withdrawing-consent" className="mb-4">
-            <strong><u>Withdrawing your consent:</u></strong> If we are relying on your consent to process your personal information, which may be express and/or implied consent depending on the applicable law, you have the right to withdraw your consent at any time. You can withdraw your consent at any time by contacting us by using the contact details provided in the section "<a href="#section15" className="text-[#8B6F47] underline">HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</a>" below.
+            <strong><u>Withdrawing your consent:</u></strong> If we are relying on your consent to process your personal information, which may be express and/or implied consent depending on the applicable law, you have the right to withdraw your consent at any time. You can withdraw your consent at any time by contacting us by using the contact details provided in the section &quot;<a href="#section15" className="text-[#8B6F47] underline">HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</a>&quot; below.
           </p>
 
           <p className="mb-4">
@@ -389,7 +389,7 @@ export default function PrivacyPolicyPage() {
           <h2 id="section12" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">12. CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
 
           <p className="mb-4">
-            Most web browsers and some mobile operating systems and mobile applications include a Do-Not-Track ("DNT") feature or setting you can activate to signal your privacy preference not to have data about your online browsing activities monitored and collected. At this stage, no uniform technology standard for recognizing and implementing DNT signals has been finalized. As such, we do not currently respond to DNT browser signals or any other mechanism that automatically communicates your choice not to be tracked online. If a standard for online tracking is adopted that we must follow in the future, we will inform you about that practice in a revised version of this Privacy Notice.
+            Most web browsers and some mobile operating systems and mobile applications include a Do-Not-Track (&quot;DNT&quot;) feature or setting you can activate to signal your privacy preference not to have data about your online browsing activities monitored and collected. At this stage, no uniform technology standard for recognizing and implementing DNT signals has been finalized. As such, we do not currently respond to DNT browser signals or any other mechanism that automatically communicates your choice not to be tracked online. If a standard for online tracking is adopted that we must follow in the future, we will inform you about that practice in a revised version of this Privacy Notice.
           </p>
 
           <p className="mb-6">
@@ -406,7 +406,7 @@ export default function PrivacyPolicyPage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">Categories of Personal Information We Collect</h3>
 
           <p className="mb-4">
-            The table below shows the categories of personal information we have collected in the past twelve (12) months. The table includes illustrative examples of each category and does not reflect the personal information we collect from you. For a comprehensive inventory of all personal information we process, please refer to the section "<a href="#section1" className="text-[#8B6F47] underline">WHAT INFORMATION DO WE COLLECT?</a>"
+            The table below shows the categories of personal information we have collected in the past twelve (12) months. The table includes illustrative examples of each category and does not reflect the personal information we collect from you. For a comprehensive inventory of all personal information we process, please refer to the section &quot;<a href="#section1" className="text-[#8B6F47] underline">WHAT INFORMATION DO WE COLLECT?</a>&quot;
           </p>
 
           {/* Table */}
@@ -472,7 +472,7 @@ export default function PrivacyPolicyPage() {
                 </tr>
                 <tr>
                   <td className="border border-[#E8DCC8] p-3">K. Inferences drawn from collected personal information</td>
-                  <td className="border border-[#E8DCC8] p-3">Inferences drawn from any of the collected personal information listed above to create a profile or summary about, for example, an individual's preferences and characteristics</td>
+                  <td className="border border-[#E8DCC8] p-3">Inferences drawn from any of the collected personal information listed above to create a profile or summary about, for example, an individual&apos;s preferences and characteristics</td>
                   <td className="border border-[#E8DCC8] p-3 text-center">NO</td>
                 </tr>
                 <tr className="bg-[#FAF8F3]">
@@ -507,23 +507,23 @@ export default function PrivacyPolicyPage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">Sources of Personal Information</h3>
 
           <p className="mb-4">
-            Learn more about the sources of personal information we collect in "<a href="#section1" className="text-[#8B6F47] underline">WHAT INFORMATION DO WE COLLECT?</a>"
+            Learn more about the sources of personal information we collect in &quot;<a href="#section1" className="text-[#8B6F47] underline">WHAT INFORMATION DO WE COLLECT?</a>&quot;
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">How We Use and Share Personal Information</h3>
 
           <p className="mb-4">
-            Learn more about how we use your personal information in the section, "<a href="#section2" className="text-[#8B6F47] underline">HOW DO WE PROCESS YOUR INFORMATION?</a>"
+            Learn more about how we use your personal information in the section, &quot;<a href="#section2" className="text-[#8B6F47] underline">HOW DO WE PROCESS YOUR INFORMATION?</a>&quot;
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">Will your information be shared with anyone else?</h3>
 
           <p className="mb-4">
-            We may disclose your personal information with our service providers pursuant to a written contract between us and each service provider. Learn more about how we disclose personal information to in the section, "<a href="#section4" className="text-[#8B6F47] underline">WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?</a>"
+            We may disclose your personal information with our service providers pursuant to a written contract between us and each service provider. Learn more about how we disclose personal information to in the section, &quot;<a href="#section4" className="text-[#8B6F47] underline">WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?</a>&quot;
           </p>
 
           <p className="mb-4">
-            We may use your personal information for our own business purposes, such as for undertaking internal research for technological development and demonstration. This is not considered to be "selling" of your personal information.
+            We may use your personal information for our own business purposes, such as for undertaking internal research for technological development and demonstration. This is not considered to be &quot;selling&quot; of your personal information.
           </p>
 
           <p className="mb-4">
@@ -543,7 +543,7 @@ export default function PrivacyPolicyPage() {
             <li><strong>Right to request</strong> the deletion of your personal data</li>
             <li><strong>Right to obtain a copy</strong> of the personal data you previously shared with us</li>
             <li><strong>Right to non-discrimination</strong> for exercising your rights</li>
-            <li><strong>Right to opt out</strong> of the processing of your personal data if it is used for targeted advertising (or sharing as defined under California's privacy law), the sale of personal data, or profiling in furtherance of decisions that produce legal or similarly significant effects ("profiling")</li>
+            <li><strong>Right to opt out</strong> of the processing of your personal data if it is used for targeted advertising (or sharing as defined under California&apos;s privacy law), the sale of personal data, or profiling in furtherance of decisions that produce legal or similarly significant effects (&quot;profiling&quot;)</li>
           </ul>
 
           <p className="mb-4">
@@ -594,7 +594,7 @@ export default function PrivacyPolicyPage() {
           </p>
 
           <p className="mb-6">
-            We may update this Privacy Notice from time to time. The updated version will be indicated by an updated "Revised" date at the top of this Privacy Notice. If we make material changes to this Privacy Notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this Privacy Notice frequently to be informed of how we are protecting your information.
+            We may update this Privacy Notice from time to time. The updated version will be indicated by an updated &quot;Revised&quot; date at the top of this Privacy Notice. If we make material changes to this Privacy Notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this Privacy Notice frequently to be informed of how we are protecting your information.
           </p>
 
           {/* Section 15 */}

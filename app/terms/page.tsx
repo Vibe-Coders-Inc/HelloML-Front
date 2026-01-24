@@ -15,11 +15,11 @@ export default function TermsOfServicePage() {
         {/* Introduction */}
         <div className="prose prose-stone max-w-none text-[#5a4a3a]">
           <p className="mb-6">
-            Please read these Terms of Service (these "<strong>Terms</strong>") carefully, as they constitute a legally binding agreement between HelloML ("<strong>HelloML</strong>," "<strong>we</strong>," "<strong>us</strong>" or "<strong>our</strong>") and an end-user and any employees, agents, contractors and any other entity on whose behalf the end-user accepts these terms (collectively, "<strong>you</strong>" and "<strong>your</strong>") and apply to your use of our website and Services (as defined below). In case you are utilizing the Services as a representative of a party (e.g. your employer or customer, collectively the "<strong>Client</strong>"), your acceptance of these Terms also binds the Client.
+            Please read these Terms of Service (these &quot;<strong>Terms</strong>&quot;) carefully, as they constitute a legally binding agreement between HelloML (&quot;<strong>HelloML</strong>,&quot; &quot;<strong>we</strong>,&quot; &quot;<strong>us</strong>&quot; or &quot;<strong>our</strong>&quot;) and an end-user and any employees, agents, contractors and any other entity on whose behalf the end-user accepts these terms (collectively, &quot;<strong>you</strong>&quot; and &quot;<strong>your</strong>&quot;) and apply to your use of our website and Services (as defined below). In case you are utilizing the Services as a representative of a party (e.g. your employer or customer, collectively the &quot;<strong>Client</strong>&quot;), your acceptance of these Terms also binds the Client.
           </p>
 
           <p className="mb-6">
-            This is a binding agreement. If you use the Services or click accept or agree to these Terms if presented to you in a user interface for the Services, or you have signed a subscription agreement that serves as a master agreement, you are legally bound by the obligations in these Terms. If you are entering into these Terms on behalf of a Client, you represent and warrant that you have the authority to bind the Client to these Terms, and any reference to "you" and "your" will refer and apply to that party. If you do not agree to all of these Terms, you shall not use the Service and you should not set up an Account (as defined).
+            This is a binding agreement. If you use the Services or click accept or agree to these Terms if presented to you in a user interface for the Services, or you have signed a subscription agreement that serves as a master agreement, you are legally bound by the obligations in these Terms. If you are entering into these Terms on behalf of a Client, you represent and warrant that you have the authority to bind the Client to these Terms, and any reference to &quot;you&quot; and &quot;your&quot; will refer and apply to that party. If you do not agree to all of these Terms, you shall not use the Service and you should not set up an Account (as defined).
           </p>
 
           <p className="mb-6">
@@ -83,17 +83,17 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">b. What We Provide</h3>
 
           <p className="mb-4">
-            The Services include but are not limited to a hosted software solution ("<strong>Platform</strong>") that allows you to create AI voice agents that can interact with your customers and stakeholders and respond to queries by such individuals in a realistic and conversational manner.
+            The Services include but are not limited to a hosted software solution (&quot;<strong>Platform</strong>&quot;) that allows you to create AI voice agents that can interact with your customers and stakeholders and respond to queries by such individuals in a realistic and conversational manner.
           </p>
 
           <p className="mb-4">
-            Our Platform provides an orchestration layer that allows you to, either via our API or via the Dashboard, utilize transcription services, process speech through large language models ("<strong>LLM</strong>" or "<strong>AI Model</strong>") to generate responses, and convert text to speech to be delivered to stakeholders (the Platform and additional features, such as phone numbers that connect to our Platform, collectively, the "<strong>Services</strong>").
+            Our Platform provides an orchestration layer that allows you to, either via our API or via the Dashboard, utilize transcription services, process speech through large language models (&quot;<strong>LLM</strong>&quot; or &quot;<strong>AI Model</strong>&quot;) to generate responses, and convert text to speech to be delivered to stakeholders (the Platform and additional features, such as phone numbers that connect to our Platform, collectively, the &quot;<strong>Services</strong>&quot;).
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">c. Third-Parties</h3>
 
           <p className="mb-4">
-            Our Services interact with third-party service providers (our "<strong>Providers</strong>") as part of Services. You understand and agree that when you use the various aspects of the Services (i.e. transcription, LLM processing, and voice generation), we may share Your Content (as defined) with each Provider, subject to each Provider's individual terms and conditions. We do not make any representation and warranties on any Provider's behalf, nor are we an agent of any such Provider.
+            Our Services interact with third-party service providers (our &quot;<strong>Providers</strong>&quot;) as part of Services. You understand and agree that when you use the various aspects of the Services (i.e. transcription, LLM processing, and voice generation), we may share Your Content (as defined) with each Provider, subject to each Provider&apos;s individual terms and conditions. We do not make any representation and warranties on any Provider&apos;s behalf, nor are we an agent of any such Provider.
           </p>
 
           <p className="mb-4">
@@ -110,13 +110,13 @@ export default function TermsOfServicePage() {
             <li>Do anything with the Services other than use them for your own use as intended under these Terms, including not to license, sell, rent, lease, transfer, assign, reproduce, distribute, host or otherwise commercially exploit the Services or any portion of the Services;</li>
             <li>Use the Services in any way that would violate applicable law or otherwise give rise to criminal or civil liability;</li>
             <li>Create AI voice agents using our Services for any illegal purpose;</li>
-            <li>Use HelloML's name, trademarks, service marks, trade names, designs, logos, photos, or any other materials we make available via the Services, except as allowed by these Terms;</li>
-            <li>Remove, alter or destroy any copyright notices or other proprietary markings contained on or in the Services or infringe HelloML's Intellectual Property Rights;</li>
+            <li>Use HelloML&apos;s name, trademarks, service marks, trade names, designs, logos, photos, or any other materials we make available via the Services, except as allowed by these Terms;</li>
+            <li>Remove, alter or destroy any copyright notices or other proprietary markings contained on or in the Services or infringe HelloML&apos;s Intellectual Property Rights;</li>
             <li>Copy, modify, translate, adapt, merge, archive, download, upload, disclose, distribute, sell, lease, syndicate, broadcast, perform, display, make available, make derivatives of, or otherwise use the Services or its content, other than as expressly permitted by these Terms;</li>
             <li>Reverse engineer, duplicate, decompile, disassemble, or decode any part of the software we provide or the Services;</li>
             <li>Use any robot, spider, crawler, scraper, or other automated means to access the Services or extract data;</li>
             <li>Upload viruses or other malicious code or otherwise compromise the security of the Services;</li>
-            <li>Disrupt or hinder any of the Service's systems, servers, or networks;</li>
+            <li>Disrupt or hinder any of the Service&apos;s systems, servers, or networks;</li>
             <li>Try to detect, scan, or test any vulnerabilities of the Services or breach any security protections;</li>
             <li>Pretend to be someone else or falsely represent your association with any entity;</li>
             <li>Access the Service in ways that are not authorized by these Terms;</li>
@@ -146,7 +146,7 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">a. Registration</h3>
 
           <p className="mb-4">
-            To access the Services, you must register and obtain login credentials for an account ("<strong>Account</strong>") and provide information as prompted by the account registration flow. You represent and warrant that: (a) all registration information you submit is truthful and accurate; and (b) you will maintain and promptly update such information to keep it true, accurate, current and complete. You may delete your Account at any time, for any reason in accordance with Section 7(b).
+            To access the Services, you must register and obtain login credentials for an account (&quot;<strong>Account</strong>&quot;) and provide information as prompted by the account registration flow. You represent and warrant that: (a) all registration information you submit is truthful and accurate; and (b) you will maintain and promptly update such information to keep it true, accurate, current and complete. You may delete your Account at any time, for any reason in accordance with Section 7(b).
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">b. Eligibility</h3>
@@ -167,13 +167,13 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">a. Your Content</h3>
 
           <p className="mb-4">
-            When you utilize our Service, all materials uploaded to or transmitted via the Platform is your content ("<strong>Your Content</strong>"). You own all rights and title in Your Content, including any Intellectual Property Rights. HelloML does not claim any ownership of Your Content or assert any rights under your Intellectual Property Rights other than as granted under these Terms.
+            When you utilize our Service, all materials uploaded to or transmitted via the Platform is your content (&quot;<strong>Your Content</strong>&quot;). You own all rights and title in Your Content, including any Intellectual Property Rights. HelloML does not claim any ownership of Your Content or assert any rights under your Intellectual Property Rights other than as granted under these Terms.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">b. Rights You Grant Us</h3>
 
           <p className="mb-4">
-            You hereby grant HelloML a worldwide, royalty-free, sublicensable license to host, store, cache, use, display, reproduce, modify, adapt, edit, analyze, transmit, and distribute ("<strong>Handle</strong>") Your Content during the Term. This license to Handle is solely for the purpose of us and our Providers providing you the Services.
+            You hereby grant HelloML a worldwide, royalty-free, sublicensable license to host, store, cache, use, display, reproduce, modify, adapt, edit, analyze, transmit, and distribute (&quot;<strong>Handle</strong>&quot;) Your Content during the Term. This license to Handle is solely for the purpose of us and our Providers providing you the Services.
           </p>
 
           <p className="mb-4">
@@ -181,17 +181,17 @@ export default function TermsOfServicePage() {
           </p>
 
           <p className="mb-4">
-            You agree that submission of any ideas, suggestions, documents, and/or proposals to HelloML ("<strong>Feedback</strong>") is at your own risk and that HelloML has no obligations (including without limitation obligations of confidentiality) with respect to such Feedback. You hereby grant to HelloML a fully paid, royalty-free, perpetual, irrevocable, worldwide, non-exclusive, and fully sublicensable and transferable right and license to use, reproduce, perform, display, distribute, adapt, modify, re-format, create derivative works of, and otherwise commercially or non-commercially exploit in any manner, any and all Feedback for any purpose.
+            You agree that submission of any ideas, suggestions, documents, and/or proposals to HelloML (&quot;<strong>Feedback</strong>&quot;) is at your own risk and that HelloML has no obligations (including without limitation obligations of confidentiality) with respect to such Feedback. You hereby grant to HelloML a fully paid, royalty-free, perpetual, irrevocable, worldwide, non-exclusive, and fully sublicensable and transferable right and license to use, reproduce, perform, display, distribute, adapt, modify, re-format, create derivative works of, and otherwise commercially or non-commercially exploit in any manner, any and all Feedback for any purpose.
           </p>
 
-          <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">c. HelloML's Rights</h3>
+          <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">c. HelloML&apos;s Rights</h3>
 
           <p className="mb-4">
             The Services utilize technology and capabilities and contain certain materials provided by us as well as our licensors, including but not limited to, all proprietary LLM, content, information, software, images, text, graphics, illustrations, logos, and (as applicable) audio and video. HelloML and its licensors reserve all ownership and Intellectual Property Rights to all parts of our Services.
           </p>
 
           <p className="mb-4">
-            For the purposes of these Terms, "<strong>Intellectual Property Rights</strong>" means all (i) patents, patent disclosures, and inventions (whether patentable or not), (ii) trademarks, (iii) copyrights and copyrightable works (including computer programs), and rights in data and databases, and (iv) all other intellectual property rights, in each case whether registered or unregistered and including all applications for, and renewals or extensions of, such rights.
+            For the purposes of these Terms, &quot;<strong>Intellectual Property Rights</strong>&quot; means all (i) patents, patent disclosures, and inventions (whether patentable or not), (ii) trademarks, (iii) copyrights and copyrightable works (including computer programs), and rights in data and databases, and (iv) all other intellectual property rights, in each case whether registered or unregistered and including all applications for, and renewals or extensions of, such rights.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">d. Rights Granted to Third Parties</h3>
@@ -204,7 +204,7 @@ export default function TermsOfServicePage() {
           <h2 id="section5" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">5. AGGREGATE STATISTICS</h2>
 
           <p className="mb-6">
-            HelloML shall monitor your use of the Services, including the Platform, and collect and compile data and information related to all such use in an aggregate and anonymized manner, including to compile statistical and performance information related to the provision and operation of the Platform ("<strong>Aggregated Statistics</strong>"). Such Aggregated Statistics are wholly owned by HelloML with all rights reserved and may be used for operating, developing, providing, promoting, and improving the Services.
+            HelloML shall monitor your use of the Services, including the Platform, and collect and compile data and information related to all such use in an aggregate and anonymized manner, including to compile statistical and performance information related to the provision and operation of the Platform (&quot;<strong>Aggregated Statistics</strong>&quot;). Such Aggregated Statistics are wholly owned by HelloML with all rights reserved and may be used for operating, developing, providing, promoting, and improving the Services.
           </p>
 
           {/* Section 6 */}
@@ -230,7 +230,7 @@ export default function TermsOfServicePage() {
           </p>
 
           <p className="mb-4">
-            You agree that all terminations will be made in HelloML's sole discretion and that HelloML will not be liable to you or any third party for any termination of your Account, provided that if applicable, HelloML shall refund you any prepaid amount, on a pro-rata basis, for any duration of the term of subscription which remains after the termination of your Account.
+            You agree that all terminations will be made in HelloML&apos;s sole discretion and that HelloML will not be liable to you or any third party for any termination of your Account, provided that if applicable, HelloML shall refund you any prepaid amount, on a pro-rata basis, for any duration of the term of subscription which remains after the termination of your Account.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">c. Termination by You</h3>
@@ -272,7 +272,7 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">a. Your Indemnification Obligation</h3>
 
           <p className="mb-4">
-            You agree, to the extent permitted by law, to indemnify, defend, and hold harmless HelloML, our directors, officers, stockholders, employees, licensors, providers, and agents ("<strong>HelloML Parties</strong>") from and against any and all claims, demands, losses, liabilities, damages, costs, and expenses (including reasonable attorneys' fees) (collectively, "<strong>Losses</strong>") due to, arising out of, or relating in any way to: (a) your access to or use of the Services; (b) your breach of these Terms, any rights of another party, or any applicable law or regulation, including but not limited to the Telephone Consumer Protection Act of 1991 (TCPA), the Telemarketing and Consumer Fraud and Abuse Prevention Act, and their implementing regulations; or (c) your negligence or willful misconduct.
+            You agree, to the extent permitted by law, to indemnify, defend, and hold harmless HelloML, our directors, officers, stockholders, employees, licensors, providers, and agents (&quot;<strong>HelloML Parties</strong>&quot;) from and against any and all claims, demands, losses, liabilities, damages, costs, and expenses (including reasonable attorneys&apos; fees) (collectively, &quot;<strong>Losses</strong>&quot;) due to, arising out of, or relating in any way to: (a) your access to or use of the Services; (b) your breach of these Terms, any rights of another party, or any applicable law or regulation, including but not limited to the Telephone Consumer Protection Act of 1991 (TCPA), the Telemarketing and Consumer Fraud and Abuse Prevention Act, and their implementing regulations; or (c) your negligence or willful misconduct.
           </p>
 
           <p className="mb-4">
@@ -282,14 +282,14 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">b. Indemnification by HelloML</h3>
 
           <p className="mb-6">
-            HelloML will defend, indemnify and hold harmless you and as applicable your officers, directors, employees, contractors and licensors (collectively, "<strong>Subscriber Indemnitees</strong>"), from and against any costs, damages (including reasonable attorneys' fees) that are awarded in final judgment against or paid in settlement in connection with any action or suit brought against a Subscriber Indemnitee by a third party based upon a third-party claim that (i) the Services, as provided by HelloML pursuant to these Terms (exclusive of any Your Content), infringe any Intellectual Property Rights or misappropriate any trade secret, or (ii) arises from or relate to the gross negligence, willful misconduct, fraud or more culpable acts or omissions of HelloML, violation of applicable law by HelloML, or any breach by HelloML of any of its representations or warranties hereunder.
+            HelloML will defend, indemnify and hold harmless you and as applicable your officers, directors, employees, contractors and licensors (collectively, &quot;<strong>Subscriber Indemnitees</strong>&quot;), from and against any costs, damages (including reasonable attorneys&apos; fees) that are awarded in final judgment against or paid in settlement in connection with any action or suit brought against a Subscriber Indemnitee by a third party based upon a third-party claim that (i) the Services, as provided by HelloML pursuant to these Terms (exclusive of any Your Content), infringe any Intellectual Property Rights or misappropriate any trade secret, or (ii) arises from or relate to the gross negligence, willful misconduct, fraud or more culpable acts or omissions of HelloML, violation of applicable law by HelloML, or any breach by HelloML of any of its representations or warranties hereunder.
           </p>
 
           {/* Section 10 */}
           <h2 id="section10" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">10. DISCLAIMER OF WARRANTIES AND CONDITIONS</h2>
 
           <p className="mb-4">
-            a. You expressly understand and agree that, to the extent permitted by applicable law, your use of the Services is at your sole risk, and the Services are provided on an "<strong>AS IS</strong>" and "<strong>AS AVAILABLE</strong>" basis, with all faults. HelloML expressly disclaims all warranties, representations, and conditions of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.
+            a. You expressly understand and agree that, to the extent permitted by applicable law, your use of the Services is at your sole risk, and the Services are provided on an &quot;<strong>AS IS</strong>&quot; and &quot;<strong>AS AVAILABLE</strong>&quot; basis, with all faults. HelloML expressly disclaims all warranties, representations, and conditions of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.
           </p>
 
           <p className="mb-4">
@@ -331,17 +331,17 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">b. Arbitration</h3>
 
           <p className="mb-4">
-            You and HelloML agree that any controversy, allegation, or claim that arises out of or relates to the Service, these Terms, or any additional terms, whether heretofore or hereafter arising (collectively, a "<strong>Dispute</strong>") will be resolved by binding arbitration, rather than in court, except for: (1) any controversy, allegation, or claim that arises out of or relates to our actual or alleged intellectual property rights; (2) any claim related to, or arising from, allegations of theft, piracy, invasion of privacy, or unauthorized use; (3) any claim for equitable relief.
+            You and HelloML agree that any controversy, allegation, or claim that arises out of or relates to the Service, these Terms, or any additional terms, whether heretofore or hereafter arising (collectively, a &quot;<strong>Dispute</strong>&quot;) will be resolved by binding arbitration, rather than in court, except for: (1) any controversy, allegation, or claim that arises out of or relates to our actual or alleged intellectual property rights; (2) any claim related to, or arising from, allegations of theft, piracy, invasion of privacy, or unauthorized use; (3) any claim for equitable relief.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">c. Informal Dispute Resolution</h3>
 
           <p className="mb-4">
-            You and HelloML agree that good faith informal efforts to resolve disputes can result in a prompt, low-cost and mutually beneficial outcome. You and HelloML therefore agree that before either party commences arbitration against the other, we will personally meet or confer telephonically or via videoconference, in a good faith effort to resolve informally any Dispute covered by this clause ("<strong>Informal Dispute Resolution Conference</strong>").
+            You and HelloML agree that good faith informal efforts to resolve disputes can result in a prompt, low-cost and mutually beneficial outcome. You and HelloML therefore agree that before either party commences arbitration against the other, we will personally meet or confer telephonically or via videoconference, in a good faith effort to resolve informally any Dispute covered by this clause (&quot;<strong>Informal Dispute Resolution Conference</strong>&quot;).
           </p>
 
           <p className="mb-4">
-            The party initiating a Dispute must give notice to the other party in writing of its intent to initiate an Informal Dispute Resolution Conference ("<strong>Notice</strong>"), which will occur within 45 days after the other party receives such Notice, unless an extension is mutually agreed upon by the parties. Notice to HelloML that you intend to initiate an Informal Dispute Resolution Conference should be sent by email to <a href="mailto:noah@helloml.app?subject=Dispute%20Resolution" className="text-[#8B6F47] underline">noah@helloml.app</a>.
+            The party initiating a Dispute must give notice to the other party in writing of its intent to initiate an Informal Dispute Resolution Conference (&quot;<strong>Notice</strong>&quot;), which will occur within 45 days after the other party receives such Notice, unless an extension is mutually agreed upon by the parties. Notice to HelloML that you intend to initiate an Informal Dispute Resolution Conference should be sent by email to <a href="mailto:noah@helloml.app?subject=Dispute%20Resolution" className="text-[#8B6F47] underline">noah@helloml.app</a>.
           </p>
 
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">d. Waiver of Jury Trial</h3>
@@ -359,7 +359,7 @@ export default function TermsOfServicePage() {
           <h3 className="text-lg font-semibold text-[#5a4a3a] mt-6 mb-3">f. Rules and Forum</h3>
 
           <p className="mb-6">
-            These Terms evidence a transaction involving interstate commerce; and notwithstanding any other provision in these Terms with respect to the applicable substantive law, the Federal Arbitration Act, 9 U.S.C. § 1 et seq., will govern the interpretation and enforcement of this Section 12 and any arbitration proceedings. If the Informal Dispute Resolution Process described above does not resolve satisfactorily within sixty (60) days after receipt of your Notice, you and HelloML agree that either party will have the right to finally resolve the Dispute through binding arbitration. The arbitration will be administered by the American Arbitration Association ("<strong>AAA</strong>"), in accordance with the AAA Commercial Arbitration Rules then in effect, by one arbitrator alone and such arbitrator will have exclusive authority to resolve any dispute.
+            These Terms evidence a transaction involving interstate commerce; and notwithstanding any other provision in these Terms with respect to the applicable substantive law, the Federal Arbitration Act, 9 U.S.C. § 1 et seq., will govern the interpretation and enforcement of this Section 12 and any arbitration proceedings. If the Informal Dispute Resolution Process described above does not resolve satisfactorily within sixty (60) days after receipt of your Notice, you and HelloML agree that either party will have the right to finally resolve the Dispute through binding arbitration. The arbitration will be administered by the American Arbitration Association (&quot;<strong>AAA</strong>&quot;), in accordance with the AAA Commercial Arbitration Rules then in effect, by one arbitrator alone and such arbitrator will have exclusive authority to resolve any dispute.
           </p>
 
           {/* Section 13 */}
@@ -380,7 +380,7 @@ export default function TermsOfServicePage() {
           <h2 id="section15" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">15. EXPORT CONTROL</h2>
 
           <p className="mb-6">
-            You may not use, export, import, or transfer the Services except as authorized by U.S. law, the laws of the jurisdiction in which you obtained the Services, and any other applicable laws. In particular, but without limitation, the Services may not be exported or re-exported (a) into any United States embargoed countries, or (b) to anyone on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce's Denied Person's List or Entity List. By using the Services, you represent and warrant that (i) you are not located in a country that is subject to a U.S. Government embargo, or that has been designated by the U.S. Government as a "terrorist supporting" country and (ii) you are not listed on any U.S. Government list of prohibited or restricted parties.
+            You may not use, export, import, or transfer the Services except as authorized by U.S. law, the laws of the jurisdiction in which you obtained the Services, and any other applicable laws. In particular, but without limitation, the Services may not be exported or re-exported (a) into any United States embargoed countries, or (b) to anyone on the U.S. Treasury Department&apos;s list of Specially Designated Nationals or the U.S. Department of Commerce&apos;s Denied Person&apos;s List or Entity List. By using the Services, you represent and warrant that (i) you are not located in a country that is subject to a U.S. Government embargo, or that has been designated by the U.S. Government as a &quot;terrorist supporting&quot; country and (ii) you are not listed on any U.S. Government list of prohibited or restricted parties.
           </p>
 
           {/* Section 16 */}
@@ -394,7 +394,7 @@ export default function TermsOfServicePage() {
           <h2 id="section17" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">17. ASSIGNMENT</h2>
 
           <p className="mb-6">
-            These Terms, and your rights and obligations hereunder, may not be assigned, subcontracted, delegated or otherwise transferred by you without HelloML's prior written consent, and any attempted assignment, subcontract, delegation, or transfer in violation of the foregoing will be null and void. HelloML may assign these Terms and any other right or obligation to a party without any consent or notification requirement to you.
+            These Terms, and your rights and obligations hereunder, may not be assigned, subcontracted, delegated or otherwise transferred by you without HelloML&apos;s prior written consent, and any attempted assignment, subcontract, delegation, or transfer in violation of the foregoing will be null and void. HelloML may assign these Terms and any other right or obligation to a party without any consent or notification requirement to you.
           </p>
 
           {/* Section 18 */}
@@ -408,7 +408,7 @@ export default function TermsOfServicePage() {
           <h2 id="section19" className="text-xl font-bold text-[#8B6F47] mt-12 mb-4">19. FINAL TERMS</h2>
 
           <p className="mb-6">
-            These Terms, along with any HelloML ordering document such as master agreement, or as found on HelloML's website, make up the final, entire, and exclusive agreement between you and HelloML with respect to the subject matter hereof and supersede any prior agreements and discussions, both written and oral, with respect to such subject matter. No purchase order or other document issued by you in respect of our Services shall control.
+            These Terms, along with any HelloML ordering document such as master agreement, or as found on HelloML&apos;s website, make up the final, entire, and exclusive agreement between you and HelloML with respect to the subject matter hereof and supersede any prior agreements and discussions, both written and oral, with respect to such subject matter. No purchase order or other document issued by you in respect of our Services shall control.
           </p>
 
           {/* Section 20 */}
