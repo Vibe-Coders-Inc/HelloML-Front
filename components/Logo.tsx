@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Phone } from 'lucide-react';
 
 type LogoSize = 'small' | 'medium' | 'large' | 'hero' | 'responsive-hero' | 'responsive-card';
@@ -10,25 +13,25 @@ interface LogoProps {
 const sizeConfig = {
   small: {
     text: 'text-3xl',
-    phone: { container: 'w-8 h-8', icon: 'w-4 h-4' },
+    phone: { container: 'w-8 h-8 -translate-y-1', icon: 'w-4 h-4' },
     spacing: 'space-x-2',
     mlSpacing: 'ml-1.5',
   },
   medium: {
     text: 'text-4xl',
-    phone: { container: 'w-10 h-10', icon: 'w-5 h-5' },
+    phone: { container: 'w-10 h-10 -translate-y-1', icon: 'w-5 h-5' },
     spacing: 'space-x-2',
     mlSpacing: 'ml-2',
   },
   large: {
     text: 'text-5xl',
-    phone: { container: 'w-10 h-10', icon: 'w-5 h-5' },
+    phone: { container: 'w-10 h-10 -translate-y-1.5', icon: 'w-5 h-5' },
     spacing: 'space-x-3',
     mlSpacing: 'ml-3',
   },
   hero: {
     text: 'text-7xl',
-    phone: { container: 'w-14 h-14', icon: 'w-7 h-7' },
+    phone: { container: 'w-14 h-14 -translate-y-2', icon: 'w-7 h-7' },
     spacing: 'space-x-4',
     mlSpacing: 'ml-4',
   },
@@ -47,6 +50,13 @@ const sizeConfig = {
 };
 
 export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
+  const [hasRung, setHasRung] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setHasRung(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const config = sizeConfig[size];
   const textColor = lightMode ? 'text-[#8B6F47]' : 'text-white';
   const mlColor = lightMode ? 'text-[#A67A5B]' : 'text-white/95';
@@ -54,6 +64,10 @@ export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
     ? 'bg-gradient-to-br from-[#8B6F47] to-[#A67A5B]'
     : 'bg-white/20 border-2 border-white/30';
   const phoneIconColor = 'text-white';
+
+  const ringAnimation = !hasRung ? {
+    animation: 'phone-ring 0.5s ease-in-out 3'
+  } : {};
 
   return (
     <div className={`flex items-center ${config.spacing}`}>
@@ -64,8 +78,8 @@ export function Logo({ size = 'medium', lightMode = false }: LogoProps) {
         <span className={`font-bold ${mlColor} ${config.mlSpacing}`}>ML</span>
       </h2>
       <div
-        className={`${config.phone.container} ${phoneContainerBg} rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-2xl animate-pulse`}
-        style={{ animationDuration: '3s' }}
+        className={`${config.phone.container} ${phoneContainerBg} rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-2xl`}
+        style={ringAnimation}
       >
         <Phone className={`${config.phone.icon} ${phoneIconColor}`} strokeWidth={2.5} />
       </div>
