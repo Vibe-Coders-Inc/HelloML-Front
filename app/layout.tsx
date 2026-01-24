@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { getMetadata } from "@/lib/content";
 import { FooterWrapper } from "@/components/FooterWrapper";
+import { ContentWrapper } from "@/components/ContentWrapper";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -42,7 +43,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${borel.variable} antialiased`}
       >
         <Providers>
-          <div className="pb-20">{children}</div>
+          <ContentWrapper>{children}</ContentWrapper>
           <FooterWrapper />
           <Toaster position="top-right" richColors />
         </Providers>
