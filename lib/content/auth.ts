@@ -44,4 +44,23 @@ export const authContent = {
     button: 'Quick Test Login',
     description: 'For testing purposes',
   },
+  mobile: {
+    landing: {
+      tagline: 'Voice agents that just work',
+    },
+    login: {
+      title: 'Welcome back',
+      subtitle: 'Login to your account',
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot Password?',
+      noAccount: "Don't have an account?",
+      signUp: 'Sign up',
+    },
+    register: {
+      title: "Let's get started!",
+      subtitle: 'Create your new account',
+      hasAccount: 'Already have an account?',
+      signIn: 'Sign in',
+    },
+  },
 } as const;
