@@ -2,6 +2,7 @@ export const commonContent = {
   buttons: {
     signIn: 'Sign In',
     signingIn: 'Signing in...',
+    signUp: 'Sign Up',
     createAccount: 'Create Account',
     creatingAccount: 'Creating account...',
   },
