@@ -65,52 +65,51 @@ function BusinessCard({ business, onDelete, isDeleting }: BusinessCardProps) {
   };
 
   return (
-    <Card className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-      <CardHeader className="pb-6">
+    <Card className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 backdrop-blur-sm rounded-2xl overflow-hidden group">
+      <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-xl font-semibold text-[#8B6F47]">{business.name}</CardTitle>
-            <CardDescription className="mt-1.5 text-[#A67A5B] text-sm">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-semibold text-[#8B6F47] truncate">{business.name}</CardTitle>
+            <CardDescription className="mt-1 text-[#A67A5B]/80 text-sm truncate">
               {business.business_email}
             </CardDescription>
           </div>
-          <div className="flex space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(business.id)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(business.id)}
+            disabled={isDeleting}
+            className="text-[#A67A5B]/50 hover:text-red-500 hover:bg-red-50 rounded-xl h-8 w-8 p-0 transition-all duration-200 opacity-0 group-hover:opacity-100"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center text-sm text-[#A67A5B]">
-            <Building2 className="h-4 w-4 mr-2" />
-            {business.address}
+      <CardContent className="pt-0">
+        <div className="space-y-2.5">
+          <div className="flex items-center text-sm text-[#A67A5B]/80">
+            <Building2 className="h-4 w-4 mr-2.5 text-[#A67A5B]/60 flex-shrink-0" />
+            <span className="truncate">{business.address}</span>
           </div>
 
           <div className="flex items-center text-sm">
-            <Phone className="h-4 w-4 mr-2 text-[#A67A5B]" />
+            <Phone className="h-4 w-4 mr-2.5 text-[#A67A5B]/60 flex-shrink-0" />
             {getPhoneDisplay()}
           </div>
 
-          <div className="flex items-center text-sm text-[#A67A5B]">
-            <Calendar className="h-4 w-4 mr-2" />
-            Created {formatDate(business.created_at)}
+          <div className="flex items-center text-sm text-[#A67A5B]/80">
+            <Calendar className="h-4 w-4 mr-2.5 text-[#A67A5B]/60 flex-shrink-0" />
+            {formatDate(business.created_at)}
           </div>
         </div>
 
-        <div className="mt-4 flex space-x-2">
+        <div className="mt-5">
           <Button
-            className="flex-1 shadow-lg hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-medium h-11 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
             onClick={() => router.push(`/business/${business.id}`)}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Open
+            Open Dashboard
           </Button>
         </div>
       </CardContent>
@@ -187,20 +186,20 @@ export default function DashboardPage() {
       <div className="absolute top-[75%] left-[35%] w-2 h-2 bg-[#8B6F47]/25 rounded-full animate-bounce shadow-md" style={{ animationDuration: '4.8s', animationDelay: '1.2s' }}></div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-white to-[#FAF2DC] border-b border-[#D8CBA9]/40 shadow-md backdrop-blur-sm relative z-20">
+      <div className="bg-gradient-to-r from-white/95 via-[#FAF8F3]/95 to-[#F5EFE6]/95 border-b border-[#E8DCC8]/60 shadow-lg backdrop-blur-md relative z-20">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex justify-between items-center h-28">
-            <Logo size="large" lightMode />
+          <div className="flex justify-between items-center h-16">
+            <Logo size="medium" lightMode />
             <div className="flex items-center gap-4">
               {user?.user_metadata?.name && (
-                <span className="text-[#8B6F47] font-medium">
-                  Hello, {user.user_metadata.name}
+                <span className="text-[#8B6F47] font-medium text-sm">
+                  {user.user_metadata.name}
                 </span>
               )}
               <Button
                 variant="outline"
                 onClick={handleLogout}
-                className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
+                className="border-[#E8DCC8] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] rounded-xl h-10 px-4 shadow-sm hover:shadow-md transition-all duration-300"
               >
                 Logout
               </Button>
@@ -209,12 +208,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 relative z-10">
-        {/* New Business Button */}
-        <div className="flex justify-between items-center mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-[#8B6F47]">Your Voice Agents</h2>
-            <p className="text-base text-[#A67A5B] font-light mt-2">Manage your AI-powered voice agents and watch your business grow!</p>
+            <h1 className="text-2xl font-bold text-[#8B6F47]">Your Businesses</h1>
+            <p className="text-sm text-[#A67A5B]/80 mt-1">Manage your AI-powered voice agents</p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -223,7 +222,7 @@ export default function DashboardPage() {
                 New Business
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8]">
+            <DialogContent className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-[#E8DCC8] rounded-2xl shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-[#8B6F47]">Create New Business</DialogTitle>
                 <DialogDescription className="text-[#A67A5B]">
@@ -274,14 +273,19 @@ export default function DashboardPage() {
                     </p>
                   )}
                 </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B]">
+                <DialogFooter className="gap-3 sm:gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                    className="border-[#E8DCC8] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] rounded-xl h-11 transition-all duration-300"
+                  >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={createBusinessMutation.isPending}
-                    className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold rounded-xl h-11 shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     {createBusinessMutation.isPending ? 'Creating...' : 'Create Business'}
                   </Button>
@@ -294,19 +298,20 @@ export default function DashboardPage() {
         {/* Businesses Grid */}
         {businessesLoading ? (
           // Loading skeleton
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl animate-pulse">
-                <CardHeader className="pb-6">
-                  <div className="h-6 bg-[#D8CBA9]/30 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-[#D8CBA9]/20 rounded w-1/2"></div>
+              <Card key={i} className="relative bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-xl rounded-2xl overflow-hidden">
+                <CardHeader className="pb-4">
+                  <div className="h-5 bg-[#E8DCC8]/40 rounded-lg w-3/4 mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-[#E8DCC8]/30 rounded-lg w-1/2 animate-pulse"></div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
-                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
-                    <div className="h-4 bg-[#D8CBA9]/20 rounded"></div>
+                <CardContent className="pt-0">
+                  <div className="space-y-2.5">
+                    <div className="h-4 bg-[#E8DCC8]/25 rounded-lg animate-pulse"></div>
+                    <div className="h-4 bg-[#E8DCC8]/25 rounded-lg w-2/3 animate-pulse"></div>
+                    <div className="h-4 bg-[#E8DCC8]/25 rounded-lg w-1/2 animate-pulse"></div>
                   </div>
+                  <div className="mt-5 h-11 bg-[#E8DCC8]/30 rounded-xl animate-pulse"></div>
                 </CardContent>
               </Card>
             ))}
@@ -331,8 +336,12 @@ export default function DashboardPage() {
                 Your first AI voice agent is just one click away. Let&apos;s make it happen!
               </p>
               <div className="mt-6">
-                <Button onClick={() => setIsCreateDialogOpen(true)} size="lg" className="shadow-lg hover:shadow-xl">
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  size="lg"
+                  className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold h-12 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
                   Create Your First Business
                 </Button>
               </div>
@@ -352,7 +361,7 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {businesses.map((business) => (
               <BusinessCard
                 key={business.id}
