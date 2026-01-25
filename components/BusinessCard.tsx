@@ -95,26 +95,29 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
       <DeleteBurst isActive={isExploding} onComplete={handleBurstComplete} />
 
       <div
-        className={`relative bg-white/70 backdrop-blur-xl border border-white/50 shadow-sm hover:shadow-xl hover:shadow-[#8B6F47]/5 transition-all duration-300 rounded-2xl ${isExploding ? 'pointer-events-none' : ''}`}
+        className={`relative bg-white border border-[#E8DCC8]/60 shadow-[0_2px_8px_rgba(139,111,71,0.08)] hover:shadow-[0_8px_24px_rgba(139,111,71,0.12)] transition-all duration-300 rounded-2xl ${isExploding ? 'pointer-events-none' : ''}`}
         style={{ overflow: 'visible' }}
       >
-        {/* Subtle gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FAF8F3]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+        {/* Accent bar at top */}
+        <div className="absolute top-0 left-6 right-6 h-[3px] bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] rounded-full opacity-80" />
+
+        {/* Hover glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#8B6F47]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
 
         {/* Content */}
-        <div className="relative p-6">
+        <div className="relative p-6 pt-7">
           {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-[#8B6F47] truncate mb-1">
+              <h3 className="text-lg font-semibold text-[#5D4E37] truncate mb-1">
                 {business.name}
               </h3>
-              <p className="text-sm text-[#A67A5B]/70 truncate">
+              <p className="text-sm text-[#8B6F47]/70 truncate">
                 {business.business_email}
               </p>
             </div>
             <motion.button
-              className="text-[#A67A5B]/30 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-0 group-hover:opacity-100"
+              className="text-[#A67A5B]/40 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-0 group-hover:opacity-100"
               onClick={handleDeleteClick}
               disabled={isDeleting || isExploding}
               whileHover={{ scale: 1.1 }}
@@ -126,23 +129,23 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
 
           {/* Details */}
           <div className="space-y-3 mb-5">
-            <div className="flex items-center text-sm text-[#A67A5B]/80">
-              <div className="w-8 h-8 rounded-lg bg-[#FAF8F3] flex items-center justify-center mr-3">
-                <Building2 className="h-4 w-4 text-[#A67A5B]/60" />
+            <div className="flex items-center text-sm text-[#6B5D4D]">
+              <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <Building2 className="h-4 w-4 text-[#8B6F47]" />
               </div>
               <span className="truncate">{business.address}</span>
             </div>
 
-            <div className="flex items-center text-sm">
-              <div className="w-8 h-8 rounded-lg bg-[#FAF8F3] flex items-center justify-center mr-3">
-                <Phone className="h-4 w-4 text-[#A67A5B]/60" />
+            <div className="flex items-center text-sm text-[#6B5D4D]">
+              <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <Phone className="h-4 w-4 text-[#8B6F47]" />
               </div>
               {getPhoneDisplay()}
             </div>
 
-            <div className="flex items-center text-sm text-[#A67A5B]/80">
-              <div className="w-8 h-8 rounded-lg bg-[#FAF8F3] flex items-center justify-center mr-3">
-                <Calendar className="h-4 w-4 text-[#A67A5B]/60" />
+            <div className="flex items-center text-sm text-[#6B5D4D]">
+              <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <Calendar className="h-4 w-4 text-[#8B6F47]" />
               </div>
               {formatDate(business.created_at)}
             </div>
