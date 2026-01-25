@@ -86,26 +86,45 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
       variants={cardVariants}
       initial="hidden"
       animate={isExploding ? { opacity: 0, scale: 0.8, transition: { duration: 0.3 } } : 'visible'}
-      whileHover={!isExploding ? { y: -4 } : {}}
-      transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
-      className="group relative"
+      whileHover={!isExploding ? { y: -6, scale: 1.02 } : {}}
+      transition={{ type: 'spring' as const, stiffness: 400, damping: 25 }}
+      className="group relative cursor-pointer"
       style={{ overflow: 'visible' }}
     >
       {/* Delete burst animation - positioned to overflow the card */}
       <DeleteBurst isActive={isExploding} onComplete={handleBurstComplete} />
 
       <div
-        className={`relative bg-white border border-[#E8DCC8]/60 shadow-[0_2px_8px_rgba(139,111,71,0.08)] hover:shadow-[0_8px_24px_rgba(139,111,71,0.12)] transition-all duration-300 rounded-2xl ${isExploding ? 'pointer-events-none' : ''}`}
-        style={{ overflow: 'visible' }}
+        className={`relative bg-white rounded-2xl transition-all duration-300 ${isExploding ? 'pointer-events-none' : ''}`}
+        style={{
+          overflow: 'visible',
+          boxShadow: `
+            0 1px 2px rgba(139,111,71,0.04),
+            0 4px 8px rgba(139,111,71,0.06),
+            0 8px 16px rgba(139,111,71,0.06),
+            0 0 0 1px rgba(232,220,200,0.5)
+          `,
+        }}
       >
-        {/* Accent bar at top */}
-        <div className="absolute top-0 left-6 right-6 h-[3px] bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] rounded-full opacity-80" />
+        {/* Hover glow ring */}
+        <div
+          className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: 'linear-gradient(135deg, rgba(139,111,71,0.15), rgba(166,122,91,0.1), rgba(201,183,144,0.15))',
+            filter: 'blur(1px)',
+          }}
+        />
 
-        {/* Hover glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#8B6F47]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+        {/* Inner card with slight inset effect */}
+        <div className="relative bg-white rounded-2xl">
+          {/* Accent bar at top */}
+          <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#8B6F47]/40 to-transparent" />
 
-        {/* Content */}
-        <div className="relative p-6 pt-7">
+          {/* Subtle top highlight for depth */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#FDFCFA] to-transparent rounded-t-2xl pointer-events-none" />
+
+          {/* Content */}
+          <div className="relative p-6 pt-5">
           {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1 min-w-0">
@@ -159,6 +178,7 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
             Open Dashboard
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </GlowButton>
+        </div>
         </div>
       </div>
     </motion.div>
