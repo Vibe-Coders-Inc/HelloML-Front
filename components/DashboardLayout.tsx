@@ -22,7 +22,7 @@ export function DashboardLayout({
   activeSection
 }: DashboardLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#FAFAF8] relative flex flex-col">
+    <div className="flex-1 bg-[#FAFAF8] relative flex flex-col">
       {/* Clean subtle background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white via-[#FAFAF8] to-[#F5F3F0]" />

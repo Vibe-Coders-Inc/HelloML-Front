@@ -315,7 +315,7 @@ function ContactForm() {
 
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8F3] relative overflow-hidden">
+    <div className="flex-1 bg-[#FAF8F3] relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Top gradient blob */}
