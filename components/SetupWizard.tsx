@@ -380,8 +380,8 @@ export function SetupWizard({ isOpen, onClose, onComplete }: SetupWizardProps) {
             </div>
           </div>
 
-          {/* Content - Centered with slight upward offset */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-6 flex items-start sm:items-center justify-center pt-4 sm:pt-0" style={{ paddingBottom: '5%' }}>
+          {/* Content - Centered on all screen sizes */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-6 flex items-center justify-center" style={{ paddingBottom: '8%' }}>
             <div className="w-full max-w-lg">
               <AnimatePresence mode="wait">
                 <motion.div key={currentStep} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.15 }}>

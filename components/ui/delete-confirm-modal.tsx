@@ -105,7 +105,7 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, i
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type here..."
-                    className={`h-12 border-2 rounded-xl text-[#5D4E37] ${
+                    className={`h-12 border-2 rounded-xl bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 ${
                       inputValue && !isValid ? 'border-red-300' : isValid ? 'border-green-400' : 'border-[#E8DCC8]'
                     }`}
                     disabled={isDeleting}
