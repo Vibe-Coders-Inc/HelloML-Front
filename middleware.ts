@@ -27,10 +27,16 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired - required for Server Components
+  // IMPORTANT: Use getUser() to refresh session if expired
+  // getSession() only reads from cookies without validating
+  // getUser() validates with Supabase and refreshes the token if needed
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  // User is authenticated if getUser() returns a valid user
+  const session = userError ? null : user;
 
   // Protected routes
   const protectedPaths = ['/dashboard', '/business'];
