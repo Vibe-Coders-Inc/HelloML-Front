@@ -31,10 +31,16 @@ export function AddressAutocomplete({
   });
 
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [hasUserEdited, setHasUserEdited] = useState(false);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHasUserEdited(true);
     setValue(e.target.value);
     setShowSuggestions(true);
+    // If user clears the field, also clear the parent
+    if (e.target.value === '') {
+      onSelect('');
+    }
   };
 
   const handleSelect = async (address: string) => {
@@ -55,7 +61,7 @@ export function AddressAutocomplete({
   return (
     <div className="relative">
       <Input
-        value={value || externalValue}
+        value={hasUserEdited ? value : (value || externalValue)}
         onChange={handleInput}
         disabled={!ready}
         placeholder={placeholder}
