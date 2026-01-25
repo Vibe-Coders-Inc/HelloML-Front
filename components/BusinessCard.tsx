@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Building2, Phone, Calendar, Trash2, ArrowRight } from 'lucide-react';
 import { useAgentByBusiness } from '@/lib/hooks/use-agents';
 import { GlowButton } from '@/components/ui/glow-button';
@@ -28,21 +28,13 @@ const cardVariants = {
       damping: 15,
     },
   }),
-  exit: {
-    opacity: 0,
-    scale: 0.8,
-    transition: {
-      duration: 0.3,
-      ease: 'easeOut' as const,
-    },
-  },
 };
 
 export function BusinessCard({ business, onDelete, isDeleting, index }: BusinessCardProps) {
   const router = useRouter();
   const { data: agent, isLoading: agentLoading } = useAgentByBusiness(business.id);
   const [isExploding, setIsExploding] = useState(false);
-  const [showCard, setShowCard] = useState(true);
+  const [isHidden, setIsHidden] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -76,57 +68,61 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
       setIsExploding(true);
-      // Start fading the card after a brief moment
-      setTimeout(() => setShowCard(false), 150);
     }
   };
 
-  const handleBurstComplete = () => {
+  const handleBurstComplete = useCallback(() => {
+    setIsHidden(true);
     onDelete(business.id);
-  };
+  }, [business.id, onDelete]);
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      {(showCard || isExploding) && (
-        <motion.div
-          custom={index}
-          variants={cardVariants}
-          initial="hidden"
-          animate={showCard ? 'visible' : 'exit'}
-          exit="exit"
-          whileHover={showCard ? { y: -4 } : {}}
-          transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
-          className="group relative"
-        >
-          {/* Delete burst animation */}
-          <DeleteBurst isActive={isExploding} onComplete={handleBurstComplete} />
+    <motion.div
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      animate={isExploding ? { opacity: 0, scale: 0.8, transition: { duration: 0.3 } } : 'visible'}
+      whileHover={!isExploding ? { y: -4 } : {}}
+      transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
+      className="group relative"
+      style={{ overflow: 'visible' }}
+    >
+      {/* Delete burst animation - positioned to overflow the card */}
+      <DeleteBurst isActive={isExploding} onComplete={handleBurstComplete} />
 
-          <div className={`relative bg-white/70 backdrop-blur-xl border border-white/50 shadow-sm hover:shadow-xl hover:shadow-[#8B6F47]/5 transition-all duration-300 rounded-2xl overflow-hidden ${isExploding ? 'pointer-events-none' : ''}`}>
-            {/* Subtle gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FAF8F3]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div
+        className={`relative bg-white/70 backdrop-blur-xl border border-white/50 shadow-sm hover:shadow-xl hover:shadow-[#8B6F47]/5 transition-all duration-300 rounded-2xl ${isExploding ? 'pointer-events-none' : ''}`}
+        style={{ overflow: 'visible' }}
+      >
+        {/* Subtle gradient overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FAF8F3]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
 
-            {/* Content */}
-            <div className="relative p-6">
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-[#8B6F47] truncate mb-1">
-                    {business.name}
-                  </h3>
-                  <p className="text-sm text-[#A67A5B]/70 truncate">
-                    {business.business_email}
-                  </p>
-                </div>
-                <motion.button
-                  className="text-[#A67A5B]/30 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                  onClick={handleDeleteClick}
-                  disabled={isDeleting || isExploding}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </motion.button>
-              </div>
+        {/* Content */}
+        <div className="relative p-6">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-[#8B6F47] truncate mb-1">
+                {business.name}
+              </h3>
+              <p className="text-sm text-[#A67A5B]/70 truncate">
+                {business.business_email}
+              </p>
+            </div>
+            <motion.button
+              className="text-[#A67A5B]/30 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-0 group-hover:opacity-100"
+              onClick={handleDeleteClick}
+              disabled={isDeleting || isExploding}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </motion.button>
+          </div>
 
           {/* Details */}
           <div className="space-y-3 mb-5">
@@ -163,7 +159,5 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
         </div>
       </div>
     </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
