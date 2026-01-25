@@ -68,7 +68,7 @@ class ApiClient {
   }
 
   // Business endpoints
-  async createBusiness(data: CreateBusinessRequest): Promise<Business> {
+  async createBusiness(data: Omit<CreateBusinessRequest, 'owner_user_id'>): Promise<Business> {
     return this.fetch<Business>('/business', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -79,8 +79,8 @@ class ApiClient {
     return this.fetch<Business>(`/business/${businessId}`);
   }
 
-  async listBusinesses(ownerUserId: string): Promise<Business[]> {
-    return this.fetch<Business[]>(`/business?owner_user_id=${ownerUserId}`);
+  async listBusinesses(): Promise<Business[]> {
+    return this.fetch<Business[]>('/business');
   }
 
   async updateBusiness(

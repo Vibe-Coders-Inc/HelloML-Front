@@ -51,7 +51,7 @@ function LoadingSkeleton() {
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useApp();
-  const { data: businesses = [], isLoading: businessesLoading } = useBusinesses(user?.id || '');
+  const { data: businesses = [], isLoading: businessesLoading } = useBusinesses();
   const deleteBusinessMutation = useDeleteBusiness();
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const router = useRouter();

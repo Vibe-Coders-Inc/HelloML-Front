@@ -285,7 +285,7 @@ export function SetupWizard({ isOpen, onClose, onComplete }: SetupWizardProps) {
     setShowLaunchBurst(true);
 
     try {
-      const business = await createBusinessMutation.mutateAsync({ owner_user_id: user.id, name: data.businessName, business_email: data.businessEmail, address: data.address });
+      const business = await createBusinessMutation.mutateAsync({ name: data.businessName, business_email: data.businessEmail, address: data.address });
       await createAgentMutation.mutateAsync({ business_id: business.id, area_code: data.areaCode, name: data.agentName || `${data.businessName} Agent`, prompt: data.systemPrompt, greeting: data.greeting, goodbye: data.goodbye });
 
       // Wait for burst animation
