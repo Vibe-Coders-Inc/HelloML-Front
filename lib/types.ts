@@ -77,6 +77,7 @@ export interface PhoneNumber {
   created_at: string;
   last_call_at?: string;
   paused_at?: string;
+  warning_sent_at?: string;
 }
 
 // API-specific types
