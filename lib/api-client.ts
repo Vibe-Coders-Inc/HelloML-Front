@@ -278,17 +278,30 @@ class ApiClient {
   async uploadPDFDocument(
     agentId: number,
     file: File,
-    filename?: string
+    filename?: string,
+    storageUrl?: string
   ): Promise<DocumentUploadResponse> {
     const formData = new FormData();
     formData.append('agent_id', agentId.toString());
     formData.append('file', file);
     if (filename) formData.append('filename', filename);
+    if (storageUrl) formData.append('storage_url', storageUrl);
 
     const url = `${API_URL}/rag/documents/pdf`;
+
+    // Get auth token
+    const { createClient } = await import('./supabase/client');
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
+      headers: {
+        ...(session?.access_token && {
+          'Authorization': `Bearer ${session.access_token}`,
+        }),
+      },
       // Don't set Content-Type header - browser will set it with boundary
     });
 

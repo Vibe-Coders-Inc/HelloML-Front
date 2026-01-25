@@ -98,8 +98,11 @@ git commit -m "HEL-6: Add responsive styles to auth page"
 ## Claude Code Guidelines
 
 ### Git Operations
-- **Always seek user approval before executing any git operations** (commit, push, pull, merge, checkout, branch creation/deletion, stash, etc.)
-- Present the intended git command and wait for confirmation
+- **NEVER execute ANY git operations without EXPLICIT user permission** - this includes commit, push, pull, merge, checkout, branch creation/deletion, stash, PR creation, PR merging, etc.
+- **ALWAYS present the intended git command and WAIT for user confirmation before executing**
+- **NEVER create PRs directly into main** - all PRs must target `develop` first
+- **NEVER merge PRs without explicit user approval**
+- This rule has NO exceptions - always ask first, then wait for approval
 
 ### Comments and Documentation
 - **All comments and notes should be added to Linear** using the Linear MCP, not in code comments
