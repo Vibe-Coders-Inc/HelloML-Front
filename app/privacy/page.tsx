@@ -1,11 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { Logo } from '@/components/Logo';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF8F3] to-[#F5EFE6]">
       <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Logo */}
+        <Link href="/" className="inline-block mb-12 hover:opacity-80 transition-opacity">
+          <Logo size="small" lightMode />
+        </Link>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#8B6F47] bg-[#8B6F47]/10 inline-block px-3 py-1 rounded">PRIVACY NOTICE</h1>
