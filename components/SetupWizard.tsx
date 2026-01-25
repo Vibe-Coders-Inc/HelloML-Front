@@ -17,7 +17,8 @@ import {
   AlertCircle,
   PenLine,
   MessageCircle,
-  LogOut
+  LogOut,
+  Clock
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -773,6 +774,21 @@ function Step6({ data, onEdit, onBack, onSubmit, isSubmitting, launchButtonRef }
         <ReviewRow icon={Phone} label="Phone" value={`(${data.areaCode}) XXX-XXXX`} sub="Will be provisioned" onEdit={() => onEdit(3)} />
         <ReviewRow icon={Bot} label="Agent" value={data.systemPrompt.length > 60 ? data.systemPrompt.slice(0, 60) + '...' : data.systemPrompt} onEdit={() => onEdit(4)} />
         <ReviewRow icon={Plug} label="Integrations" value={selectedInts.length > 0 ? selectedInts.map(i => i.name).join(', ') : 'None selected'} onEdit={() => onEdit(5)} />
+      </div>
+
+      {/* Trial info banner */}
+      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-blue-900">Free Trial Included</p>
+            <p className="text-xs text-blue-700 mt-1">
+              You&apos;ll get 5 free minutes to test your agent. Subscribe anytime from your dashboard to unlock unlimited usage.
+            </p>
+          </div>
+        </div>
       </div>
 
       <NavButtons onBack={onBack} onNext={onSubmit} nextLabel="Launch Business" nextVariant="success" isLoading={isSubmitting} buttonRef={launchButtonRef} />

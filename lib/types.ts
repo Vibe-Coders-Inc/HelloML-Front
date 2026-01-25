@@ -12,6 +12,7 @@ export interface Business {
   phone_number?: string;
   business_email?: string;
   address: string;
+  stripe_customer_id?: string;
   created_at: string;
 }
 
@@ -78,6 +79,33 @@ export interface PhoneNumber {
   last_call_at?: string;
   paused_at?: string;
   warning_sent_at?: string;
+}
+
+export interface Subscription {
+  id: number;
+  business_id: number;
+  stripe_subscription_id: string;
+  stripe_customer_id: string;
+  status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'unpaid' | 'incomplete' | 'incomplete_expired';
+  current_period_start?: string;
+  current_period_end?: string;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionResponse {
+  subscription: Subscription | null;
+  has_active_subscription: boolean;
+}
+
+export interface CheckoutResponse {
+  checkout_url: string;
+  session_id: string;
+}
+
+export interface PortalResponse {
+  portal_url: string;
 }
 
 // API-specific types
