@@ -22,22 +22,49 @@ import { createClient } from './supabase/client';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class ApiClient {
+  private async getAccessToken(): Promise<string | null> {
+    const supabase = createClient();
+
+    // First try to get the current session
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      return null;
+    }
+
+    // Check if token is expired or about to expire (within 60 seconds)
+    const expiresAt = session.expires_at;
+    const now = Math.floor(Date.now() / 1000);
+    const isExpiringSoon = expiresAt && (expiresAt - now) < 60;
+
+    if (isExpiringSoon) {
+      // Token is expired or expiring soon, refresh it
+      const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+      if (error || !refreshedSession) {
+        // Refresh failed, return null to trigger re-auth
+        return null;
+      }
+      return refreshedSession.access_token;
+    }
+
+    return session.access_token;
+  }
+
   private async fetch<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${API_URL}${endpoint}`;
 
-    // Get Supabase session for JWT token
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    // Get access token with automatic refresh
+    const accessToken = await this.getAccessToken();
 
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(session?.access_token && {
-          'Authorization': `Bearer ${session.access_token}`,
+        ...(accessToken && {
+          'Authorization': `Bearer ${accessToken}`,
         }),
         ...options.headers,
       },
@@ -289,17 +316,15 @@ class ApiClient {
 
     const url = `${API_URL}/rag/documents/pdf`;
 
-    // Get auth token
-    const { createClient } = await import('./supabase/client');
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    // Get access token with automatic refresh
+    const accessToken = await this.getAccessToken();
 
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
       headers: {
-        ...(session?.access_token && {
-          'Authorization': `Bearer ${session.access_token}`,
+        ...(accessToken && {
+          'Authorization': `Bearer ${accessToken}`,
         }),
       },
       // Don't set Content-Type header - browser will set it with boundary
