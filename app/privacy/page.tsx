@@ -5,7 +5,7 @@ import { Logo } from '@/components/Logo';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F3] to-[#F5EFE6]">
+    <div className="flex-1 bg-gradient-to-br from-[#FAF8F3] to-[#F5EFE6]">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Logo */}
         <Link href="/" className="inline-block mb-12 hover:opacity-80 transition-opacity">

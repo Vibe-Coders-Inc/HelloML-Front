@@ -1,28 +1,19 @@
-'use client';
-
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 
 const productLinks = [
-  { label: 'Features', href: '#' },
-  { label: 'Pricing', href: '#' },
-  { label: 'Integrations', href: '#' },
-  { label: 'Changelog', href: '#' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Support', href: '/support' },
 ];
 
 const legalLinks = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
-  { label: 'Support', href: '/support' },
 ];
 
 export function Footer() {
-  const pathname = usePathname();
-  const isDashboard = pathname === '/dashboard' || pathname?.startsWith('/business/');
-
   return (
-    <footer className={`w-full relative ${isDashboard ? 'lg:pl-[72px]' : ''}`}>
+    <footer className="w-full relative">
       {/* Top separator - gradient fade */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#E8DCC8]/60 to-transparent" />
       <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#E8DCC8]/10 to-transparent pointer-events-none" />
@@ -32,7 +23,7 @@ export function Footer() {
           {/* Main Footer Content */}
           <div className="py-14 grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-16">
             {/* Brand Column - Takes 2 columns on md+ */}
-            <div className="col-span-2">
+            <div className="col-span-2 pl-4 lg:pl-8">
               <Logo size="small" lightMode />
               <p className="mt-4 text-[#8B6F47]/60 text-sm leading-relaxed max-w-xs">
                 AI-powered voice agents that handle customer calls 24/7. Never miss an opportunity.
