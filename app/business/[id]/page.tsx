@@ -363,7 +363,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             filename: file.name,
             text: e.target?.result as string,
             file_type: 'text/plain',
-            storage_url: '',
+            file: file,
           }, { onSuccess: () => toast.success('Uploaded') });
         };
         reader.readAsText(file);
