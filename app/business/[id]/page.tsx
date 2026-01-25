@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Bot, PhoneCall, FileText,
   Trash2, Upload, Download,
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
-  BookOpen
+  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -28,6 +28,7 @@ import { useAgentByBusiness, useCreateAgent, useUpdateAgent } from '@/lib/hooks/
 import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/use-conversations';
 import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 import { useProvisionPhoneNumber, useDeletePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
+import { useSubscription, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -238,6 +239,7 @@ function AddressEditableField({
 export default function BusinessPage({ params }: { params: Promise<{ id: string }> }) {
   const { isAuthenticated } = useApp();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { id } = React.use(params);
   const businessId = parseInt(id);
 
@@ -268,6 +270,25 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const uploadPDF = useUploadPDFDocument();
   const uploadText = useUploadTextDocument();
   const deleteDocument = useDeleteDocument();
+
+  // Billing hooks
+  const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
+  const createCheckout = useCreateCheckoutSession();
+  const createPortal = useCreatePortalSession();
+
+  // Handle checkout success/canceled from URL params
+  useEffect(() => {
+    const checkoutStatus = searchParams.get('checkout');
+    if (checkoutStatus === 'success') {
+      toast.success('Subscription activated successfully!');
+      refetchSubscription();
+      // Clean up URL
+      router.replace(`/business/${businessId}`, { scroll: false });
+    } else if (checkoutStatus === 'canceled') {
+      toast.info('Checkout was canceled');
+      router.replace(`/business/${businessId}`, { scroll: false });
+    }
+  }, [searchParams, businessId, router, refetchSubscription]);
 
   // Tutorial
   const { showTutorial, openTutorial, closeTutorial } = useTutorial(businessId);
@@ -482,6 +503,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
       case 'overview':
         return (
           <div className="space-y-6">
+            {/* Trial Banner - show if no active subscription */}
+            {subscriptionData && !subscriptionData.has_active_subscription && (
+              <motion.div
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="relative px-6 py-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-900">Trial Mode</p>
+                      <p className="text-xs text-amber-700">You have 5 free minutes to test your agent. Subscribe to unlock unlimited usage.</p>
+                    </div>
+                  </div>
+                  <GlowButton
+                    onClick={() => createCheckout.mutate(businessId)}
+                    disabled={createCheckout.isPending}
+                    className="text-sm whitespace-nowrap"
+                  >
+                    {createCheckout.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Subscribe Now'
+                    )}
+                  </GlowButton>
+                </div>
+              </motion.div>
+            )}
+
             {/* Welcome Banner */}
             <motion.div
               className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F5F0E8] to-white border border-[#E8DCC8]/50"
@@ -583,6 +636,76 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   <AreaChartComponent data={chartData} />
                 </div>
               </div>
+            </div>
+
+            {/* Subscription Card */}
+            <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] flex items-center justify-center">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#5D4E37]">Subscription</h3>
+                    {subscriptionData?.has_active_subscription ? (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Active
+                        </span>
+                        {subscriptionData.subscription?.current_period_end && (
+                          <span className="text-xs text-[#8B7355]">
+                            Renews {new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8B7355] mt-1">No active subscription</p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  {subscriptionData?.has_active_subscription ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => createPortal.mutate(businessId)}
+                      disabled={createPortal.isPending}
+                      className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                    >
+                      {createPortal.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Manage Billing
+                          <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <GlowButton
+                      onClick={() => createCheckout.mutate(businessId)}
+                      disabled={createCheckout.isPending}
+                      className="text-sm"
+                    >
+                      {createCheckout.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Subscribe - $5/mo
+                        </>
+                      )}
+                    </GlowButton>
+                  )}
+                </div>
+              </div>
+              {!subscriptionData?.has_active_subscription && (
+                <div className="mt-4 pt-4 border-t border-[#E8DCC8]/50">
+                  <p className="text-xs text-[#8B7355]">
+                    Includes 100 minutes per month. Additional minutes billed at $0.10/min.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         );
