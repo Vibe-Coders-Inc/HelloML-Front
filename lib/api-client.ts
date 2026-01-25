@@ -16,6 +16,9 @@ import type {
   UploadTextDocumentRequest,
   EndConversationRequest,
   ApiError,
+  SubscriptionResponse,
+  CheckoutResponse,
+  PortalResponse,
 } from './types';
 import { createClient } from './supabase/client';
 
@@ -380,6 +383,25 @@ class ApiClient {
         min_similarity: minSimilarity,
       }),
     });
+  }
+
+  // Billing endpoints
+  async createCheckoutSession(businessId: number): Promise<CheckoutResponse> {
+    return this.fetch<CheckoutResponse>('/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ business_id: businessId }),
+    });
+  }
+
+  async createPortalSession(businessId: number): Promise<PortalResponse> {
+    return this.fetch<PortalResponse>('/billing/portal', {
+      method: 'POST',
+      body: JSON.stringify({ business_id: businessId }),
+    });
+  }
+
+  async getSubscription(businessId: number): Promise<SubscriptionResponse> {
+    return this.fetch<SubscriptionResponse>(`/billing/subscription/${businessId}`);
   }
 }
 
