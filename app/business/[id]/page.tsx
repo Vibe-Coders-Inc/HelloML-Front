@@ -8,7 +8,7 @@ import {
   Trash2, Upload, Download,
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
-  BookOpen, CreditCard, ExternalLink
+  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -503,6 +503,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
       case 'overview':
         return (
           <div className="space-y-6">
+            {/* Trial Banner - show if no active subscription */}
+            {subscriptionData && !subscriptionData.has_active_subscription && (
+              <motion.div
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="relative px-6 py-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-900">Trial Mode</p>
+                      <p className="text-xs text-amber-700">You have 5 free minutes to test your agent. Subscribe to unlock unlimited usage.</p>
+                    </div>
+                  </div>
+                  <GlowButton
+                    onClick={() => createCheckout.mutate(businessId)}
+                    disabled={createCheckout.isPending}
+                    className="text-sm whitespace-nowrap"
+                  >
+                    {createCheckout.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Subscribe Now'
+                    )}
+                  </GlowButton>
+                </div>
+              </motion.div>
+            )}
+
             {/* Welcome Banner */}
             <motion.div
               className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F5F0E8] to-white border border-[#E8DCC8]/50"

@@ -42,4 +42,4 @@ yarn-error.log*
 next-env.d.ts
 
 .mcp.json
-.claude/
+.claude/.env.swp
