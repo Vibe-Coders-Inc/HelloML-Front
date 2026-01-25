@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { GlowButton } from '@/components/ui/glow-button';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -122,24 +121,24 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, i
                 >
                   Cancel
                 </button>
-                <GlowButton
+                <button
                   onClick={onConfirm}
                   disabled={!isValid || isDeleting}
-                  className={`${isValid ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gray-300 cursor-not-allowed'}`}
+                  className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
+                    isValid
+                      ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
                   {isDeleting ? (
                     <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                      />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Deleting...
                     </>
                   ) : (
                     'Delete Business'
                   )}
-                </GlowButton>
+                </button>
               </div>
             </div>
           </motion.div>

@@ -2,7 +2,32 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
+import { createClient } from '../supabase/client';
 import type { Document, UploadTextDocumentRequest } from '../types';
+
+// Helper to upload file to Supabase Storage and get public URL
+async function uploadToStorage(file: File, agentId: number): Promise<string> {
+  const supabase = createClient();
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${agentId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error } = await supabase.storage
+    .from('documents')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (error) {
+    throw new Error(`Storage upload failed: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('documents')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
 
 // Query keys
 export const documentKeys = {
@@ -26,8 +51,19 @@ export function useUploadTextDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UploadTextDocumentRequest) =>
-      apiClient.uploadTextDocument(data),
+    mutationFn: async (data: UploadTextDocumentRequest & { file?: File }) => {
+      let storageUrl = data.storage_url;
+
+      // If a file is provided, upload to storage first
+      if (data.file) {
+        storageUrl = await uploadToStorage(data.file, data.agent_id);
+      }
+
+      return apiClient.uploadTextDocument({
+        ...data,
+        storage_url: storageUrl,
+      });
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: documentKeys.list(variables.agent_id),
@@ -40,7 +76,7 @@ export function useUploadPDFDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       agentId,
       file,
       filename,
@@ -48,7 +84,13 @@ export function useUploadPDFDocument() {
       agentId: number;
       file: File;
       filename?: string;
-    }) => apiClient.uploadPDFDocument(agentId, file, filename),
+    }) => {
+      // First upload to Supabase Storage
+      const storageUrl = await uploadToStorage(file, agentId);
+
+      // Then call backend API with the storage URL
+      return apiClient.uploadPDFDocument(agentId, file, filename, storageUrl);
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: documentKeys.list(variables.agentId),
