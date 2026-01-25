@@ -103,9 +103,8 @@ export default function DashboardPage() {
   };
 
   const handleDelete = async (businessId: number) => {
-    if (window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      deleteBusinessMutation.mutate(businessId);
-    }
+    // Confirmation is handled in BusinessCard with the burst animation
+    deleteBusinessMutation.mutate(businessId);
   };
 
   const openCreateDialog = () => setIsCreateDialogOpen(true);
