@@ -173,23 +173,34 @@ function ContactForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    const subject = encodeURIComponent(`Support Request from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    );
-    const mailtoLink = `mailto:noah@helloml.app?subject=${subject}&body=${body}`;
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    window.location.href = mailtoLink;
+      const data = await response.json();
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
       setSubmitted(true);
-    }, 500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -202,12 +213,10 @@ function ContactForm() {
         <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] flex items-center justify-center shadow-lg">
           <Mail className="w-10 h-10 text-white" />
         </div>
-        <h3 className="text-2xl font-bold text-[#5D4E37] mb-3">Email Client Opened</h3>
+        <h3 className="text-2xl font-bold text-[#5D4E37] mb-3">Message Sent!</h3>
         <p className="text-[#5a4a3a]/70 leading-relaxed">
-          Your default email client should have opened with your message. If it didn&apos;t, you can email us directly at{' '}
-          <a href="mailto:noah@helloml.app" className="text-[#8B6F47] font-medium hover:underline">
-            noah@helloml.app
-          </a>
+          Thank you for reaching out. We&apos;ll get back to you as soon as possible at{' '}
+          <span className="text-[#8B6F47] font-medium">{formData.email}</span>
         </p>
         <button
           onClick={() => {
@@ -276,13 +285,22 @@ function ContactForm() {
           />
         </div>
 
+        {error && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={isSubmitting}
           className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] text-white font-semibold hover:shadow-lg hover:shadow-[#8B6F47]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
         >
           {isSubmitting ? (
-            'Opening email...'
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Sending...
+            </>
           ) : (
             <>
               <Send className="w-5 h-5" />
