@@ -68,3 +68,30 @@ export function useProvisionPhoneNumber() {
     },
   });
 }
+
+export function useReactivatePhone() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (phoneId: number) => apiClient.reactivatePhone(phoneId),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: phoneKeys.all });
+      queryClient.invalidateQueries({ queryKey: phoneKeys.detail(result.phone.id) });
+      queryClient.invalidateQueries({ queryKey: phoneKeys.byAgent(result.phone.agent_id) });
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
+    },
+  });
+}
+
+export function useReactivatePhoneByAgent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (agentId: number) => apiClient.reactivatePhoneByAgent(agentId),
+    onSuccess: (result, agentId) => {
+      queryClient.invalidateQueries({ queryKey: phoneKeys.all });
+      queryClient.invalidateQueries({ queryKey: phoneKeys.byAgent(agentId) });
+      queryClient.invalidateQueries({ queryKey: ['agents'] });
+    },
+  });
+}

@@ -206,6 +206,18 @@ class ApiClient {
     });
   }
 
+  async reactivatePhone(phoneId: number): Promise<{ success: boolean; phone: PhoneNumber }> {
+    return this.fetch<{ success: boolean; phone: PhoneNumber }>(`/phone/${phoneId}/reactivate`, {
+      method: 'POST',
+    });
+  }
+
+  async reactivatePhoneByAgent(agentId: number): Promise<{ success: boolean; phone: PhoneNumber }> {
+    return this.fetch<{ success: boolean; phone: PhoneNumber }>(`/phone/agent/${agentId}/reactivate`, {
+      method: 'POST',
+    });
+  }
+
   // Conversation endpoints
   async getConversation(
     conversationId: number,
