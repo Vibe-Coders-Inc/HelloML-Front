@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/lib/hooks/use-agents';
-import { useDeletePhoneByAgent, useProvisionPhoneNumber } from '@/lib/hooks/use-phone-numbers';
+import { useDeletePhoneByAgent, useProvisionPhoneNumber, useReactivatePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
 import type { AgentWithPhone } from '@/lib/types';
 
 const agentSchema = z.object({
@@ -64,6 +64,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
   const deleteAgentMutation = useDeleteAgent();
   const deletePhoneByAgentMutation = useDeletePhoneByAgent();
   const provisionPhoneMutation = useProvisionPhoneNumber();
+  const reactivatePhoneMutation = useReactivatePhoneByAgent();
 
   const form = useForm<AgentForm>({
     resolver: zodResolver(agentSchema),
@@ -561,6 +562,67 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 <Trash2 className="h-4 w-4 mr-2" />
                 {deletePhoneByAgentMutation.isPending ? 'Deleting...' : 'Delete Failed Phone Number'}
               </Button>
+            </div>
+          ) : agent.phone_number?.status === 'paused' ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-2xl font-bold text-[#8B6F47] mb-2">{agent.phone_number.phone_number}</p>
+                  <div className="flex items-center space-x-3">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                      PAUSED
+                    </span>
+                    <span className="text-sm text-[#A67A5B]">
+                      {agent.phone_number.area_code} • {agent.phone_number.country}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <Pause className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Phone Number Paused</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      This phone number was paused due to 14 days of inactivity.
+                      Reactivate it to start receiving calls again.
+                    </p>
+                    {agent.phone_number.paused_at && (
+                      <p className="text-xs text-amber-600 mt-2">
+                        Paused on {new Date(agent.phone_number.paused_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => reactivatePhoneMutation.mutate(agent.id)}
+                  disabled={reactivatePhoneMutation.isPending}
+                  className="bg-gradient-to-r from-[#8B6F47] to-[#A67A5B] text-white hover:opacity-90"
+                >
+                  {reactivatePhoneMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Reactivating...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4 mr-2" />
+                      Reactivate Phone Number
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleDeletePhoneNumber}
+                  disabled={deletePhoneByAgentMutation.isPending}
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center space-y-4 py-6">

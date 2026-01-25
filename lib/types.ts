@@ -72,9 +72,11 @@ export interface PhoneNumber {
   phone_number: string;
   country: string;
   area_code: string;
-  status: 'provisioning' | 'active' | 'inactive' | 'failed';
+  status: 'provisioning' | 'active' | 'paused' | 'released' | 'failed';
   webhook_url?: string;
   created_at: string;
+  last_call_at?: string;
+  paused_at?: string;
 }
 
 // API-specific types
