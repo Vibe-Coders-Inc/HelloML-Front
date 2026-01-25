@@ -51,6 +51,18 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
     });
   };
 
+  const formatPhoneNumber = (phone: string) => {
+    // Remove any non-digit characters
+    const digits = phone.replace(/\D/g, '');
+    // Format as +1 (XXX) XXX-XXXX
+    if (digits.length === 10) {
+      return `+1 (${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length === 11 && digits[0] === '1') {
+      return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    return phone; // Return original if format doesn't match
+  };
+
   const getPhoneDisplay = () => {
     if (agentLoading) {
       return <span className="text-[#A67A5B]/60">Loading...</span>;
@@ -68,7 +80,7 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
       return <span className="text-[#A67A5B]">Provisioning...</span>;
     }
 
-    return <span className="text-[#8B6F47] font-medium">{agent.phone_number.phone_number}</span>;
+    return <span className="text-[#8B6F47] font-medium">{formatPhoneNumber(agent.phone_number.phone_number)}</span>;
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -150,7 +162,7 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
                 </p>
               </div>
               <motion.button
-                className="text-[#A67A5B]/40 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                className="text-[#A67A5B]/40 hover:text-red-500 hover:bg-red-50 rounded-lg h-8 w-8 flex items-center justify-center transition-colors duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                 onClick={handleDeleteClick}
                 disabled={isDeleting || isExploding}
                 whileHover={{ scale: 1.1 }}
@@ -163,24 +175,27 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
             {/* Details */}
             <div className="space-y-3 mb-5">
               <div className="flex items-center text-sm text-[#6B5D4D]">
-                <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <div className="w-9 h-9 min-w-[36px] rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
                   <Building2 className="h-4 w-4 text-[#8B6F47]" />
                 </div>
                 <span className="truncate">{business.address}</span>
               </div>
 
               <div className="flex items-center text-sm text-[#6B5D4D]">
-                <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <div className="w-9 h-9 min-w-[36px] rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
                   <Phone className="h-4 w-4 text-[#8B6F47]" />
                 </div>
                 {getPhoneDisplay()}
               </div>
 
               <div className="flex items-center text-sm text-[#6B5D4D]">
-                <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
+                <div className="w-9 h-9 min-w-[36px] rounded-lg bg-[#F5F0E8] flex items-center justify-center mr-3">
                   <Calendar className="h-4 w-4 text-[#8B6F47]" />
                 </div>
-                {formatDate(business.created_at)}
+                <span>
+                  <span className="text-[#A67A5B]/60">Created </span>
+                  {formatDate(business.created_at)}
+                </span>
               </div>
             </div>
 
