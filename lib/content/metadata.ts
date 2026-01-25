@@ -25,11 +25,9 @@ export const getMetadata = (options?: {
   authors: [...siteMetadata.authors],
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon', type: 'image/png', sizes: '32x32' },
     ],
-    shortcut: '/favicon.ico',
-    apple: '/apple-icon.png',
+    apple: { url: '/apple-icon', type: 'image/png', sizes: '180x180' },
   },
   openGraph: {
     ...siteMetadata.openGraph,
