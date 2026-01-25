@@ -14,6 +14,7 @@ const productLinks = [
 const legalLinks = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
+  { label: 'Support', href: '/support' },
 ];
 
 export function Footer() {

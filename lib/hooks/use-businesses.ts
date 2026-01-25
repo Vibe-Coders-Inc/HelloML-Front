@@ -3,7 +3,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-  Business,
   CreateBusinessRequest,
   UpdateBusinessRequest,
 } from '../types';
@@ -12,17 +11,16 @@ import type {
 export const businessKeys = {
   all: ['businesses'] as const,
   lists: () => [...businessKeys.all, 'list'] as const,
-  list: (userId: string) => [...businessKeys.lists(), userId] as const,
+  list: () => [...businessKeys.lists(), 'my-businesses'] as const,
   details: () => [...businessKeys.all, 'detail'] as const,
   detail: (id: number) => [...businessKeys.details(), id] as const,
 };
 
 // Hooks
-export function useBusinesses(userId: string) {
+export function useBusinesses() {
   return useQuery({
-    queryKey: businessKeys.list(userId),
-    queryFn: () => apiClient.listBusinesses(userId),
-    enabled: !!userId,
+    queryKey: businessKeys.list(),
+    queryFn: () => apiClient.listBusinesses(),
   });
 }
 

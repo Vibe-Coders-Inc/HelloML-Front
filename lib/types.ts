@@ -115,7 +115,6 @@ export interface ApiError {
 
 // Request types
 export interface CreateBusinessRequest {
-  owner_user_id: string;
   name: string;
   address: string;
   phone_number?: string;
