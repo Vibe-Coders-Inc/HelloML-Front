@@ -1,6 +1,7 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface DeleteBurstProps {
   isActive: boolean;
@@ -8,112 +9,127 @@ interface DeleteBurstProps {
 }
 
 export function DeleteBurst({ isActive, onComplete }: DeleteBurstProps) {
-  const lineCount = 12;
-  const lines = Array.from({ length: lineCount }, (_, i) => i);
+  const [particles, setParticles] = useState<Array<{ id: number; angle: number; distance: number; size: number; color: string; delay: number }>>([]);
+
+  useEffect(() => {
+    if (isActive) {
+      // Generate particles when activated
+      const newParticles = [];
+      const colors = ['#8B6F47', '#A67A5B', '#C9B790', '#D4C4A8'];
+
+      // Create radiating lines
+      for (let i = 0; i < 12; i++) {
+        const angle = (i * 30);
+        newParticles.push({
+          id: i,
+          angle,
+          distance: 100 + Math.random() * 40,
+          size: i % 2 === 0 ? 4 : 3,
+          color: colors[i % 2],
+          delay: i * 0.02,
+        });
+      }
+
+      // Add extra small particles
+      for (let i = 12; i < 24; i++) {
+        const angle = (i * 30) + 15;
+        newParticles.push({
+          id: i,
+          angle,
+          distance: 60 + Math.random() * 50,
+          size: 2 + Math.random() * 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          delay: 0.05 + (i - 12) * 0.015,
+        });
+      }
+
+      setParticles(newParticles);
+
+      // Call onComplete after animation finishes
+      const timer = setTimeout(() => {
+        onComplete?.();
+      }, 600);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isActive, onComplete]);
+
+  if (!isActive) return null;
 
   return (
-    <AnimatePresence>
-      {isActive && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          {/* Expanding circle ring */}
-          <motion.div
-            className="absolute rounded-full border-2 border-[#8B6F47]"
-            initial={{ width: 20, height: 20, opacity: 0.8 }}
-            animate={{ width: 200, height: 200, opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          />
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        zIndex: 100,
+        overflow: 'visible',
+      }}
+    >
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        {/* Expanding circle rings */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 rounded-full border-[3px] border-[#8B6F47]"
+          style={{ translateX: '-50%', translateY: '-50%' }}
+          initial={{ width: 0, height: 0, opacity: 1 }}
+          animate={{ width: 180, height: 180, opacity: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        />
 
-          {/* Second ring for layered effect */}
-          <motion.div
-            className="absolute rounded-full border-2 border-[#A67A5B]"
-            initial={{ width: 10, height: 10, opacity: 0.6 }}
-            animate={{ width: 150, height: 150, opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-          />
+        <motion.div
+          className="absolute top-1/2 left-1/2 rounded-full border-2 border-[#A67A5B]"
+          style={{ translateX: '-50%', translateY: '-50%' }}
+          initial={{ width: 0, height: 0, opacity: 0.8 }}
+          animate={{ width: 140, height: 140, opacity: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
+        />
 
-          {/* Radiating lines */}
-          {lines.map((i) => {
-            const angle = (i * 360) / lineCount;
-            const isAlternate = i % 2 === 0;
+        {/* Center flash */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 rounded-full bg-[#8B6F47]"
+          style={{ translateX: '-50%', translateY: '-50%' }}
+          initial={{ width: 20, height: 20, opacity: 0.8 }}
+          animate={{ width: 50, height: 50, opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        />
 
-            return (
-              <motion.div
-                key={i}
-                className="absolute"
-                style={{
-                  width: '3px',
-                  height: isAlternate ? '20px' : '14px',
-                  backgroundColor: isAlternate ? '#8B6F47' : '#A67A5B',
-                  borderRadius: '2px',
-                  transformOrigin: 'center center',
-                  rotate: `${angle}deg`,
-                }}
-                initial={{
-                  opacity: 1,
-                  scale: 0.5,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{
-                  opacity: 0,
-                  scale: 1,
-                  x: Math.cos((angle - 90) * Math.PI / 180) * (isAlternate ? 80 : 60),
-                  y: Math.sin((angle - 90) * Math.PI / 180) * (isAlternate ? 80 : 60),
-                }}
-                transition={{
-                  duration: 0.4,
-                  ease: 'easeOut',
-                  delay: i * 0.015,
-                }}
-              />
-            );
-          })}
+        {/* Radiating particles */}
+        {particles.map((particle) => {
+          const radians = (particle.angle - 90) * (Math.PI / 180);
+          const endX = Math.cos(radians) * particle.distance;
+          const endY = Math.sin(radians) * particle.distance;
 
-          {/* Small dots/particles */}
-          {lines.map((i) => {
-            const angle = (i * 360) / lineCount + 15; // Offset from lines
-            const size = Math.random() * 4 + 3;
-
-            return (
-              <motion.div
-                key={`dot-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: `${size}px`,
-                  height: `${size}px`,
-                  backgroundColor: i % 3 === 0 ? '#8B6F47' : i % 3 === 1 ? '#A67A5B' : '#C9B790',
-                }}
-                initial={{
-                  opacity: 0.8,
-                  scale: 1,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{
-                  opacity: 0,
-                  scale: 0.5,
-                  x: Math.cos((angle - 90) * Math.PI / 180) * (50 + Math.random() * 40),
-                  y: Math.sin((angle - 90) * Math.PI / 180) * (50 + Math.random() * 40),
-                }}
-                transition={{
-                  duration: 0.5,
-                  ease: 'easeOut',
-                  delay: 0.05 + i * 0.02,
-                }}
-                onAnimationComplete={i === lines.length - 1 ? onComplete : undefined}
-              />
-            );
-          })}
-
-          {/* Center flash */}
-          <motion.div
-            className="absolute rounded-full bg-[#8B6F47]"
-            initial={{ width: 30, height: 30, opacity: 0.6 }}
-            animate={{ width: 60, height: 60, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          />
-        </div>
-      )}
-    </AnimatePresence>
+          return (
+            <motion.div
+              key={particle.id}
+              className="absolute top-1/2 left-1/2 rounded-full"
+              style={{
+                width: particle.size,
+                height: particle.id < 12 ? particle.size * 4 : particle.size,
+                backgroundColor: particle.color,
+                translateX: '-50%',
+                translateY: '-50%',
+                rotate: particle.id < 12 ? `${particle.angle}deg` : 0,
+              }}
+              initial={{
+                x: 0,
+                y: 0,
+                opacity: 1,
+                scale: 0.5,
+              }}
+              animate={{
+                x: endX,
+                y: endY,
+                opacity: 0,
+                scale: particle.id < 12 ? 1.5 : 0.5,
+              }}
+              transition={{
+                duration: 0.4,
+                ease: 'easeOut',
+                delay: particle.delay,
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
