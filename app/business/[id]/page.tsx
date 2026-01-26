@@ -1456,7 +1456,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         onConfirm={handleDeleteConfirm}
         businessName={business.name}
         isDeleting={deleteBusiness.isPending}
-        hasActiveSubscription={subscriptionData?.has_active_subscription && !subscriptionData?.subscription?.cancel_at_period_end}
+        hasActiveSubscription={subscriptionData?.has_active_subscription && !subscriptionData?.subscription?.cancel_at_period_end && !subscriptionData?.subscription?.cancel_at}
         onManageBilling={() => createPortal.mutate(businessId)}
       />
 
