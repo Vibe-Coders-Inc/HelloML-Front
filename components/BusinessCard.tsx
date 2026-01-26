@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Building2, Phone, Calendar, Trash2, ArrowRight } from 'lucide-react';
 import { useAgentByBusiness } from '@/lib/hooks/use-agents';
+import { useSubscription, useCreatePortalSession } from '@/lib/hooks/use-billing';
 import { GlowButton } from '@/components/ui/glow-button';
 import { DeleteBurst } from '@/components/ui/delete-burst';
 import { DeleteConfirmModal } from '@/components/ui/delete-confirm-modal';
@@ -39,6 +40,8 @@ const cardVariants = {
 export function BusinessCard({ business, onDelete, isDeleting, index }: BusinessCardProps) {
   const router = useRouter();
   const { data: agent, isLoading: agentLoading } = useAgentByBusiness(business.id);
+  const { data: subscriptionData } = useSubscription(business.id);
+  const createPortal = useCreatePortalSession();
   const [isExploding, setIsExploding] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -219,6 +222,8 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
         onConfirm={handleDeleteConfirm}
         businessName={business.name}
         isDeleting={isDeleting && isExploding}
+        hasActiveSubscription={subscriptionData?.has_active_subscription}
+        onManageBilling={() => createPortal.mutate(business.id)}
       />
     </>
   );

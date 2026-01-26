@@ -450,15 +450,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   };
 
   const handleDeleteConfirm = useCallback(() => {
-    // Check if business has active subscription
-    if (subscriptionData?.has_active_subscription) {
-      toast.error('Please cancel your subscription before deleting this business. Go to Manage Billing to cancel.');
-      setShowDeleteModal(false);
-      return;
-    }
     setShowDeleteModal(false);
     deleteBusiness.mutate(business?.id || 0, { onSuccess: () => router.push('/dashboard') });
-  }, [business?.id, deleteBusiness, router, subscriptionData]);
+  }, [business?.id, deleteBusiness, router]);
 
   // Phone number change handler
   const handlePhoneChange = useCallback(async () => {

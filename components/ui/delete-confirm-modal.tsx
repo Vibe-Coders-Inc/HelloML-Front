@@ -92,18 +92,9 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, i
               {/* Content */}
               <div className="px-6 py-5">
                 {hasActiveSubscription ? (
-                  <>
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-4">
-                      <p className="text-amber-800 text-sm font-medium">Active subscription detected</p>
-                      <p className="text-amber-700 text-xs mt-1">
-                        You must cancel your subscription before deleting this business to avoid billing issues.
-                      </p>
-                    </div>
-                    <p className="text-[#5D4E37] text-sm leading-relaxed">
-                      <span className="font-semibold">{businessName}</span> has an active subscription.
-                      Please cancel it first through the billing portal.
-                    </p>
-                  </>
+                  <p className="text-[#5D4E37] text-sm leading-relaxed">
+                    <span className="font-semibold">{businessName}</span> has an active subscription. Please cancel it first through the billing portal.
+                  </p>
                 ) : (
                   <>
                     <p className="text-[#5D4E37] text-sm leading-relaxed">
