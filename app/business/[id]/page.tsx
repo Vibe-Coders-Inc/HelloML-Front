@@ -237,7 +237,7 @@ function AddressEditableField({
 }
 
 export default function BusinessPage({ params }: { params: Promise<{ id: string }> }) {
-  const { isAuthenticated } = useApp();
+  const { isAuthenticated, isLoading: authLoading } = useApp();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = React.use(params);
@@ -326,8 +326,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   }, [agent, isEditMode, form]);
 
   useEffect(() => {
-    if (!isAuthenticated) router.push('/auth');
-  }, [isAuthenticated, router]);
+    if (!authLoading && !isAuthenticated) router.push('/auth');
+  }, [isAuthenticated, authLoading, router]);
 
   // Sync activeTab with URL hash
   useEffect(() => {
@@ -514,7 +514,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     });
   };
 
-  if (!isAuthenticated) return null;
+  if (authLoading || !isAuthenticated) return null;
 
   if (isLoading) {
     return (
@@ -1456,7 +1456,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         onConfirm={handleDeleteConfirm}
         businessName={business.name}
         isDeleting={deleteBusiness.isPending}
-        hasActiveSubscription={subscriptionData?.has_active_subscription}
+        hasActiveSubscription={subscriptionData?.has_active_subscription && !subscriptionData?.subscription?.cancel_at_period_end}
         onManageBilling={() => createPortal.mutate(businessId)}
       />
 
