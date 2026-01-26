@@ -526,7 +526,12 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
   const handleDeleteConfirm = useCallback(() => {
     setShowDeleteModal(false);
-    deleteBusiness.mutate(business?.id || 0, { onSuccess: () => router.push('/dashboard') });
+    deleteBusiness.mutate(business?.id || 0, {
+      onSuccess: () => router.push('/dashboard'),
+      onError: (error: Error & { message?: string }) => {
+        toast.error(error.message || 'Failed to delete business');
+      }
+    });
   }, [business?.id, deleteBusiness, router]);
 
   // Phone number change handler
