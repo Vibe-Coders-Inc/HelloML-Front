@@ -506,34 +506,29 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
           <div className="space-y-6">
             {/* Trial Banner - show if no active subscription */}
             {subscriptionData && !subscriptionData.has_active_subscription && (
-              <motion.div
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <div className="relative px-6 py-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-amber-900">Trial Mode</p>
-                      <p className="text-xs text-amber-700">You have 5 free minutes to test your agent. Subscribe to unlock unlimited usage.</p>
-                    </div>
+              <div className="flex items-center justify-between p-4 bg-[#F5F0E8]/50 rounded-xl border border-[#E8DCC8]">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-[#8B6F47]" />
                   </div>
-                  <GlowButton
-                    onClick={() => createCheckout.mutate(businessId)}
-                    disabled={createCheckout.isPending}
-                    className="text-sm whitespace-nowrap"
-                  >
-                    {createCheckout.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      'Subscribe Now'
-                    )}
-                  </GlowButton>
+                  <div>
+                    <p className="text-sm font-medium text-[#5D4E37]">Trial Mode</p>
+                    <p className="text-xs text-[#8B7355]">5 free minutes included</p>
+                  </div>
                 </div>
-              </motion.div>
+                <Button
+                  onClick={() => createCheckout.mutate(businessId)}
+                  disabled={createCheckout.isPending}
+                  size="sm"
+                  className="bg-[#5D4E37] hover:bg-[#4A3E2C] text-white text-xs"
+                >
+                  {createCheckout.isPending ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    'Subscribe'
+                  )}
+                </Button>
+              </div>
             )}
 
             {/* Welcome Banner */}
@@ -650,14 +645,24 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     <h3 className="text-sm font-semibold text-[#5D4E37]">Subscription</h3>
                     {subscriptionData?.has_active_subscription ? (
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Active
-                        </span>
-                        {subscriptionData.subscription?.current_period_end && (
-                          <span className="text-xs text-[#8B7355]">
-                            Renews {new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()}
+                        {subscriptionData.subscription?.cancel_at_period_end ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5F0E8] text-[#8B7355] text-xs font-medium">
+                            Cancels {subscriptionData.subscription?.current_period_end
+                              ? new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()
+                              : 'soon'}
                           </span>
+                        ) : (
+                          <>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Active
+                            </span>
+                            {subscriptionData.subscription?.current_period_end && (
+                              <span className="text-xs text-[#8B7355]">
+                                Renews {new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     ) : (
