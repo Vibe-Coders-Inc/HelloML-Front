@@ -272,10 +272,20 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const deleteDocument = useDeleteDocument();
 
   // Billing hooks
-  const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
+  const { data: subscriptionData, refetch: refetchSubscription, error: subscriptionError, isLoading: isSubLoading } = useSubscription(businessId);
   const { data: usageData, isLoading: isUsageLoading, error: usageError } = useUsage(businessId);
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
+
+  // Debug logging
+  console.log('[BILLING DEBUG]', {
+    businessId,
+    subscriptionData,
+    subscriptionError: subscriptionError?.message,
+    isSubLoading,
+    usageData,
+    usageError: usageError?.message,
+  });
 
   // Handle checkout success/canceled from URL params
   useEffect(() => {
