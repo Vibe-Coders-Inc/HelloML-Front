@@ -45,9 +45,9 @@ export function useCreatePortalSession() {
   return useMutation({
     mutationFn: (businessId: number) => apiClient.createPortalSession(businessId),
     onSuccess: (data) => {
-      // Redirect to Stripe Billing Portal
+      // Open Stripe Billing Portal in new tab
       if (data.portal_url) {
-        window.location.href = data.portal_url;
+        window.open(data.portal_url, '_blank');
       }
     },
   });

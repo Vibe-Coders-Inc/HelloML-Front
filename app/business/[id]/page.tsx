@@ -272,20 +272,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const deleteDocument = useDeleteDocument();
 
   // Billing hooks
-  const { data: subscriptionData, refetch: refetchSubscription, error: subscriptionError, isLoading: isSubLoading } = useSubscription(businessId);
-  const { data: usageData, isLoading: isUsageLoading, error: usageError } = useUsage(businessId);
+  const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
+  const { data: usageData, isLoading: isUsageLoading } = useUsage(businessId);
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
-
-  // Debug logging
-  console.log('[BILLING DEBUG]', {
-    businessId,
-    subscriptionData,
-    subscriptionError: subscriptionError?.message,
-    isSubLoading,
-    usageData,
-    usageError: usageError?.message,
-  });
 
   // Handle checkout success/canceled from URL params
   useEffect(() => {
@@ -616,19 +606,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               {/* Quick Stats */}
               <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
                 <h3 className="text-sm font-semibold text-[#5D4E37] mb-4">Performance</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#8B7355]">Total Calls</span>
-                    <span className="text-lg font-bold text-[#5D4E37]">{totalCalls}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#8B7355]">Completed</span>
-                    <span className="text-lg font-bold text-[#5D4E37]">{completedCalls}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#8B7355]">Success Rate</span>
-                    <span className="text-lg font-bold text-[#5D4E37]">{successRate}%</span>
-                  </div>
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-[#5D4E37]">{totalCalls}</p>
+                  <p className="text-sm text-[#8B7355] mt-1">total calls</p>
+                  <p className="text-lg font-semibold text-[#8B6F47] mt-3">{successRate}% completed</p>
                 </div>
               </div>
 
@@ -654,13 +635,12 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   <div>
                     <h3 className="text-sm font-semibold text-[#5D4E37]">Subscription</h3>
                     {subscriptionData?.has_active_subscription ? (
-                      <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-[#8B7355] mt-1">
                         {(subscriptionData.subscription?.cancel_at_period_end || subscriptionData.subscription?.cancel_at) ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5F0E8] text-[#8B7355] text-xs font-medium">
+                          <>
                             Cancels {(() => {
                               const cancelAt = subscriptionData.subscription?.cancel_at;
                               if (cancelAt) {
-                                // Handle both Unix timestamp (number) and ISO string
                                 const date = typeof cancelAt === 'number'
                                   ? new Date(cancelAt * 1000)
                                   : new Date(cancelAt);
@@ -670,21 +650,15 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 ? new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()
                                 : 'soon';
                             })()}
-                          </span>
+                          </>
                         ) : (
                           <>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
-                              <CheckCircle2 className="w-3 h-3" />
-                              Active
-                            </span>
-                            {subscriptionData.subscription?.current_period_end && (
-                              <span className="text-xs text-[#8B7355]">
-                                Renews {new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()}
-                              </span>
-                            )}
+                            Renews {subscriptionData.subscription?.current_period_end
+                              ? new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()
+                              : ''}
                           </>
                         )}
-                      </div>
+                      </p>
                     ) : (
                       <p className="text-xs text-[#8B7355] mt-1">No active subscription</p>
                     )}
