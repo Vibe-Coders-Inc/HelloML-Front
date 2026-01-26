@@ -255,6 +255,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [showPhoneChangeModal, setShowPhoneChangeModal] = useState(false);
   const [isChangingPhone, setIsChangingPhone] = useState(false);
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month' | 'all'>('week');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingFileName, setUploadingFileName] = useState<string | null>(null);
+  const uploadStartTime = React.useRef<number>(0);
+  const MIN_OVERLAY_DURATION = 2000; // Show overlay for at least 2 seconds
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -419,13 +423,43 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     }
   };
 
+  // Upload progress helpers
+  const startUpload = useCallback((fileName: string) => {
+    console.log('[Upload] Starting upload overlay for:', fileName);
+    setUploadingFileName(fileName);
+    setIsUploading(true);
+    uploadStartTime.current = Date.now();
+  }, []);
+
+  const endUpload = useCallback(() => {
+    const elapsed = Date.now() - uploadStartTime.current;
+    const remaining = Math.max(0, MIN_OVERLAY_DURATION - elapsed);
+    console.log('[Upload] Ending upload, waiting:', remaining, 'ms');
+    setTimeout(() => {
+      setIsUploading(false);
+      setUploadingFileName(null);
+    }, remaining);
+  }, [MIN_OVERLAY_DURATION]);
+
   const handleFileUpload = useCallback((files: FileList) => {
     if (!agent) return;
+
     Array.from(files).forEach(file => {
       const ext = file.name.split('.').pop()?.toLowerCase();
+
+      // Start upload overlay immediately
+      startUpload(file.name);
+
       if (ext === 'pdf') {
         uploadPDF.mutate({ agentId: agent.id, file, filename: file.name }, {
-          onSuccess: () => toast.success('Uploaded'),
+          onSuccess: () => {
+            toast.success('Uploaded');
+            endUpload();
+          },
+          onError: (error) => {
+            toast.error(`Upload failed: ${error.message}`);
+            endUpload();
+          },
         });
       } else if (ext === 'txt') {
         const reader = new FileReader();
@@ -436,12 +470,28 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             text: e.target?.result as string,
             file_type: 'text/plain',
             file: file,
-          }, { onSuccess: () => toast.success('Uploaded') });
+          }, {
+            onSuccess: () => {
+              toast.success('Uploaded');
+              endUpload();
+            },
+            onError: (error) => {
+              toast.error(`Upload failed: ${error.message}`);
+              endUpload();
+            },
+          });
+        };
+        reader.onerror = () => {
+          toast.error('Failed to read file');
+          endUpload();
         };
         reader.readAsText(file);
+      } else {
+        toast.error(`Unsupported file type: ${ext}`);
+        endUpload();
       }
     });
-  }, [agent, uploadPDF, uploadText]);
+  }, [agent, uploadPDF, uploadText, startUpload, endUpload]);
 
   const handleUpdateBusiness = (field: string, value: string) => {
     updateBusiness.mutate({ businessId, data: { [field]: value } }, {
@@ -1249,8 +1299,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <div className="space-y-6">
                   {/* Drag & Drop Upload Area */}
                   <label
-                    className={`relative flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                      isDragging
+                    className={`relative flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all overflow-hidden ${
+                      isUploading
+                        ? 'border-[#8B6F47] bg-[#F5F0E8]'
+                        : isDragging
                         ? 'border-[#8B6F47] bg-[#8B6F47]/10 scale-[1.02]'
                         : 'border-[#E8DCC8] hover:border-[#8B6F47] hover:bg-[#F5F0E8]/30'
                     }`}
@@ -1258,6 +1310,49 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
+                    {/* Upload Progress Overlay */}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-[#F5F0E8]/95 flex flex-col items-center justify-center z-10">
+                        {/* Animated progress bar */}
+                        <div className="w-3/4 max-w-xs mb-4">
+                          <div className="h-3 bg-[#E8DCC8] rounded-full overflow-hidden relative">
+                            {/* Animated fill */}
+                            <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9A86C] rounded-full animate-upload-progress" />
+                            {/* Shimmer effect */}
+                            <div
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                              style={{
+                                backgroundSize: '200% 100%',
+                                animation: 'shimmer 1.5s ease-in-out infinite',
+                              }}
+                            />
+                            {/* Bubbles */}
+                            <div className="absolute inset-0 overflow-hidden">
+                              {[...Array(5)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="absolute w-2 h-2 bg-white/50 rounded-full animate-bubble"
+                                  style={{
+                                    left: `${15 + i * 18}%`,
+                                    top: '50%',
+                                    marginTop: '-4px',
+                                    animationDelay: `${i * 0.15}s`,
+                                    animationDuration: `${1 + i * 0.2}s`,
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[#8B6F47] font-medium">
+                          Uploading {uploadingFileName || 'file'}...
+                        </p>
+                        <p className="text-sm text-[#A67A5B] mt-1">
+                          Processing and creating embeddings
+                        </p>
+                      </div>
+                    )}
+
                     <AnimatePresence mode="wait">
                       {isDragging ? (
                         <motion.div
@@ -1265,7 +1360,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.9 }}
-                          className="flex flex-col items-center"
+                          className={`flex flex-col items-center ${isUploading ? 'opacity-30' : ''}`}
                         >
                           <div className="w-16 h-16 rounded-2xl bg-[#8B6F47] flex items-center justify-center mb-3">
                             <Upload className="w-8 h-8 text-white" />
@@ -1278,7 +1373,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="flex flex-col items-center"
+                          className={`flex flex-col items-center ${isUploading ? 'opacity-30' : ''}`}
                         >
                           <div className="w-14 h-14 rounded-xl bg-[#F5F0E8] flex items-center justify-center mb-3">
                             <Upload className="w-7 h-7 text-[#8B7355]" />
@@ -1294,6 +1389,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       multiple
                       accept=".pdf,.txt"
                       className="hidden"
+                      disabled={isUploading}
                       onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
                     />
                   </label>
