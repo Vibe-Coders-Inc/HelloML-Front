@@ -11,9 +11,11 @@ interface DeleteConfirmModalProps {
   onConfirm: () => void;
   businessName: string;
   isDeleting?: boolean;
+  hasActiveSubscription?: boolean;
+  onManageBilling?: () => void;
 }
 
-export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, isDeleting }: DeleteConfirmModalProps) {
+export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, isDeleting, hasActiveSubscription, onManageBilling }: DeleteConfirmModalProps) {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -89,27 +91,44 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, i
 
               {/* Content */}
               <div className="px-6 py-5">
-                <p className="text-[#5D4E37] text-sm leading-relaxed">
-                  You are about to delete <span className="font-semibold">{businessName}</span>.
-                  This will permanently remove all associated data including your agent, phone number, and call history.
-                </p>
+                {hasActiveSubscription ? (
+                  <>
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-4">
+                      <p className="text-amber-800 text-sm font-medium">Active subscription detected</p>
+                      <p className="text-amber-700 text-xs mt-1">
+                        You must cancel your subscription before deleting this business to avoid billing issues.
+                      </p>
+                    </div>
+                    <p className="text-[#5D4E37] text-sm leading-relaxed">
+                      <span className="font-semibold">{businessName}</span> has an active subscription.
+                      Please cancel it first through the billing portal.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[#5D4E37] text-sm leading-relaxed">
+                      You are about to delete <span className="font-semibold">{businessName}</span>.
+                      This will permanently remove all associated data including your agent, phone number, and call history.
+                    </p>
 
-                <div className="mt-5">
-                  <label className="block text-sm font-medium text-[#5D4E37] mb-2">
-                    Type <span className="font-mono bg-[#F5F0E8] px-1.5 py-0.5 rounded text-red-600">{confirmText}</span> to confirm
-                  </label>
-                  <Input
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type here..."
-                    className={`h-12 border-2 rounded-xl bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 ${
-                      inputValue && !isValid ? 'border-red-300' : isValid ? 'border-green-400' : 'border-[#E8DCC8]'
-                    }`}
-                    disabled={isDeleting}
-                  />
-                </div>
+                    <div className="mt-5">
+                      <label className="block text-sm font-medium text-[#5D4E37] mb-2">
+                        Type <span className="font-mono bg-[#F5F0E8] px-1.5 py-0.5 rounded text-red-600">{confirmText}</span> to confirm
+                      </label>
+                      <Input
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type here..."
+                        className={`h-12 border-2 rounded-xl bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 ${
+                          inputValue && !isValid ? 'border-red-300' : isValid ? 'border-green-400' : 'border-[#E8DCC8]'
+                        }`}
+                        disabled={isDeleting}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Actions */}
@@ -119,26 +138,38 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm, businessName, i
                   disabled={isDeleting}
                   className="px-5 py-2.5 text-sm font-medium text-[#8B6F47] hover:bg-[#E8DCC8]/50 rounded-xl transition-colors"
                 >
-                  Cancel
+                  {hasActiveSubscription ? 'Close' : 'Cancel'}
                 </button>
-                <button
-                  onClick={onConfirm}
-                  disabled={!isValid || isDeleting}
-                  className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-                    isValid
-                      ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {isDeleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    'Delete Business'
-                  )}
-                </button>
+                {hasActiveSubscription ? (
+                  <button
+                    onClick={() => {
+                      onManageBilling?.();
+                      onClose();
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl bg-[#8B6F47] hover:bg-[#5D4E37] text-white shadow-sm transition-all"
+                  >
+                    Manage Billing
+                  </button>
+                ) : (
+                  <button
+                    onClick={onConfirm}
+                    disabled={!isValid || isDeleting}
+                    className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
+                      isValid
+                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete Business'
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
