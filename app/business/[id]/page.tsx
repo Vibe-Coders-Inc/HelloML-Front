@@ -254,6 +254,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [isDragging, setIsDragging] = useState(false);
   const [showPhoneChangeModal, setShowPhoneChangeModal] = useState(false);
   const [isChangingPhone, setIsChangingPhone] = useState(false);
+  const [chartPeriod, setChartPeriod] = useState<'week' | 'month' | 'all'>('week');
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -341,21 +342,70 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     return () => window.removeEventListener('hashchange', syncHash);
   }, []);
 
-  // Chart data
+  // Chart data based on selected period
   const chartData = useMemo(() => {
-    const last7Days: { name: string; value: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dayStr = date.toLocaleDateString('en-US', { weekday: 'short' });
-      const dateStr = date.toISOString().split('T')[0];
-      const count = conversations.filter((c: Conversation) =>
-        c.started_at.split('T')[0] === dateStr
-      ).length;
-      last7Days.push({ name: dayStr, value: count });
+    const data: { name: string; value: number }[] = [];
+    const now = new Date();
+
+    if (chartPeriod === 'week') {
+      // Last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dayStr = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateStr = date.toISOString().split('T')[0];
+        const count = conversations.filter((c: Conversation) =>
+          c.started_at.split('T')[0] === dateStr
+        ).length;
+        data.push({ name: dayStr, value: count });
+      }
+    } else if (chartPeriod === 'month') {
+      // Last 30 days, grouped by week
+      for (let week = 3; week >= 0; week--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - (week + 1) * 7 + 1);
+        const weekEnd = new Date(now);
+        weekEnd.setDate(now.getDate() - week * 7);
+
+        const count = conversations.filter((c: Conversation) => {
+          const callDate = new Date(c.started_at);
+          return callDate >= weekStart && callDate <= weekEnd;
+        }).length;
+
+        const label = week === 0 ? 'This week' : week === 1 ? 'Last week' : `${week + 1} weeks ago`;
+        data.push({ name: label, value: count });
+      }
+    } else {
+      // All time - group by month
+      const monthCounts: Record<string, number> = {};
+
+      conversations.forEach((c: Conversation) => {
+        const date = new Date(c.started_at);
+        const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
+      });
+
+      // Sort by date and take last 6 months or all if less
+      const sortedMonths = Object.entries(monthCounts)
+        .sort((a, b) => {
+          const [monthA] = a;
+          const [monthB] = b;
+          return new Date(monthA).getTime() - new Date(monthB).getTime();
+        })
+        .slice(-6);
+
+      sortedMonths.forEach(([month, count]) => {
+        data.push({ name: month, value: count });
+      });
+
+      // If no data, show current month with 0
+      if (data.length === 0) {
+        data.push({ name: now.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }), value: 0 });
+      }
     }
-    return last7Days;
-  }, [conversations]);
+
+    return data;
+  }, [conversations, chartPeriod]);
 
   const handleAgentSubmit = (data: AgentForm) => {
     if (isEditMode && agent) {
@@ -631,7 +681,21 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               <div className="lg:col-span-2 bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-[#5D4E37]">Call Activity</h3>
-                  <span className="text-xs text-[#8B7355]">Last 7 days</span>
+                  <div className="flex items-center gap-1 bg-[#F5F0E8] rounded-lg p-1">
+                    {(['week', 'month', 'all'] as const).map((period) => (
+                      <button
+                        key={period}
+                        onClick={() => setChartPeriod(period)}
+                        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                          chartPeriod === period
+                            ? 'bg-white text-[#5D4E37] shadow-sm'
+                            : 'text-[#8B7355] hover:text-[#5D4E37]'
+                        }`}
+                      >
+                        {period === 'week' ? 'Week' : period === 'month' ? 'Month' : 'All'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="h-[180px]">
                   <AreaChartComponent data={chartData} />
