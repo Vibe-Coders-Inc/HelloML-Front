@@ -19,6 +19,7 @@ import type {
   SubscriptionResponse,
   CheckoutResponse,
   PortalResponse,
+  UsageResponse,
 } from './types';
 import { createClient } from './supabase/client';
 
@@ -402,6 +403,10 @@ class ApiClient {
 
   async getSubscription(businessId: number): Promise<SubscriptionResponse> {
     return this.fetch<SubscriptionResponse>(`/billing/subscription/${businessId}`);
+  }
+
+  async getUsage(businessId: number): Promise<UsageResponse> {
+    return this.fetch<UsageResponse>(`/billing/usage/${businessId}`);
   }
 }
 

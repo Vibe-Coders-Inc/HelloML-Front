@@ -28,7 +28,7 @@ import { useAgentByBusiness, useCreateAgent, useUpdateAgent } from '@/lib/hooks/
 import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/use-conversations';
 import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 import { useProvisionPhoneNumber, useDeletePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
-import { useSubscription, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
+import { useSubscription, useUsage, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -273,6 +273,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
   // Billing hooks
   const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
+  const { data: usageData } = useUsage(businessId);
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
 
@@ -638,9 +639,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               </div>
             </div>
 
-            {/* Subscription Card */}
+            {/* Subscription & Usage Card */}
             <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] flex items-center justify-center">
                     <CreditCard className="w-6 h-6 text-white" />
@@ -699,8 +700,59 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   )}
                 </div>
               </div>
+
+              {/* Usage Stats - Big Numbers */}
+              {subscriptionData?.has_active_subscription && usageData && (
+                <div className="pt-4 border-t border-[#E8DCC8]/50">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-[#5D4E37]">
+                      {usageData.minutes_used.toFixed(1)}
+                    </span>
+                    <span className="text-lg text-[#8B7355]">
+                      / {usageData.included_minutes} minutes
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#8B7355] mt-1">$5/mo includes {usageData.included_minutes} minutes</p>
+
+                  {/* Progress bar */}
+                  <div className="mt-3">
+                    <div className="h-2 bg-[#F5F0E8] rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-500 ${
+                          usageData.minutes_used >= usageData.included_minutes
+                            ? 'bg-amber-500'
+                            : 'bg-gradient-to-r from-[#8B6F47] to-[#A67A5B]'
+                        }`}
+                        style={{
+                          width: `${Math.min(100, (usageData.minutes_used / usageData.included_minutes) * 100)}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Top-up / Overage minutes */}
+                  {usageData.overage_minutes > 0 && (
+                    <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4 text-amber-600" />
+                          <span className="text-sm font-medium text-amber-800">Top-up minutes</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-amber-700">{usageData.overage_minutes.toFixed(1)}</span>
+                          <span className="text-xs text-amber-600 ml-1">mins @ $0.10/min</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-amber-600 mt-1">
+                        Estimated charge: ${(usageData.overage_minutes * 0.10).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {!subscriptionData?.has_active_subscription && (
-                <div className="mt-4 pt-4 border-t border-[#E8DCC8]/50">
+                <div className="pt-4 border-t border-[#E8DCC8]/50">
                   <p className="text-xs text-[#8B7355]">
                     Includes 100 minutes per month. Additional minutes billed at $0.10/min.
                   </p>

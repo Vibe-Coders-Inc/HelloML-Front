@@ -8,6 +8,8 @@ export const billingKeys = {
   all: ['billing'] as const,
   subscriptions: () => [...billingKeys.all, 'subscription'] as const,
   subscription: (businessId: number) => [...billingKeys.subscriptions(), businessId] as const,
+  usage: () => [...billingKeys.all, 'usage'] as const,
+  usageByBusiness: (businessId: number) => [...billingKeys.usage(), businessId] as const,
 };
 
 // Hooks
@@ -15,6 +17,14 @@ export function useSubscription(businessId: number) {
   return useQuery({
     queryKey: billingKeys.subscription(businessId),
     queryFn: () => apiClient.getSubscription(businessId),
+    enabled: !!businessId,
+  });
+}
+
+export function useUsage(businessId: number) {
+  return useQuery({
+    queryKey: billingKeys.usageByBusiness(businessId),
+    queryFn: () => apiClient.getUsage(businessId),
     enabled: !!businessId,
   });
 }

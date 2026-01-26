@@ -108,6 +108,14 @@ export interface PortalResponse {
   portal_url: string;
 }
 
+export interface UsageResponse {
+  minutes_used: number;
+  included_minutes: number;
+  overage_minutes: number;
+  period_start: string | null;
+  period_end: string | null;
+}
+
 // API-specific types
 
 export interface AgentWithPhone extends Agent {
