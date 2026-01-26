@@ -606,10 +606,13 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               {/* Quick Stats */}
               <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
                 <h3 className="text-sm font-semibold text-[#5D4E37] mb-4">Performance</h3>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-[#5D4E37]">{totalCalls}</p>
-                  <p className="text-sm text-[#8B7355] mt-1">total calls</p>
-                  <p className="text-lg font-semibold text-[#8B6F47] mt-3">{successRate}% completed</p>
+                <div className="text-center py-2">
+                  <span className="text-6xl font-bold bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] bg-clip-text text-transparent">
+                    {totalCalls}
+                  </span>
+                  <p className="text-sm text-[#8B7355] mt-2">
+                    Total calls completed at {successRate}% success rate
+                  </p>
                 </div>
               </div>
 
