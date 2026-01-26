@@ -604,13 +604,22 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             {/* Stats + Chart */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Quick Stats */}
-              <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
-                <h3 className="text-sm font-semibold text-[#5D4E37] mb-4">Performance</h3>
-                <div className="text-center py-2">
-                  <span className="text-6xl font-bold bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] bg-clip-text text-transparent">
+              <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5 flex flex-col h-full">
+                <h3 className="text-sm font-semibold text-[#5D4E37] mb-2">Performance</h3>
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <span
+                    className="font-black bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#8B6F47] bg-clip-text text-transparent drop-shadow-sm"
+                    style={{
+                      fontSize: 'clamp(5rem, 12vw, 8rem)',
+                      lineHeight: 1,
+                      WebkitBackgroundClip: 'text',
+                      backgroundSize: '200% 200%',
+                      animation: 'shimmer 3s ease-in-out infinite',
+                    }}
+                  >
                     {totalCalls}
                   </span>
-                  <p className="text-sm text-[#8B7355] mt-2">
+                  <p className="text-sm text-[#8B7355] mt-3">
                     Total calls completed at {successRate}% success rate
                   </p>
                 </div>
