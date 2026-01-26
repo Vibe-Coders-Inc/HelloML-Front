@@ -427,7 +427,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
   // Upload progress helpers
   const startUpload = useCallback((fileName: string) => {
-    console.log('[Upload] Starting upload overlay for:', fileName);
     setUploadingFileName(fileName);
     setIsUploading(true);
     setUploadProgress(0);
@@ -459,7 +458,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
     const elapsed = Date.now() - uploadStartTime.current;
     const remaining = Math.max(0, MIN_OVERLAY_DURATION - elapsed);
-    console.log('[Upload] Ending upload, waiting:', remaining, 'ms');
 
     setTimeout(() => {
       setIsUploading(false);
