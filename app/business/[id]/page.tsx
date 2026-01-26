@@ -608,11 +608,13 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <h3 className="text-sm font-semibold text-[#5D4E37] mb-2">Performance</h3>
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <span
-                    className="font-black bg-gradient-to-br from-[#8B6F47] via-[#A67A5B] to-[#8B6F47] bg-clip-text text-transparent drop-shadow-sm"
+                    className="font-black bg-clip-text text-transparent drop-shadow-sm"
                     style={{
                       fontSize: 'clamp(5rem, 12vw, 8rem)',
                       lineHeight: 1,
                       WebkitBackgroundClip: 'text',
+                      background: 'linear-gradient(45deg, #8B6F47 0%, #C9A86C 50%, #8B6F47 100%)',
+                      backgroundClip: 'text',
                       backgroundSize: '200% 200%',
                       animation: 'shimmer 3s ease-in-out infinite',
                     }}
