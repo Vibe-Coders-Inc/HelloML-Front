@@ -22,7 +22,10 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
 
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadingFileName, setUploadingFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isUploading = uploadPDFMutation.isPending || uploadTextMutation.isPending;
 
   // File size limits (match backend)
   const MAX_PDF_SIZE = 5 * 1024 * 1024;  // 5MB
@@ -80,6 +83,8 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         continue;
       }
 
+      setUploadingFileName(file.name);
+
       if (fileExtension === 'txt') {
         // Read and upload text file
         console.log('[DocumentsTab] Reading text file:', file.name);
@@ -102,12 +107,14 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                 console.log('[DocumentsTab] Text upload successful:', data);
                 toast.success(`${file.name} uploaded successfully`);
                 setUploadError(null);
+                setUploadingFileName(null);
               },
               onError: (error) => {
                 const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
                 console.error('[DocumentsTab] Text upload failed:', error);
                 setUploadError(errorMsg);
                 toast.error(errorMsg);
+                setUploadingFileName(null);
               },
             }
           );
@@ -118,6 +125,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           console.error('[DocumentsTab] FileReader error');
           setUploadError(errorMsg);
           toast.error(errorMsg);
+          setUploadingFileName(null);
         };
 
         reader.readAsText(file);
@@ -136,12 +144,14 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               console.log('[DocumentsTab] PDF upload successful:', data);
               toast.success(`${file.name} uploaded successfully`);
               setUploadError(null);
+              setUploadingFileName(null);
             },
             onError: (error) => {
               const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
               console.error('[DocumentsTab] PDF upload failed:', error);
               setUploadError(errorMsg);
               toast.error(errorMsg);
+              setUploadingFileName(null);
             },
           }
         );
@@ -251,8 +261,10 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         </CardHeader>
         <CardContent>
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive
+            className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all overflow-hidden ${
+              isUploading
+                ? 'border-[#8B6F47] bg-[#F5F0E8]'
+                : dragActive
                 ? 'border-[#A67A5B] bg-[#FAF8F3]'
                 : 'border-[#D8CBA9] hover:border-[#A67A5B]'
             }`}
@@ -261,7 +273,50 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <div className="space-y-4">
+            {/* Upload Progress Overlay */}
+            {isUploading && (
+              <div className="absolute inset-0 bg-[#F5F0E8]/95 flex flex-col items-center justify-center z-10">
+                {/* Animated progress bar */}
+                <div className="w-3/4 max-w-xs mb-4">
+                  <div className="h-3 bg-[#E8DCC8] rounded-full overflow-hidden relative">
+                    {/* Animated fill */}
+                    <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9A86C] rounded-full animate-upload-progress" />
+                    {/* Shimmer effect */}
+                    <div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      style={{
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 1.5s ease-in-out infinite',
+                      }}
+                    />
+                    {/* Bubbles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute w-2 h-2 bg-white/50 rounded-full animate-bubble"
+                          style={{
+                            left: `${15 + i * 18}%`,
+                            top: '50%',
+                            marginTop: '-4px',
+                            animationDelay: `${i * 0.15}s`,
+                            animationDuration: `${1 + i * 0.2}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[#8B6F47] font-medium">
+                  Uploading {uploadingFileName || 'file'}...
+                </p>
+                <p className="text-sm text-[#A67A5B] mt-1">
+                  Processing and creating embeddings
+                </p>
+              </div>
+            )}
+
+            <div className={`space-y-4 ${isUploading ? 'opacity-30' : ''}`}>
               <div className="mx-auto w-12 h-12 bg-[#C9B790]/30 rounded-full flex items-center justify-center">
                 <Upload className="w-6 h-6 text-[#8B6F47]" />
               </div>
@@ -275,10 +330,10 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               </div>
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploadPDFMutation.isPending}
+                disabled={isUploading}
                 className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                {uploadPDFMutation.isPending ? 'Uploading...' : 'Choose Files'}
+                Choose Files
               </Button>
               <input
                 ref={fileInputRef}
@@ -302,13 +357,6 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             </div>
           )}
 
-          {/* Upload Status */}
-          {(uploadPDFMutation.isPending || uploadTextMutation.isPending) && (
-            <div className="mt-4 p-3 bg-[#FAF8F3] border border-[#E8DCC8] rounded-lg flex items-center space-x-3">
-              <div className="w-5 h-5 border-2 border-[#C9B790] border-t-[#8B6F47] rounded-full animate-spin"></div>
-              <p className="text-sm text-[#8B6F47] font-medium">Uploading document...</p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
