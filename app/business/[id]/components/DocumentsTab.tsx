@@ -67,6 +67,8 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   }, [documents, agentId, queryClient]);
 
   const handleFileUpload = async (files: FileList) => {
+    console.log('[DocumentsTab] handleFileUpload CALLED with', files.length, 'files');
+
     if (!agentId) {
       toast.error('No agent selected');
       console.error('[DocumentsTab] Upload failed: No agent ID');
@@ -87,12 +89,16 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         extension: fileExtension,
       });
 
+      // START UPLOAD OVERLAY IMMEDIATELY - before any validation
+      startUpload(file.name);
+
       // Validate file type
       if (fileExtension !== 'txt' && fileExtension !== 'pdf') {
         const errorMsg = `Invalid file type: ${file.name}. Only PDF and TXT files are supported.`;
         setUploadError(errorMsg);
         toast.error(errorMsg);
         console.error('[DocumentsTab]', errorMsg);
+        endUpload();
         continue;
       }
 
@@ -102,6 +108,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         setUploadError(errorMsg);
         toast.error(errorMsg);
         console.error('[DocumentsTab]', errorMsg);
+        endUpload();
         continue;
       }
 
@@ -113,11 +120,11 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         setUploadError(errorMsg);
         toast.error(errorMsg);
         console.error('[DocumentsTab]', errorMsg);
+        endUpload();
         continue;
       }
 
-      // Start upload overlay immediately
-      startUpload(file.name);
+      // Validations passed - proceed with upload
 
       if (fileExtension === 'txt') {
         // Read and upload text file
@@ -217,14 +224,24 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+
+    console.log('[DocumentsTab] handleDrop triggered');
+    console.log('[DocumentsTab] Files in dataTransfer:', e.dataTransfer.files?.length || 0);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      console.log('[DocumentsTab] Calling handleFileUpload with', e.dataTransfer.files.length, 'files');
       handleFileUpload(e.dataTransfer.files);
+    } else {
+      console.log('[DocumentsTab] No files in drop event');
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    console.log('[DocumentsTab] handleFileInput triggered');
+    console.log('[DocumentsTab] Files from input:', e.target.files?.length || 0);
+
+    if (e.target.files && e.target.files.length > 0) {
+      console.log('[DocumentsTab] Calling handleFileUpload from input');
       handleFileUpload(e.target.files);
     }
   };
