@@ -90,7 +90,7 @@ export interface Subscription {
   current_period_start?: string;
   current_period_end?: string;
   cancel_at_period_end: boolean;
-  cancel_at?: number | null;
+  cancel_at?: number | string | null;
   created_at: string;
   updated_at: string;
 }

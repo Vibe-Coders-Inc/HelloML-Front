@@ -647,11 +647,19 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       <div className="flex items-center gap-2 mt-1">
                         {(subscriptionData.subscription?.cancel_at_period_end || subscriptionData.subscription?.cancel_at) ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5F0E8] text-[#8B7355] text-xs font-medium">
-                            Cancels {subscriptionData.subscription?.cancel_at
-                              ? new Date(subscriptionData.subscription.cancel_at * 1000).toLocaleDateString()
-                              : subscriptionData.subscription?.current_period_end
+                            Cancels {(() => {
+                              const cancelAt = subscriptionData.subscription?.cancel_at;
+                              if (cancelAt) {
+                                // Handle both Unix timestamp (number) and ISO string
+                                const date = typeof cancelAt === 'number'
+                                  ? new Date(cancelAt * 1000)
+                                  : new Date(cancelAt);
+                                return date.toLocaleDateString();
+                              }
+                              return subscriptionData.subscription?.current_period_end
                                 ? new Date(subscriptionData.subscription.current_period_end).toLocaleDateString()
-                                : 'soon'}
+                                : 'soon';
+                            })()}
                           </span>
                         ) : (
                           <>
