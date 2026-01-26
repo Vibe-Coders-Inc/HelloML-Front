@@ -707,60 +707,68 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               </div>
 
               {/* Usage Stats - Big Numbers */}
-              {subscriptionData?.has_active_subscription && usageData && (
+              {usageData && (
                 <div className="pt-4 border-t border-[#E8DCC8]/50">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-[#5D4E37]">
-                      {usageData.minutes_used.toFixed(1)}
-                    </span>
-                    <span className="text-lg text-[#8B7355]">
-                      / {usageData.included_minutes} minutes
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#8B7355] mt-1">$5/mo includes {usageData.included_minutes} minutes</p>
+                  {(() => {
+                    const isSubscribed = subscriptionData?.has_active_subscription;
+                    const includedMins = isSubscribed ? usageData.included_minutes : 5;
+                    const used = usageData.minutes_used;
+                    const remaining = Math.max(0, includedMins - used);
 
-                  {/* Progress bar */}
-                  <div className="mt-3">
-                    <div className="h-2 bg-[#F5F0E8] rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-500 ${
-                          usageData.minutes_used >= usageData.included_minutes
-                            ? 'bg-amber-500'
-                            : 'bg-gradient-to-r from-[#8B6F47] to-[#A67A5B]'
-                        }`}
-                        style={{
-                          width: `${Math.min(100, (usageData.minutes_used / usageData.included_minutes) * 100)}%`
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Top-up / Overage minutes */}
-                  {usageData.overage_minutes > 0 && (
-                    <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="w-4 h-4 text-amber-600" />
-                          <span className="text-sm font-medium text-amber-800">Top-up minutes</span>
+                    return (
+                      <>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-bold text-[#5D4E37]">
+                            {used.toFixed(1)}
+                          </span>
+                          <span className="text-lg text-[#8B7355]">
+                            / {includedMins} minutes
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <span className="text-lg font-bold text-amber-700">{usageData.overage_minutes.toFixed(1)}</span>
-                          <span className="text-xs text-amber-600 ml-1">mins @ $0.10/min</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-amber-600 mt-1">
-                        Estimated charge: ${(usageData.overage_minutes * 0.10).toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
+                        <p className="text-xs text-[#8B7355] mt-1">
+                          {isSubscribed
+                            ? `$5/mo includes ${includedMins} minutes`
+                            : `${remaining.toFixed(1)} free minutes remaining`
+                          }
+                        </p>
 
-              {!subscriptionData?.has_active_subscription && (
-                <div className="pt-4 border-t border-[#E8DCC8]/50">
-                  <p className="text-xs text-[#8B7355]">
-                    Includes 100 minutes per month. Additional minutes billed at $0.10/min.
-                  </p>
+                        {/* Progress bar */}
+                        <div className="mt-3">
+                          <div className="h-2 bg-[#F5F0E8] rounded-full overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-500 ${
+                                used >= includedMins
+                                  ? 'bg-amber-500'
+                                  : 'bg-gradient-to-r from-[#8B6F47] to-[#A67A5B]'
+                              }`}
+                              style={{
+                                width: `${Math.min(100, (used / includedMins) * 100)}%`
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Top-up / Overage minutes - only for subscribed */}
+                        {isSubscribed && usageData.overage_minutes > 0 && (
+                          <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                                <span className="text-sm font-medium text-amber-800">Top-up minutes</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-lg font-bold text-amber-700">{usageData.overage_minutes.toFixed(1)}</span>
+                                <span className="text-xs text-amber-600 ml-1">mins @ $0.10/min</span>
+                              </div>
+                            </div>
+                            <p className="text-xs text-amber-600 mt-1">
+                              Estimated charge: ${(usageData.overage_minutes * 0.10).toFixed(2)}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
