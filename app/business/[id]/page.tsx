@@ -273,7 +273,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
   // Billing hooks
   const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
-  const { data: usageData } = useUsage(businessId);
+  const { data: usageData, isLoading: isUsageLoading, error: usageError } = useUsage(businessId);
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
 
@@ -707,12 +707,17 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               </div>
 
               {/* Usage Stats - Big Numbers */}
-              {usageData && (
-                <div className="pt-4 border-t border-[#E8DCC8]/50">
-                  {(() => {
+              <div className="pt-4 border-t border-[#E8DCC8]/50">
+                {isUsageLoading ? (
+                  <div className="flex items-center gap-2 text-[#8B7355]">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Loading usage...</span>
+                  </div>
+                ) : (
+                  (() => {
                     const isSubscribed = subscriptionData?.has_active_subscription;
-                    const includedMins = isSubscribed ? usageData.included_minutes : 5;
-                    const used = usageData.minutes_used;
+                    const includedMins = isSubscribed ? (usageData?.included_minutes ?? 100) : 5;
+                    const used = usageData?.minutes_used ?? 0;
                     const remaining = Math.max(0, includedMins - used);
 
                     return (
@@ -749,7 +754,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         </div>
 
                         {/* Top-up / Overage minutes - only for subscribed */}
-                        {isSubscribed && usageData.overage_minutes > 0 && (
+                        {isSubscribed && usageData && usageData.overage_minutes > 0 && (
                           <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -768,9 +773,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         )}
                       </>
                     );
-                  })()}
-                </div>
-              )}
+                  })()
+                )}
+              </div>
             </div>
           </div>
         );
