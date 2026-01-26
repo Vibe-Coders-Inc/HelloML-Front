@@ -257,7 +257,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month' | 'all'>('week');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingFileName, setUploadingFileName] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const uploadStartTime = React.useRef<number>(0);
+  const progressInterval = React.useRef<NodeJS.Timeout | null>(null);
   const MIN_OVERLAY_DURATION = 2000; // Show overlay for at least 2 seconds
 
   const { data: business, isLoading } = useBusiness(businessId);
@@ -428,16 +430,41 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     console.log('[Upload] Starting upload overlay for:', fileName);
     setUploadingFileName(fileName);
     setIsUploading(true);
+    setUploadProgress(0);
     uploadStartTime.current = Date.now();
+
+    // Animate progress from 0 to 85% over time (simulated progress)
+    let progress = 0;
+    progressInterval.current = setInterval(() => {
+      progress += Math.random() * 15 + 5; // Random increment between 5-20%
+      if (progress >= 85) {
+        progress = 85; // Cap at 85% until complete
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
+        }
+      }
+      setUploadProgress(Math.min(progress, 85));
+    }, 300);
   }, []);
 
   const endUpload = useCallback(() => {
+    // Clear the progress interval
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+
+    // Jump to 100%
+    setUploadProgress(100);
+
     const elapsed = Date.now() - uploadStartTime.current;
     const remaining = Math.max(0, MIN_OVERLAY_DURATION - elapsed);
     console.log('[Upload] Ending upload, waiting:', remaining, 'ms');
+
     setTimeout(() => {
       setIsUploading(false);
       setUploadingFileName(null);
+      setUploadProgress(0);
     }, remaining);
   }, [MIN_OVERLAY_DURATION]);
 
@@ -1313,12 +1340,20 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     {/* Upload Progress Overlay */}
                     {isUploading && (
                       <div className="absolute inset-0 bg-[#F5F0E8]/95 flex flex-col items-center justify-center z-10">
-                        {/* Animated progress bar */}
+                        {/* Progress percentage */}
+                        <p className="text-3xl font-bold text-[#8B6F47] mb-3">
+                          {Math.round(uploadProgress)}%
+                        </p>
+
+                        {/* Progress bar with actual percentage */}
                         <div className="w-3/4 max-w-xs mb-4">
                           <div className="h-3 bg-[#E8DCC8] rounded-full overflow-hidden relative">
-                            {/* Animated fill */}
-                            <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9A86C] rounded-full animate-upload-progress" />
-                            {/* Shimmer effect */}
+                            {/* Actual progress fill */}
+                            <div
+                              className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9A86C] rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                            {/* Shimmer effect on top of progress */}
                             <div
                               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                               style={{
@@ -1326,29 +1361,34 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 animation: 'shimmer 1.5s ease-in-out infinite',
                               }}
                             />
-                            {/* Bubbles */}
+                            {/* Bubbles positioned along the progress */}
                             <div className="absolute inset-0 overflow-hidden">
-                              {[...Array(5)].map((_, i) => (
+                              {[...Array(3)].map((_, i) => (
                                 <div
                                   key={i}
-                                  className="absolute w-2 h-2 bg-white/50 rounded-full animate-bubble"
+                                  className="absolute w-2 h-2 bg-white/60 rounded-full animate-bubble"
                                   style={{
-                                    left: `${15 + i * 18}%`,
+                                    left: `${Math.min(uploadProgress - 5, 10 + i * 25)}%`,
                                     top: '50%',
                                     marginTop: '-4px',
-                                    animationDelay: `${i * 0.15}s`,
-                                    animationDuration: `${1 + i * 0.2}s`,
+                                    animationDelay: `${i * 0.2}s`,
+                                    animationDuration: `${0.8 + i * 0.15}s`,
+                                    opacity: uploadProgress > (10 + i * 25) ? 1 : 0,
                                   }}
                                 />
                               ))}
                             </div>
                           </div>
                         </div>
+
                         <p className="text-[#8B6F47] font-medium">
                           Uploading {uploadingFileName || 'file'}...
                         </p>
                         <p className="text-sm text-[#A67A5B] mt-1">
-                          Processing and creating embeddings
+                          {uploadProgress < 30 ? 'Reading file...' :
+                           uploadProgress < 60 ? 'Uploading to server...' :
+                           uploadProgress < 90 ? 'Processing and chunking...' :
+                           'Finalizing...'}
                         </p>
                       </div>
                     )}
