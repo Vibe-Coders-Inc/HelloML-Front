@@ -39,6 +39,9 @@ export interface Document {
   uploaded_at: string;
   error_message?: string;
   updated_at: string;
+  status?: 'pending' | 'processing' | 'ready' | 'error';
+  file_size?: number;
+  chunk_count?: number;
 }
 
 export interface DocumentChunk {

@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Upload, Download, Trash2, File, AlertCircle } from 'lucide-react';
+import { FileText, Upload, Download, Trash2, File, AlertCircle, Loader2 } from 'lucide-react';
 import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { documentKeys } from '@/lib/hooks/use-documents';
 
 interface DocumentsTabProps {
   agentId?: number;
 }
 
 export default function DocumentsTab({ agentId }: DocumentsTabProps) {
+  const queryClient = useQueryClient();
   const { data: documents = [], isLoading } = useDocuments(agentId || 0);
   const uploadPDFMutation = useUploadPDFDocument();
   const uploadTextMutation = useUploadTextDocument();
@@ -21,8 +24,20 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // File size limit: 10MB
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  // File size limits (match backend)
+  const MAX_PDF_SIZE = 5 * 1024 * 1024;  // 5MB
+  const MAX_TEXT_SIZE = 1 * 1024 * 1024; // 1MB
+
+  // Poll for processing documents
+  useEffect(() => {
+    const hasProcessing = documents.some(doc => doc.status === 'processing');
+    if (hasProcessing && agentId) {
+      const interval = setInterval(() => {
+        queryClient.invalidateQueries({ queryKey: documentKeys.list(agentId) });
+      }, 3000); // Poll every 3 seconds
+      return () => clearInterval(interval);
+    }
+  }, [documents, agentId, queryClient]);
 
   const handleFileUpload = async (files: FileList) => {
     if (!agentId) {
@@ -54,9 +69,11 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         continue;
       }
 
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        const errorMsg = `File too large: ${file.name}. Maximum size is 10MB.`;
+      // Validate file size based on type
+      const maxSize = fileExtension === 'pdf' ? MAX_PDF_SIZE : MAX_TEXT_SIZE;
+      const maxSizeLabel = fileExtension === 'pdf' ? '5MB' : '1MB';
+      if (file.size > maxSize) {
+        const errorMsg = `File too large: ${file.name}. Maximum size for ${fileExtension?.toUpperCase()} is ${maxSizeLabel}.`;
         setUploadError(errorMsg);
         toast.error(errorMsg);
         console.error('[DocumentsTab]', errorMsg);
@@ -326,52 +343,85 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {documents.map((document) => (
-                <div
-                  key={document.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-[#FAF8F3]"
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="text-2xl">
-                      {getFileIcon(document.file_type)}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-[#8B6F47]">{document.filename}</h4>
-                      <div className="flex items-center space-x-4 text-sm text-[#A67A5B]">
-                        <span>{document.file_type.toUpperCase()}</span>
-                        <span>•</span>
-                        <span>Uploaded {formatDate(document.uploaded_at)}</span>
-                        {document.error_message && (
-                          <>
-                            <span>•</span>
-                            <span className="text-red-500">Error: {document.error_message}</span>
-                          </>
+              {documents.map((document) => {
+                const isProcessing = document.status === 'processing';
+                const hasError = document.status === 'error';
+
+                return (
+                  <div
+                    key={document.id}
+                    className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                      isProcessing ? 'bg-[#FAF8F3] border-[#E8DCC8]' :
+                      hasError ? 'bg-red-50 border-red-200' :
+                      'hover:bg-[#FAF8F3]'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="text-2xl relative">
+                        {isProcessing ? (
+                          <div className="w-8 h-8 flex items-center justify-center">
+                            <Loader2 className="w-6 h-6 text-[#8B6F47] animate-spin" />
+                          </div>
+                        ) : (
+                          getFileIcon(document.file_type)
                         )}
                       </div>
+                      <div>
+                        <h4 className="font-medium text-[#8B6F47]">{document.filename}</h4>
+                        <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-[#A67A5B]">
+                          <span>{document.file_type.split('/').pop()?.toUpperCase()}</span>
+                          {document.file_size && (
+                            <>
+                              <span>•</span>
+                              <span>{(document.file_size / 1024).toFixed(1)} KB</span>
+                            </>
+                          )}
+                          {isProcessing ? (
+                            <>
+                              <span>•</span>
+                              <span className="text-[#8B6F47] font-medium">Processing chunks...</span>
+                            </>
+                          ) : hasError ? (
+                            <>
+                              <span>•</span>
+                              <span className="text-red-500">Failed: {document.error_message || 'Unknown error'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>•</span>
+                              <span>{document.chunk_count || 0} chunks</span>
+                              <span>•</span>
+                              <span>Uploaded {formatDate(document.uploaded_at)}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {!isProcessing && document.storage_url && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownload(document.storage_url, document.filename)}
+                          className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(document.id, document.filename)}
+                        disabled={deleteDocumentMutation.isPending || isProcessing}
+                        className="border-[#D8CBA9] text-[#8B6F47] hover:bg-red-50 hover:border-red-300 hover:text-red-600 shadow-sm hover:shadow-md transition-all disabled:opacity-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(document.storage_url, document.filename)}
-                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(document.id, document.filename)}
-                      disabled={deleteDocumentMutation.isPending}
-                      className="border-[#D8CBA9] text-[#8B6F47] hover:bg-red-50 hover:border-red-300 hover:text-red-600 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
@@ -387,7 +437,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             <li>• Upload FAQ documents to help your agent answer common questions</li>
             <li>• Product manuals help your agent provide detailed technical support</li>
             <li>• Company policies ensure consistent responses across all calls</li>
-            <li>• Keep documents up to date for the best customer experience</li>
+            <li>• <strong>File limits:</strong> PDF up to 5MB, TXT up to 1MB</li>
           </ul>
         </CardContent>
       </Card>
