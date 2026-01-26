@@ -23,7 +23,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadingFileName, setUploadingFileName] = useState<string | null>(null);
-  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadStartTime = useRef<number>(0);
 
@@ -34,14 +34,23 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   // Minimum thresholds
   const MIN_FILE_SIZE = 100; // 100 bytes minimum
   const MIN_TEXT_LENGTH = 50; // 50 characters minimum
-  const MIN_OVERLAY_DURATION = 1500; // Show overlay for at least 1.5 seconds
+  const MIN_OVERLAY_DURATION = 2000; // Show overlay for at least 2 seconds
 
-  // Helper to hide overlay after minimum duration
-  const hideOverlayWithDelay = () => {
+  // Start upload - show overlay immediately
+  const startUpload = (fileName: string) => {
+    console.log('[DocumentsTab] Starting upload overlay for:', fileName);
+    setUploadingFileName(fileName);
+    setIsUploading(true);
+    uploadStartTime.current = Date.now();
+  };
+
+  // End upload - hide overlay after minimum duration
+  const endUpload = () => {
     const elapsed = Date.now() - uploadStartTime.current;
     const remaining = Math.max(0, MIN_OVERLAY_DURATION - elapsed);
+    console.log('[DocumentsTab] Ending upload, waiting:', remaining, 'ms');
     setTimeout(() => {
-      setShowUploadOverlay(false);
+      setIsUploading(false);
       setUploadingFileName(null);
     }, remaining);
   };
@@ -107,10 +116,8 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         continue;
       }
 
-      // Start upload overlay
-      setUploadingFileName(file.name);
-      setShowUploadOverlay(true);
-      uploadStartTime.current = Date.now();
+      // Start upload overlay immediately
+      startUpload(file.name);
 
       if (fileExtension === 'txt') {
         // Read and upload text file
@@ -125,7 +132,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             const errorMsg = `File too short: ${file.name}. Minimum ${MIN_TEXT_LENGTH} characters required.`;
             setUploadError(errorMsg);
             toast.error(errorMsg);
-            hideOverlayWithDelay();
+            endUpload();
             return;
           }
 
@@ -144,14 +151,14 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                 console.log('[DocumentsTab] Text upload successful:', data);
                 toast.success(`${file.name} uploaded successfully`);
                 setUploadError(null);
-                hideOverlayWithDelay();
+                endUpload();
               },
               onError: (error) => {
                 const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
                 console.error('[DocumentsTab] Text upload failed:', error);
                 setUploadError(errorMsg);
                 toast.error(errorMsg);
-                hideOverlayWithDelay();
+                endUpload();
               },
             }
           );
@@ -162,7 +169,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
           console.error('[DocumentsTab] FileReader error');
           setUploadError(errorMsg);
           toast.error(errorMsg);
-          hideOverlayWithDelay();
+          endUpload();
         };
 
         reader.readAsText(file);
@@ -181,14 +188,14 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               console.log('[DocumentsTab] PDF upload successful:', data);
               toast.success(`${file.name} uploaded successfully`);
               setUploadError(null);
-              hideOverlayWithDelay();
+              endUpload();
             },
             onError: (error) => {
               const errorMsg = `Failed to upload ${file.name}: ${error.message}`;
               console.error('[DocumentsTab] PDF upload failed:', error);
               setUploadError(errorMsg);
               toast.error(errorMsg);
-              hideOverlayWithDelay();
+              endUpload();
             },
           }
         );
@@ -299,7 +306,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
         <CardContent>
           <div
             className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all overflow-hidden ${
-              showUploadOverlay
+              isUploading
                 ? 'border-[#8B6F47] bg-[#F5F0E8]'
                 : dragActive
                 ? 'border-[#A67A5B] bg-[#FAF8F3]'
@@ -311,7 +318,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
             onDrop={handleDrop}
           >
             {/* Upload Progress Overlay */}
-            {showUploadOverlay && (
+            {isUploading && (
               <div className="absolute inset-0 bg-[#F5F0E8]/95 flex flex-col items-center justify-center z-10">
                 {/* Animated progress bar */}
                 <div className="w-3/4 max-w-xs mb-4">
@@ -353,7 +360,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               </div>
             )}
 
-            <div className={`space-y-4 ${showUploadOverlay ? 'opacity-30' : ''}`}>
+            <div className={`space-y-4 ${isUploading ? 'opacity-30' : ''}`}>
               <div className="mx-auto w-12 h-12 bg-[#C9B790]/30 rounded-full flex items-center justify-center">
                 <Upload className="w-6 h-6 text-[#8B6F47]" />
               </div>
@@ -367,7 +374,7 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
               </div>
               <Button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={showUploadOverlay}
+                disabled={isUploading}
                 className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Choose Files
