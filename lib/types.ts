@@ -120,6 +120,13 @@ export interface UsageResponse {
   period_end: string | null;
 }
 
+export interface ToolConnection {
+  id: number;
+  provider: string;
+  account_email: string | null;
+  created_at: string;
+}
+
 // API-specific types
 
 export interface AgentWithPhone extends Agent {

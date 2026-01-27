@@ -29,6 +29,8 @@ import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/us
 import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 import { useProvisionPhoneNumber, useDeletePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
 import { useSubscription, useUsage, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
+import { useConnections, useDisconnectIntegration } from '@/lib/hooks/use-integrations';
+import { apiClient } from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -283,6 +285,20 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const { data: usageData, isLoading: isUsageLoading } = useUsage(businessId);
   const createCheckout = useCreateCheckoutSession();
   const createPortal = useCreatePortalSession();
+
+  // Integration hooks
+  const { data: connectionsData } = useConnections(businessId);
+  const disconnectIntegration = useDisconnectIntegration();
+  const connectedProviders = useMemo(() => {
+    return new Set((connectionsData?.connections || []).map(c => c.provider));
+  }, [connectionsData]);
+  const connectionsByProvider = useMemo(() => {
+    const map: Record<string, { account_email: string | null }> = {};
+    for (const c of connectionsData?.connections || []) {
+      map[c.provider] = { account_email: c.account_email };
+    }
+    return map;
+  }, [connectionsData]);
 
   // Handle checkout success/canceled from URL params
   useEffect(() => {
@@ -1122,50 +1138,86 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   <p className="text-xs text-[#8B7355] mb-4">Connect tools to help your agent assist customers better</p>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {integrations.map((int) => (
-                      <div
-                        key={int.id}
-                        className={`p-4 rounded-xl border text-center transition-colors cursor-pointer ${
-                          int.connected
-                            ? 'border-emerald-200 bg-emerald-50/50'
-                            : 'border-[#E8DCC8] bg-[#FDFCFA] hover:border-[#8B6F47]/50'
-                        }`}
-                        onClick={() => {
-                          if (int.id === 'knowledge-base') {
-                            window.history.pushState(null, '', '#documents');
-                            window.dispatchEvent(new HashChangeEvent('hashchange'));
-                          }
-                        }}
-                      >
-                        {int.id === 'knowledge-base' ? (
-                          <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
-                            <BookOpen className="w-5 h-5 text-[#8B6F47]" />
-                          </div>
-                        ) : (
-                          <img
-                            src={integrationLogos[int.id]}
-                            alt={int.name}
-                            className="w-10 h-10 mx-auto mb-2"
-                          />
-                        )}
-                        <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
-                        <p className="text-[10px] text-[#8B7355] mt-0.5 mb-3">{int.description}</p>
-                        {int.connected ? (
-                          <div className="flex items-center justify-center gap-1 text-xs text-emerald-600 font-medium">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Connected
-                          </div>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full h-7 text-xs"
-                          >
-                            Connect
-                          </Button>
-                        )}
-                      </div>
-                    ))}
+                    {integrations.map((int) => {
+                      const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
+                      const isOAuthSupported = int.id === 'google-calendar';
+                      const connectionInfo = connectionsByProvider[int.id];
+
+                      return (
+                        <div
+                          key={int.id}
+                          className={`p-4 rounded-xl border text-center transition-colors ${
+                            isConnected
+                              ? 'border-emerald-200 bg-emerald-50/50'
+                              : isOAuthSupported
+                                ? 'border-[#E8DCC8] bg-[#FDFCFA] hover:border-[#8B6F47]/50 cursor-pointer'
+                                : 'border-[#E8DCC8] bg-[#FDFCFA] opacity-60'
+                          }`}
+                          onClick={() => {
+                            if (int.id === 'knowledge-base') {
+                              window.history.pushState(null, '', '#documents');
+                              window.dispatchEvent(new HashChangeEvent('hashchange'));
+                            }
+                          }}
+                        >
+                          {int.id === 'knowledge-base' ? (
+                            <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
+                              <BookOpen className="w-5 h-5 text-[#8B6F47]" />
+                            </div>
+                          ) : (
+                            <img
+                              src={integrationLogos[int.id]}
+                              alt={int.name}
+                              className="w-10 h-10 mx-auto mb-2"
+                            />
+                          )}
+                          <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
+                          <p className="text-[10px] text-[#8B7355] mt-0.5 mb-3">
+                            {isConnected && connectionInfo?.account_email
+                              ? connectionInfo.account_email
+                              : int.description}
+                          </p>
+                          {isConnected ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-center gap-1 text-xs text-emerald-600 font-medium">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Connected
+                              </div>
+                              {!int.isInternal && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    disconnectIntegration.mutate({ businessId, provider: int.id });
+                                  }}
+                                  className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
+                                >
+                                  Disconnect
+                                </button>
+                              )}
+                            </div>
+                          ) : isOAuthSupported ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full h-7 text-xs"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, 'google');
+                                  window.location.href = auth_url;
+                                } catch (err) {
+                                  console.error('Failed to get auth URL:', err);
+                                }
+                              }}
+                            >
+                              Connect
+                            </Button>
+                          ) : (
+                            <span className="text-[10px] text-[#8B7355]">Coming Soon</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </>

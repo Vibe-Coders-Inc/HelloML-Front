@@ -95,6 +95,14 @@ When committing, reference the issue:
 git commit -m "HEL-6: Add responsive styles to auth page"
 ```
 
+## Infrastructure
+
+- **Backend API Base URL:** `https://api.helloml.app` (production), `http://localhost:8000` (dev)
+- **Backend Repo:** `~/Dropbox/Desktop/HelloML` — FastAPI on Fly.io (`helloml-backend-bitter-lake-1235`)
+- **Frontend Repo:** `~/Dropbox/Desktop/HelloML-Front` — Next.js on Vercel
+- **Database:** Supabase (PostgreSQL) — use Supabase MCP tools for migrations, table creation, and SQL queries. NEVER write raw `.sql` files for migrations — run them via Supabase MCP.
+- **Backend Logs:** `flyctl logs --app helloml-backend-bitter-lake-1235 --no-tail`
+
 ## Claude Code Guidelines
 
 ### Git Operations
@@ -107,6 +115,13 @@ git commit -m "HEL-6: Add responsive styles to auth page"
 ### Comments and Documentation
 - **All comments and notes should be added to Linear** using the Linear MCP, not in code comments
 - Keep code comments minimal and only for complex logic that isn't self-evident
+
+### Database Operations
+- **Use Supabase MCP tools** for all database operations: creating tables, running migrations, querying data
+- **NEVER write .sql migration files** — run SQL directly via Supabase MCP
+- **NEVER manually UPDATE/INSERT database records to fix sync issues** - always fix the actual sync code
+- **NEVER take shortcuts** by hardcoding data or running manual SQL when code should handle it
+- If data isn't syncing properly from external services (Stripe, etc.), debug and fix the code - not the data
 
 ### Commit Messages
 - **No emojis** in commit messages

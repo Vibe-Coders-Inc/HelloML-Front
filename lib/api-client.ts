@@ -20,6 +20,7 @@ import type {
   CheckoutResponse,
   PortalResponse,
   UsageResponse,
+  ToolConnection,
 } from './types';
 import { createClient } from './supabase/client';
 
@@ -407,6 +408,21 @@ class ApiClient {
 
   async getUsage(businessId: number): Promise<UsageResponse> {
     return this.fetch<UsageResponse>(`/billing/usage/${businessId}`);
+  }
+
+  // Integration endpoints
+  async getIntegrationAuthUrl(businessId: number, provider: string): Promise<{ auth_url: string }> {
+    return this.fetch<{ auth_url: string }>(`/integrations/${provider}/auth?business_id=${businessId}`);
+  }
+
+  async getConnections(businessId: number): Promise<{ connections: ToolConnection[] }> {
+    return this.fetch<{ connections: ToolConnection[] }>(`/integrations/${businessId}/connections`);
+  }
+
+  async disconnectIntegration(businessId: number, provider: string): Promise<{ status: string }> {
+    return this.fetch<{ status: string }>(`/integrations/${businessId}/connections/${provider}`, {
+      method: 'DELETE',
+    });
   }
 }
 
