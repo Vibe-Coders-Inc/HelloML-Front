@@ -16,7 +16,8 @@ import {
   Clock,
   Zap,
   Shield,
-  ArrowRight
+  ArrowRight,
+  Check
 } from 'lucide-react';
 
 const includedFeatures = [
@@ -104,8 +105,9 @@ export default function PricingPage() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
-        {/* Pricing Card */}
-        <div className="max-w-lg mx-auto mb-20">
+        {/* Pricing Card + FAQ — side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+          {/* Pricing Card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -113,27 +115,34 @@ export default function PricingPage() {
             className="bg-white/90 backdrop-blur-xl rounded-3xl border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10 overflow-hidden"
           >
             {/* Card Header */}
-            <div className="bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] p-8 text-center">
-              <h2 className="text-white/80 text-sm font-medium tracking-wider uppercase mb-2">Per Agent</h2>
+            <div className="relative bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] p-10 text-center overflow-hidden">
+              {/* Decorative ring */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 border border-white/10 rounded-full" />
+              <div className="absolute -bottom-20 -left-20 w-56 h-56 border border-white/10 rounded-full" />
+
+              <p className="text-white/70 text-xs font-semibold tracking-widest uppercase mb-4">Per Agent</p>
               <div className="flex items-baseline justify-center gap-1">
-                <span className="text-6xl font-bold text-white">$5</span>
-                <span className="text-white/70 text-lg">/month</span>
+                <span className="text-sm text-white/60 font-medium self-start mt-3">$</span>
+                <span className="text-8xl font-extrabold text-white tracking-tight leading-none">5</span>
+                <span className="text-white/50 text-base font-medium self-end mb-2">/mo</span>
               </div>
-              <p className="text-white/60 mt-2 text-sm">100 minutes included</p>
+              <div className="mt-4 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5">
+                <Clock className="w-3.5 h-3.5 text-white/80" />
+                <span className="text-white/90 text-sm font-medium">100 minutes included</span>
+              </div>
             </div>
 
             {/* Overage Pricing */}
-            <div className="px-8 py-5 bg-[#F5F0E8]/50 border-b border-[#E8DCC8]/50">
+            <div className="px-8 py-4 bg-[#F5F0E8]/50 border-b border-[#E8DCC8]/50">
               <div className="flex items-center justify-between">
-                <span className="text-[#5D4E37] font-medium">Additional minutes</span>
+                <span className="text-[#5D4E37] font-medium text-sm">Additional minutes</span>
                 <span className="text-[#8B6F47] font-bold text-lg">$0.10<span className="text-sm font-normal text-[#5a4a3a]/60">/min</span></span>
               </div>
             </div>
 
             {/* Features List */}
             <div className="p-8">
-              <h3 className="text-sm font-semibold text-[#5a4a3a]/60 uppercase tracking-wider mb-4">Everything included</h3>
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {includedFeatures.map((feature, index) => (
                   <motion.li
                     key={index}
@@ -142,10 +151,10 @@ export default function PricingPage() {
                     transition={{ delay: 0.3 + index * 0.05 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-[#F5F0E8] flex items-center justify-center flex-shrink-0">
-                      <feature.icon className="w-4 h-4 text-[#8B6F47]" />
+                    <div className="w-5 h-5 rounded-full bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-[#8B6F47]" />
                     </div>
-                    <span className="text-[#5D4E37]">{feature.text}</span>
+                    <span className="text-[#5D4E37] text-sm">{feature.text}</span>
                   </motion.li>
                 ))}
               </ul>
@@ -171,33 +180,33 @@ export default function PricingPage() {
               </p>
             </div>
           </motion.div>
-        </div>
 
-        {/* FAQ Section */}
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-2xl font-bold text-[#5D4E37] mb-2">Questions about pricing?</h2>
-            <p className="text-[#5a4a3a]/60">Here are some common questions we get asked.</p>
-          </motion.div>
+          {/* FAQ Section */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mb-6"
+            >
+              <h2 className="text-2xl font-bold text-[#5D4E37] mb-2">Common questions</h2>
+              <p className="text-[#5a4a3a]/60 text-sm">Everything you need to know about pricing.</p>
+            </motion.div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.05 }}
-                className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8DCC8]/50 p-6"
-              >
-                <h3 className="font-semibold text-[#5D4E37] mb-2">{faq.question}</h3>
-                <p className="text-[#5a4a3a]/70 leading-relaxed">{faq.answer}</p>
-              </motion.div>
-            ))}
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + index * 0.05 }}
+                  className="bg-white/80 backdrop-blur-xl rounded-2xl border border-[#E8DCC8]/50 p-5"
+                >
+                  <h3 className="font-semibold text-[#5D4E37] mb-1.5 text-sm">{faq.question}</h3>
+                  <p className="text-[#5a4a3a]/70 leading-relaxed text-sm">{faq.answer}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 
