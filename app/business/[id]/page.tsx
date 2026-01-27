@@ -638,22 +638,18 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             {subscriptionData && !subscriptionData.has_active_subscription && (() => {
               const trialExhausted = (usageData?.minutes_used ?? 0) >= 5;
               return (
-                <div className={`flex items-center justify-between p-4 rounded-xl border ${
-                  trialExhausted
-                    ? 'bg-amber-50/50 border-amber-200'
-                    : 'bg-[#F5F0E8]/50 border-[#E8DCC8]'
-                }`}>
+                <div className="flex items-center justify-between p-4 bg-[#F5F0E8]/50 rounded-xl border border-[#E8DCC8]">
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                      trialExhausted ? 'bg-amber-100' : 'bg-[#8B6F47]/10'
-                    }`}>
-                      <Clock className={`w-4 h-4 ${trialExhausted ? 'text-amber-600' : 'text-[#8B6F47]'}`} />
+                    <div className="w-9 h-9 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
+                      {trialExhausted
+                        ? <AlertTriangle className="w-4 h-4 text-[#8B6F47]" />
+                        : <Clock className="w-4 h-4 text-[#8B6F47]" />}
                     </div>
                     <div>
-                      <p className={`text-sm font-medium ${trialExhausted ? 'text-amber-800' : 'text-[#5D4E37]'}`}>
+                      <p className="text-sm font-medium text-[#5D4E37]">
                         {trialExhausted ? 'Trial Ended' : 'Trial Mode'}
                       </p>
-                      <p className={`text-xs ${trialExhausted ? 'text-amber-600' : 'text-[#8B7355]'}`}>
+                      <p className="text-xs text-[#8B7355]">
                         {trialExhausted
                           ? 'Subscribe to continue making calls'
                           : '5 free minutes included'}
@@ -664,9 +660,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     onClick={() => createCheckout.mutate(businessId)}
                     disabled={createCheckout.isPending}
                     size="sm"
-                    className={trialExhausted
-                      ? 'bg-amber-600 hover:bg-amber-700 text-white text-xs'
-                      : 'bg-[#5D4E37] hover:bg-[#4A3E2C] text-white text-xs'}
+                    className="bg-[#5D4E37] hover:bg-[#4A3E2C] text-white text-xs"
                   >
                     {createCheckout.isPending ? (
                       <Loader2 className="w-3 h-3 animate-spin" />
