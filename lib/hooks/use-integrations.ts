@@ -36,3 +36,24 @@ export function useDisconnectIntegration() {
     },
   });
 }
+
+export function useUpdateToolSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      businessId,
+      provider,
+      settings,
+    }: {
+      businessId: number;
+      provider: string;
+      settings: Record<string, unknown>;
+    }) => apiClient.updateToolSettings(businessId, provider, settings),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: integrationKeys.connectionsByBusiness(variables.businessId),
+      });
+    },
+  });
+}

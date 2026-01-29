@@ -124,7 +124,16 @@ export interface ToolConnection {
   id: number;
   provider: string;
   account_email: string | null;
+  settings?: Record<string, unknown>;
   created_at: string;
+}
+
+export interface GoogleCalendarSettings {
+  default_duration?: number;
+  allow_conflicts?: boolean;
+  booking_window_days?: number;
+  business_hours_start?: string;
+  business_hours_end?: string;
 }
 
 // API-specific types

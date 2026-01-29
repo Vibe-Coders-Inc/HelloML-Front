@@ -424,6 +424,20 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async updateToolSettings(
+    businessId: number,
+    provider: string,
+    settings: Record<string, unknown>
+  ): Promise<{ status: string; settings: Record<string, unknown> }> {
+    return this.fetch<{ status: string; settings: Record<string, unknown> }>(
+      `/integrations/${businessId}/connections/${provider}/settings`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ settings }),
+      }
+    );
+  }
 }
 
 export const apiClient = new ApiClient();

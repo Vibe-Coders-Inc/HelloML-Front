@@ -8,7 +8,7 @@ import {
   Trash2, Upload, Download,
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
-  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle
+  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -29,13 +29,13 @@ import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/us
 import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
 import { useProvisionPhoneNumber, useDeletePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
 import { useSubscription, useUsage, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
-import { useConnections, useDisconnectIntegration } from '@/lib/hooks/use-integrations';
+import { useConnections, useDisconnectIntegration, useUpdateToolSettings } from '@/lib/hooks/use-integrations';
 import { apiClient } from '@/lib/api-client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import type { Conversation } from '@/lib/types';
+import type { Conversation, GoogleCalendarSettings } from '@/lib/types';
 
 const agentSchema = z.object({
   name: z.string().min(1),
@@ -263,6 +263,15 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const uploadStartTime = React.useRef<number>(0);
   const progressInterval = React.useRef<NodeJS.Timeout | null>(null);
   const MIN_OVERLAY_DURATION = 2000; // Show overlay for at least 2 seconds
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [settingsProvider, setSettingsProvider] = useState<string | null>(null);
+  const [calendarSettings, setCalendarSettings] = useState<GoogleCalendarSettings>({
+    default_duration: 30,
+    allow_conflicts: false,
+    booking_window_days: 30,
+    business_hours_start: '09:00',
+    business_hours_end: '17:00',
+  });
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -289,13 +298,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   // Integration hooks
   const { data: connectionsData } = useConnections(businessId);
   const disconnectIntegration = useDisconnectIntegration();
+  const updateToolSettings = useUpdateToolSettings();
   const connectedProviders = useMemo(() => {
     return new Set((connectionsData?.connections || []).map(c => c.provider));
   }, [connectionsData]);
   const connectionsByProvider = useMemo(() => {
-    const map: Record<string, { account_email: string | null }> = {};
+    const map: Record<string, { account_email: string | null; settings?: Record<string, unknown> }> = {};
     for (const c of connectionsData?.connections || []) {
-      map[c.provider] = { account_email: c.account_email };
+      map[c.provider] = { account_email: c.account_email, settings: c.settings };
     }
     return map;
   }, [connectionsData]);
@@ -439,6 +449,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         onSuccess: () => { setIsAgentDialogOpen(false); form.reset(); toast.success('Agent created'); },
       });
     }
+  };
+
+  const openToolSettings = (provider: string) => {
+    setSettingsProvider(provider);
+    const existingSettings = connectionsByProvider[provider]?.settings || {};
+    if (provider === 'google-calendar') {
+      setCalendarSettings({
+        default_duration: (existingSettings.default_duration as number) ?? 30,
+        allow_conflicts: (existingSettings.allow_conflicts as boolean) ?? false,
+        booking_window_days: (existingSettings.booking_window_days as number) ?? 30,
+        business_hours_start: (existingSettings.business_hours_start as string) ?? '09:00',
+        business_hours_end: (existingSettings.business_hours_end as string) ?? '17:00',
+      });
+    }
+    setSettingsDialogOpen(true);
+  };
+
+  const handleSaveSettings = () => {
+    if (!settingsProvider) return;
+    updateToolSettings.mutate(
+      { businessId, provider: settingsProvider, settings: calendarSettings },
+      {
+        onSuccess: () => {
+          toast.success('Settings saved');
+          setSettingsDialogOpen(false);
+          setSettingsProvider(null);
+        },
+        onError: () => {
+          toast.error('Failed to save settings');
+        },
+      }
+    );
   };
 
   // Upload progress helpers
@@ -1184,15 +1226,28 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 Connected
                               </div>
                               {!int.isInternal && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    disconnectIntegration.mutate({ businessId, provider: int.id });
-                                  }}
-                                  className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
-                                >
-                                  Disconnect
-                                </button>
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openToolSettings(int.id);
+                                    }}
+                                    className="text-[10px] text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-0.5"
+                                  >
+                                    <Settings2 className="w-3 h-3" />
+                                    Settings
+                                  </button>
+                                  <span className="text-[#E8DCC8]">|</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      disconnectIntegration.mutate({ businessId, provider: int.id });
+                                    }}
+                                    className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
+                                  >
+                                    Disconnect
+                                  </button>
+                                </div>
                               )}
                             </div>
                           ) : isOAuthSupported ? (
@@ -1710,6 +1765,113 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 </>
               ) : (
                 'Change Number'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tool Settings Dialog */}
+      <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-[#5D4E37]">
+              {settingsProvider === 'google-calendar' ? 'Google Calendar Settings' : 'Tool Settings'}
+            </DialogTitle>
+          </DialogHeader>
+          {settingsProvider === 'google-calendar' && (
+            <div className="space-y-5 py-2">
+              {/* Default Duration */}
+              <div>
+                <label className="block text-xs text-[#8B7355] mb-2">Default Appointment Duration</label>
+                <select
+                  className={`w-full h-10 rounded-md border px-3 ${inputStyles}`}
+                  value={calendarSettings.default_duration}
+                  onChange={(e) => setCalendarSettings({ ...calendarSettings, default_duration: parseInt(e.target.value) })}
+                >
+                  <option value={15}>15 minutes</option>
+                  <option value={30}>30 minutes</option>
+                  <option value={45}>45 minutes</option>
+                  <option value={60}>60 minutes</option>
+                  <option value={90}>90 minutes</option>
+                </select>
+                <p className="text-[10px] text-[#8B7355]/70 mt-1">Used when caller doesn&apos;t specify a duration</p>
+              </div>
+
+              {/* Allow Conflicts */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-sm text-[#5D4E37]">Allow Scheduling Conflicts</label>
+                  <p className="text-[10px] text-[#8B7355]/70">Allow booking over existing events</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCalendarSettings({ ...calendarSettings, allow_conflicts: !calendarSettings.allow_conflicts })}
+                  className={`w-11 h-6 rounded-full transition-colors ${calendarSettings.allow_conflicts ? 'bg-[#8B6F47]' : 'bg-[#E8DCC8]'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${calendarSettings.allow_conflicts ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+
+              {/* Booking Window */}
+              <div>
+                <label className="block text-xs text-[#8B7355] mb-2">Booking Window</label>
+                <select
+                  className={`w-full h-10 rounded-md border px-3 ${inputStyles}`}
+                  value={calendarSettings.booking_window_days}
+                  onChange={(e) => setCalendarSettings({ ...calendarSettings, booking_window_days: parseInt(e.target.value) })}
+                >
+                  <option value={7}>7 days</option>
+                  <option value={14}>14 days</option>
+                  <option value={30}>30 days</option>
+                  <option value={60}>60 days</option>
+                  <option value={90}>90 days</option>
+                </select>
+                <p className="text-[10px] text-[#8B7355]/70 mt-1">How far in advance appointments can be booked</p>
+              </div>
+
+              {/* Business Hours */}
+              <div>
+                <label className="block text-xs text-[#8B7355] mb-2">Business Hours</label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="time"
+                    className={`flex-1 h-10 ${inputStyles}`}
+                    value={calendarSettings.business_hours_start}
+                    onChange={(e) => setCalendarSettings({ ...calendarSettings, business_hours_start: e.target.value })}
+                  />
+                  <span className="text-[#8B7355]">to</span>
+                  <Input
+                    type="time"
+                    className={`flex-1 h-10 ${inputStyles}`}
+                    value={calendarSettings.business_hours_end}
+                    onChange={(e) => setCalendarSettings({ ...calendarSettings, business_hours_end: e.target.value })}
+                  />
+                </div>
+                <p className="text-[10px] text-[#8B7355]/70 mt-1">Appointments can only be scheduled during these hours</p>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+              onClick={() => setSettingsDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-gradient-to-r from-[#8B6F47] to-[#A67A5B] text-white"
+              onClick={handleSaveSettings}
+              disabled={updateToolSettings.isPending}
+            >
+              {updateToolSettings.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Settings'
               )}
             </Button>
           </DialogFooter>
