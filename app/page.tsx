@@ -82,7 +82,7 @@ function GraphicPlaceholder({
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8F3]">
+    <div className="min-h-screen bg-[#FAF8F3] overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/80 backdrop-blur-md border-b border-[#E8DCC8]/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -106,12 +106,12 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 md:pt-40">
+      <section className="min-h-screen flex flex-col items-center justify-center pt-32 md:pt-40">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-4xl mx-auto text-center px-6"
         >
           {/* Main headline */}
           <motion.h1
@@ -143,20 +143,24 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Hero Product Screenshot - Linear style diagonal */}
+        {/* Hero Product Screenshot - Linear perspective style */}
         <motion.div
-          initial={{ opacity: 0, y: 120, scale: 0.92 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
+          initial={{ opacity: 0, y: 80 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-5xl mx-auto mt-20 px-6"
-          style={{ perspective: '1500px' }}
+          className="w-full mt-16 md:mt-24 self-stretch"
+          style={{ perspective: '1200px' }}
         >
           <div
-            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/20 border border-[#E8DCC8]/60"
-            style={{ transform: 'rotate(-6deg)' }}
+            className="relative"
+            style={{
+              transform: 'rotateY(-12deg) rotateX(5deg)',
+              transformOrigin: 'left center',
+              marginLeft: '8%',
+              width: '140%',
+            }}
           >
-            {/* Crop 10px off top */}
-            <div className="overflow-hidden" style={{ marginTop: '-10px' }}>
+            <div className="rounded-l-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/25">
               <Image
                 src="/dashboard-preview.png"
                 alt="HelloML Dashboard"
@@ -166,12 +170,15 @@ export default function LandingPage() {
                 priority
               />
             </div>
-            {/* Bottom-right corner fade */}
+            {/* Left edge fade */}
             <div
-              className="absolute bottom-0 right-0 w-full h-full pointer-events-none"
-              style={{
-                background: 'linear-gradient(to top left, #FAF8F3 0%, #FAF8F3 5%, transparent 40%)'
-              }}
+              className="absolute inset-y-0 left-0 w-24 md:w-40 pointer-events-none rounded-l-2xl"
+              style={{ background: 'linear-gradient(to right, #FAF8F3, transparent)' }}
+            />
+            {/* Bottom fade */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-32 md:h-48 pointer-events-none"
+              style={{ background: 'linear-gradient(to top, #FAF8F3 5%, transparent)' }}
             />
           </div>
         </motion.div>
