@@ -99,12 +99,12 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/auth?mode=signin"
-              className="text-[#5D4E37] hover:text-[#8B6F47] font-medium transition-colors"
+              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors"
             >
               Sign In
             </Link>
             <Link href="/auth?mode=signup">
-              <Button className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-6">
+              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-6">
                 Get Started
               </Button>
             </Link>
@@ -123,9 +123,9 @@ export default function LandingPage() {
           {/* Main headline */}
           <motion.h1
             variants={staggerItem}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#5D4E37] tracking-tight mb-6"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#8B6F47] tracking-tight mb-6"
           >
-            Finally, something simple.
+            Finally, something <span style={{ fontFamily: 'Borel, cursive' }}>simple</span>.
           </motion.h1>
 
           {/* Subheadline with rotating text */}
@@ -152,7 +152,7 @@ export default function LandingPage() {
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
-                className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-10 py-7 text-lg font-medium shadow-xl shadow-[#5D4E37]/20 hover:shadow-2xl hover:shadow-[#5D4E37]/30 transition-all duration-300 group"
+                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-10 py-7 text-lg font-medium shadow-xl shadow-[#8B6F47]/20 hover:shadow-2xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
               >
                 Get Your Number
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -204,21 +204,21 @@ export default function LandingPage() {
           >
             <motion.p
               variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#5D4E37] font-medium"
+              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
             >
               Tell us about your business.
             </motion.p>
             <motion.p
               variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#5D4E37] font-medium"
+              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
             >
               We create your agent.
             </motion.p>
             <motion.p
               variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#5D4E37] font-medium"
+              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
             >
-              Calls handled. You notified.
+              Calls <span style={{ fontFamily: 'Borel, cursive' }}>handled</span>. You notified.
             </motion.p>
           </motion.div>
 
@@ -234,8 +234,8 @@ export default function LandingPage() {
       {/* Integrations Section */}
       <AnimatedSection className="py-32 px-6 bg-gradient-to-b from-[#FAF8F3] to-[#F5EFE6]">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#5D4E37] mb-4">
-            Works with the tools you already use.
+          <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
+            Works with the tools you <span style={{ fontFamily: 'Borel, cursive' }}>already</span> use.
           </h2>
           <p className="text-lg text-[#8B7355] mb-16">
             Seamlessly connects to your calendar and more.
@@ -271,7 +271,7 @@ export default function LandingPage() {
                 variants={staggerItem}
                 className="space-y-2"
               >
-                <h3 className="text-xl md:text-2xl font-semibold text-[#5D4E37]">
+                <h3 className="text-xl md:text-2xl font-semibold text-[#8B6F47]">
                   {feature.title}
                 </h3>
                 <p className="text-[#8B7355]">
@@ -298,7 +298,7 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeIn}
-            className="text-xl md:text-2xl lg:text-3xl text-[#5D4E37] leading-relaxed"
+            className="text-xl md:text-2xl lg:text-3xl text-[#8B6F47] leading-relaxed"
           >
             For the contractor on the job site.{' '}
             <span className="text-[#8B7355]">The stylist mid-appointment.</span>{' '}
@@ -320,7 +320,7 @@ export default function LandingPage() {
       {/* Pricing Preview Section */}
       <AnimatedSection className="py-32 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#5D4E37] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
             Simple pricing. No surprises.
           </h2>
           <p className="text-lg text-[#8B7355] mb-8">
@@ -329,7 +329,7 @@ export default function LandingPage() {
           <Link href="/pricing">
             <Button
               variant="outline"
-              className="border-[#5D4E37] text-[#5D4E37] hover:bg-[#5D4E37] hover:text-white rounded-full px-8 py-6"
+              className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white rounded-full px-8 py-6"
             >
               View Pricing
             </Button>
@@ -350,9 +350,9 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#5D4E37] mb-8"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B6F47] mb-8"
           >
-            Your calls, answered.
+            Your calls, <span style={{ fontFamily: 'Borel, cursive' }}>answered</span>.
           </motion.h2>
 
           <motion.div
@@ -364,7 +364,7 @@ export default function LandingPage() {
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
-                className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-12 py-8 text-xl font-medium shadow-2xl shadow-[#5D4E37]/20 hover:shadow-3xl hover:shadow-[#5D4E37]/30 transition-all duration-300 group"
+                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-12 py-8 text-xl font-medium shadow-2xl shadow-[#8B6F47]/20 hover:shadow-3xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
               >
                 Get Started Free
                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
@@ -398,10 +398,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Logo size="small" lightMode />
           <div className="flex items-center gap-8 text-sm text-[#8B7355]">
-            <Link href="/pricing" className="hover:text-[#5D4E37] transition-colors">Pricing</Link>
-            <Link href="/privacy" className="hover:text-[#5D4E37] transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#5D4E37] transition-colors">Terms</Link>
-            <Link href="/support" className="hover:text-[#5D4E37] transition-colors">Support</Link>
+            <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
+            <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#8B6F47] transition-colors">Terms</Link>
+            <Link href="/support" className="hover:text-[#8B6F47] transition-colors">Support</Link>
           </div>
           <p className="text-sm text-[#A67A5B]/60">
             © 2026 HelloML
