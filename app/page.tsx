@@ -149,12 +149,12 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           className="w-full mt-16 md:mt-24 self-stretch"
-          style={{ perspective: '1000px' }}
+          style={{ perspective: '1200px' }}
         >
           <div
             className="relative"
             style={{
-              transform: 'rotateY(-16deg) rotateX(6deg)',
+              transform: 'rotateX(12deg) rotateY(-8deg) rotateZ(2deg) scale(0.95)',
               transformOrigin: 'center center',
               marginLeft: '5%',
               width: '140%',
