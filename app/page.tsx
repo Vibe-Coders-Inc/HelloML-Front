@@ -149,26 +149,29 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           className="w-full mt-16 md:mt-24 self-stretch"
-          style={{ perspective: '1200px' }}
+          style={{ perspective: '700px' }}
         >
           <div
             className="relative"
             style={{
-              transform: 'rotateY(-12deg) rotateX(5deg)',
-              transformOrigin: 'left center',
-              marginLeft: '8%',
+              transform: 'rotateX(25deg) rotateY(12deg)',
+              transformOrigin: 'center bottom',
+              marginLeft: '5%',
               width: '140%',
             }}
           >
             <div className="rounded-l-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/25">
-              <Image
-                src="/dashboard-preview.png"
-                alt="HelloML Dashboard"
-                width={1600}
-                height={1000}
-                className="w-full h-auto"
-                priority
-              />
+              {/* Crop 8px off top */}
+              <div className="overflow-hidden" style={{ marginTop: '-8px' }}>
+                <Image
+                  src="/dashboard-preview.png"
+                  alt="HelloML Dashboard"
+                  width={1600}
+                  height={1000}
+                  className="w-full h-auto"
+                  priority
+                />
+              </div>
             </div>
             {/* Left edge fade */}
             <div
