@@ -471,7 +471,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const handleSaveSettings = () => {
     if (!settingsProvider) return;
     updateToolSettings.mutate(
-      { businessId, provider: settingsProvider, settings: calendarSettings },
+      { businessId, provider: settingsProvider, settings: calendarSettings as Record<string, unknown> },
       {
         onSuccess: () => {
           toast.success('Settings saved');
