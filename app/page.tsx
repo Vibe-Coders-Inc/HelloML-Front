@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { Logo } from '@/components/Logo';
-import { RotatingText } from '@/components/ui/rotating-text';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
@@ -82,13 +81,6 @@ function GraphicPlaceholder({
 }
 
 export default function LandingPage() {
-  const rotatingPhrases = [
-    "24/7",
-    "while you're busy",
-    "every single time",
-    "so you don't have to"
-  ] as const;
-
   return (
     <div className="min-h-screen bg-[#FAF8F3]">
       {/* Navigation */}
@@ -132,20 +124,9 @@ export default function LandingPage() {
           {/* Subheadline */}
           <motion.p
             variants={staggerItem}
-            className="text-xl md:text-2xl text-[#8B7355] mb-4 max-w-2xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-[#8B7355] mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             An intelligent voice agent for your business. Handles calls, books appointments, sends transcripts.
-          </motion.p>
-
-          <motion.p
-            variants={staggerItem}
-            className="text-lg md:text-xl text-[#A67A5B]/80 mb-12"
-          >
-            <RotatingText
-              phrases={rotatingPhrases}
-              interval={3000}
-              className="text-[#8B6F47] font-medium"
-            />
           </motion.p>
 
           {/* CTA */}
@@ -162,43 +143,35 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Hero Product Screenshot - Linear style */}
+        {/* Hero Product Screenshot - Linear style diagonal */}
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 120, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-5xl mx-auto mt-20 px-6"
-          style={{ perspective: '2000px' }}
+          style={{ perspective: '1500px' }}
         >
           <div
-            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/15 border border-[#E8DCC8]/60"
-            style={{ transform: 'rotateX(4deg)' }}
+            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/20 border border-[#E8DCC8]/60"
+            style={{ transform: 'rotateX(8deg) rotateY(-4deg) rotateZ(1deg)' }}
           >
-            <Image
-              src="/dashboard-preview.png"
-              alt="HelloML Dashboard"
-              width={1600}
-              height={1000}
-              className="w-full h-auto"
-              priority
-            />
-            {/* Bottom fade into page background */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#FAF8F3] via-[#FAF8F3]/60 to-transparent pointer-events-none" />
-          </div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <div className="w-6 h-10 rounded-full border-2 border-[#E8DCC8] flex items-start justify-center p-2">
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="w-1.5 h-1.5 rounded-full bg-[#A67A5B]"
+            {/* Crop 20px off top */}
+            <div className="overflow-hidden" style={{ marginTop: '-20px' }}>
+              <Image
+                src="/dashboard-preview.png"
+                alt="HelloML Dashboard"
+                width={1600}
+                height={1000}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+            {/* Bottom-right corner fade */}
+            <div
+              className="absolute bottom-0 right-0 w-full h-full pointer-events-none"
+              style={{
+                background: 'linear-gradient(to top left, #FAF8F3 0%, #FAF8F3 5%, transparent 40%)'
+              }}
             />
           </div>
         </motion.div>
@@ -253,12 +226,37 @@ export default function LandingPage() {
             Seamlessly connects to your calendar and more.
           </p>
 
-          {/* Integrations Graphic Zone */}
-          <GraphicPlaceholder
-            label="Graphic Zone C — Integration Logos"
-            height="h-48"
-            suggestion="Google Calendar, Outlook, Notion logos. Clean marks in glass-card containers. Subtle hover glow."
-          />
+          {/* Integration Logos */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+            className="flex flex-wrap items-center justify-center gap-8 md:gap-12"
+          >
+            {[
+              { name: 'Google Calendar', src: 'https://img.icons8.com/color/96/google-calendar--v1.png' },
+              { name: 'Outlook', src: 'https://img.icons8.com/color/96/microsoft-outlook-2019--v2.png' },
+              { name: 'Google Drive', src: 'https://img.icons8.com/color/96/google-drive--v1.png' },
+              { name: 'Notion', src: 'https://img.icons8.com/ios-filled/100/000000/notion.png' },
+              { name: 'Dropbox', src: 'https://img.icons8.com/color/96/dropbox.png' },
+            ].map((integration) => (
+              <motion.div
+                key={integration.name}
+                variants={staggerItem}
+                className="group flex flex-col items-center gap-3"
+              >
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E8DCC8]/50 shadow-lg shadow-[#8B6F47]/5 flex items-center justify-center group-hover:shadow-xl group-hover:border-[#A67A5B]/30 group-hover:scale-105 transition-all duration-300">
+                  <img
+                    src={integration.src}
+                    alt={integration.name}
+                    className="w-8 h-8 md:w-10 md:h-10"
+                  />
+                </div>
+                <span className="text-xs text-[#8B7355]/60 font-medium">{integration.name}</span>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </AnimatedSection>
 
@@ -293,12 +291,60 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* Features Graphic Zone */}
-          <GraphicPlaceholder
-            label="Graphic Zone D — Feature Visual"
-            height="h-72"
-            suggestion="Abstract icons: sound wave, calendar dot, text lines, phone. Linear-style thin strokes with gradient fills."
-          />
+          {/* Feature Icons — CSS visuals */}
+          <div className="flex items-center justify-center gap-4 md:gap-6">
+            {/* Sound wave — calls */}
+            <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#8B6F47]/10 to-[#A67A5B]/5 flex items-center justify-center">
+              <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="20" width="4" height="8" rx="2" fill="#C9B790"/>
+                <rect x="14" y="14" width="4" height="20" rx="2" fill="#A67A5B"/>
+                <rect x="22" y="8" width="4" height="32" rx="2" fill="#8B6F47"/>
+                <rect x="30" y="14" width="4" height="20" rx="2" fill="#A67A5B"/>
+                <rect x="38" y="20" width="4" height="8" rx="2" fill="#C9B790"/>
+              </svg>
+            </div>
+
+            <div className="hidden md:block w-12 h-px bg-gradient-to-r from-[#E8DCC8] to-[#E8DCC8]/30"/>
+
+            {/* Calendar — schedule */}
+            <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#8B6F47]/10 to-[#A67A5B]/5 flex items-center justify-center">
+              <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="12" width="32" height="28" rx="4" stroke="#8B6F47" strokeWidth="2"/>
+                <line x1="8" y1="22" x2="40" y2="22" stroke="#8B6F47" strokeWidth="2"/>
+                <line x1="16" y1="12" x2="16" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="32" y1="12" x2="32" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="20" cy="30" r="3" fill="#8B6F47"/>
+                <circle cx="28" cy="30" r="3" fill="#C9B790"/>
+                <circle cx="36" cy="30" r="3" fill="#E8DCC8"/>
+              </svg>
+            </div>
+
+            <div className="hidden md:block w-12 h-px bg-gradient-to-r from-[#E8DCC8]/30 via-[#E8DCC8] to-[#E8DCC8]/30"/>
+
+            {/* Text lines — transcripts */}
+            <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#8B6F47]/10 to-[#A67A5B]/5 flex items-center justify-center">
+              <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="10" width="32" height="4" rx="2" fill="#8B6F47"/>
+                <rect x="8" y="18" width="24" height="4" rx="2" fill="#A67A5B" opacity="0.7"/>
+                <rect x="8" y="26" width="28" height="4" rx="2" fill="#A67A5B" opacity="0.5"/>
+                <rect x="8" y="34" width="18" height="4" rx="2" fill="#C9B790"/>
+              </svg>
+            </div>
+
+            <div className="hidden md:block w-12 h-px bg-gradient-to-r from-[#E8DCC8]/30 to-[#E8DCC8]"/>
+
+            {/* Phone with ripples — one number */}
+            <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#8B6F47]/10 to-[#A67A5B]/5 flex items-center justify-center">
+              <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 48 48" fill="none">
+                <rect x="16" y="6" width="16" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/>
+                <circle cx="24" cy="36" r="2" fill="#A67A5B"/>
+                <rect x="20" y="9" width="8" height="2" rx="1" fill="#C9B790"/>
+                <circle cx="24" cy="22" r="5" stroke="#8B6F47" strokeWidth="1.5" fill="#8B6F47" opacity="0.08"/>
+                <circle cx="24" cy="22" r="9" stroke="#A67A5B" strokeWidth="1" opacity="0.2"/>
+                <circle cx="24" cy="22" r="13" stroke="#C9B790" strokeWidth="0.5" opacity="0.15"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </AnimatedSection>
 
@@ -318,13 +364,32 @@ export default function LandingPage() {
             <span className="text-[#8B7355]">The owner who can&apos;t be everywhere.</span>
           </motion.p>
 
-          {/* Who It's For Graphic Zone (optional, subtle) */}
-          <div className="mt-16">
-            <GraphicPlaceholder
-              label="Graphic Zone E — Subtle Background (Optional)"
-              height="h-32"
-              suggestion="Abstract silhouettes suggesting work. Very faded, almost watermark-like. Or leave text-only."
-            />
+          {/* Subtle profession silhouettes */}
+          <div className="mt-16 flex items-center justify-center gap-12 md:gap-20 opacity-[0.12]">
+            {/* Hard hat — contractor */}
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M6 22h20M8 22v-6a8 8 0 1 1 16 0v6" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
+              <rect x="14" y="10" width="4" height="6" rx="1" fill="#A67A5B" opacity="0.3"/>
+            </svg>
+            {/* Scissors — stylist */}
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="10" cy="24" r="4" stroke="#8B6F47" strokeWidth="1.5"/>
+              <circle cx="22" cy="24" r="4" stroke="#8B6F47" strokeWidth="1.5"/>
+              <line x1="13" y1="21" x2="22" y2="8" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="19" y1="21" x2="10" y2="8" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {/* Gavel — attorney */}
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="10" y="6" width="14" height="5" rx="2" transform="rotate(30 10 6)" stroke="#8B6F47" strokeWidth="1.5"/>
+              <line x1="17" y1="17" x2="24" y2="24" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="8" y1="27" x2="26" y2="27" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            {/* Briefcase — owner */}
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="4" y="12" width="24" height="14" rx="3" stroke="#8B6F47" strokeWidth="1.5"/>
+              <path d="M12 12V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3" stroke="#8B6F47" strokeWidth="1.5"/>
+              <line x1="4" y1="19" x2="28" y2="19" stroke="#A67A5B" strokeWidth="1" opacity="0.5"/>
+            </svg>
           </div>
         </div>
       </AnimatedSection>
@@ -395,13 +460,14 @@ export default function LandingPage() {
           </motion.p>
         </div>
 
-        {/* Final CTA Graphic Zone */}
-        <div className="max-w-lg mx-auto mt-16">
-          <GraphicPlaceholder
-            label="Graphic Zone F — Background Accent"
-            height="h-24"
-            suggestion="Soft radial gradient behind CTA. Warm glow effect like a spotlight."
-          />
+        {/* Decorative ripple rings */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-[0.08]">
+          <div className="relative w-[400px] h-[400px]">
+            <div className="absolute inset-0 rounded-full border border-[#8B6F47]"/>
+            <div className="absolute inset-8 rounded-full border border-[#8B6F47]"/>
+            <div className="absolute inset-16 rounded-full border border-[#8B6F47]"/>
+            <div className="absolute inset-24 rounded-full border border-[#A67A5B]"/>
+          </div>
         </div>
       </AnimatedSection>
 
