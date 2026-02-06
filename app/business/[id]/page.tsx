@@ -265,6 +265,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const MIN_OVERLAY_DURATION = 2000; // Show overlay for at least 2 seconds
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settingsProvider, setSettingsProvider] = useState<string | null>(null);
+  const [disconnectProvider, setDisconnectProvider] = useState<string | null>(null);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [calendarSettings, setCalendarSettings] = useState<GoogleCalendarSettings>({
     default_duration: 30,
     allow_conflicts: false,
@@ -624,6 +626,29 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
       },
     });
   }, [agent, deletePhone, provisionPhone, provisionAreaCode]);
+
+  // Integration disconnect handler
+  const handleDisconnectIntegration = useCallback(() => {
+    if (!disconnectProvider) return;
+    setIsDisconnecting(true);
+
+    disconnectIntegration.mutate(
+      { businessId, provider: disconnectProvider },
+      {
+        onSuccess: () => {
+          setIsDisconnecting(false);
+          setDisconnectProvider(null);
+          const integration = integrations.find(i => i.id === disconnectProvider);
+          toast.success(`${integration?.name || 'Integration'} disconnected`);
+        },
+        onError: (error) => {
+          setIsDisconnecting(false);
+          toast.error('Failed to disconnect integration');
+          console.error(error);
+        },
+      }
+    );
+  }, [disconnectProvider, businessId, disconnectIntegration]);
 
   // Drag and drop handlers
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -1241,7 +1266,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      disconnectIntegration.mutate({ businessId, provider: int.id });
+                                      setDisconnectProvider(int.id);
                                     }}
                                     className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
                                   >
@@ -1872,6 +1897,51 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 </>
               ) : (
                 'Save Settings'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Disconnect Integration Confirmation Dialog */}
+      <Dialog open={!!disconnectProvider} onOpenChange={(open) => !open && setDisconnectProvider(null)}>
+        <DialogContent className="max-w-sm bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-[#5D4E37]">Disconnect Integration</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-[#5D4E37]">
+              Are you sure you want to disconnect{' '}
+              <span className="font-semibold">
+                {integrations.find(i => i.id === disconnectProvider)?.name}
+              </span>
+              ?
+            </p>
+            <p className="text-xs text-[#8B7355] mt-2">
+              Your agent will no longer be able to access this integration. You can reconnect it at any time.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDisconnectProvider(null)}
+              disabled={isDisconnecting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDisconnectIntegration}
+              disabled={isDisconnecting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {isDisconnecting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Disconnecting...
+                </>
+              ) : (
+                'Disconnect'
               )}
             </Button>
           </DialogFooter>
