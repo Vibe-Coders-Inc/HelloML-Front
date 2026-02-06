@@ -7,6 +7,7 @@ import { Logo } from '@/components/Logo';
 import { RotatingText } from '@/components/ui/rotating-text';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
 // Animation variants
 const fadeInUp = {
@@ -125,20 +126,20 @@ export default function LandingPage() {
             variants={staggerItem}
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#8B6F47] tracking-tight mb-6"
           >
-            Finally, something <span style={{ fontFamily: 'Borel, cursive' }}>simple</span>.
+            AI that <span style={{ fontFamily: 'Borel, cursive' }}>answers</span> your phone.
           </motion.h1>
 
-          {/* Subheadline with rotating text */}
+          {/* Subheadline */}
           <motion.p
             variants={staggerItem}
-            className="text-2xl md:text-3xl lg:text-4xl text-[#8B7355] mb-4"
+            className="text-xl md:text-2xl text-[#8B7355] mb-4 max-w-2xl mx-auto leading-relaxed"
           >
-            Your phone rings. We answer.
+            An intelligent voice agent for your business. Handles calls, books appointments, sends transcripts.
           </motion.p>
 
           <motion.p
             variants={staggerItem}
-            className="text-xl md:text-2xl text-[#A67A5B]/80 mb-12"
+            className="text-lg md:text-xl text-[#A67A5B]/80 mb-12"
           >
             <RotatingText
               phrases={rotatingPhrases}
@@ -161,18 +162,29 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
-        {/* Hero Graphic Zone */}
+        {/* Hero Product Screenshot - Linear style */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
-          className="w-full max-w-2xl mx-auto mt-16 px-6"
+          transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-5xl mx-auto mt-20 px-6"
+          style={{ perspective: '2000px' }}
         >
-          <GraphicPlaceholder
-            label="Graphic Zone A — Hero Visual"
-            height="h-80"
-            suggestion="Abstract phone silhouette with incoming call ripples. Linear-style gradient glow. Warm tones."
-          />
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/15 border border-[#E8DCC8]/60"
+            style={{ transform: 'rotateX(4deg)' }}
+          >
+            <Image
+              src="/dashboard-preview.png"
+              alt="HelloML Dashboard"
+              width={1600}
+              height={1000}
+              className="w-full h-auto"
+              priority
+            />
+            {/* Bottom fade into page background */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#FAF8F3] via-[#FAF8F3]/60 to-transparent pointer-events-none" />
+          </div>
         </motion.div>
 
         {/* Scroll indicator */}
@@ -212,7 +224,7 @@ export default function LandingPage() {
               variants={staggerItem}
               className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
             >
-              We create your agent.
+              We build your voice agent.
             </motion.p>
             <motion.p
               variants={staggerItem}
