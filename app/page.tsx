@@ -62,6 +62,31 @@ function AnimatedSection({
   );
 }
 
+// Scroll-highlight text line
+function ScrollHighlightLine({
+  children,
+  delay = 0
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-20%" });
+
+  return (
+    <motion.p
+      ref={ref}
+      initial={{ opacity: 0.2, y: 10 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0.2, y: 10 }}
+      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
+      className="text-2xl md:text-3xl font-medium"
+      style={{ color: isInView ? '#8B6F47' : '#C9B790' }}
+    >
+      {children}
+    </motion.p>
+  );
+}
+
 // Graphic placeholder component
 function GraphicPlaceholder({
   label,
@@ -126,7 +151,7 @@ export default function LandingPage() {
             variants={staggerItem}
             className="text-xl md:text-2xl text-[#8B7355] mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            An intelligent voice agent for your business. Handles calls, books appointments, sends transcripts.
+            A voice agent that books appointments, answers questions from your documents, and handles every call so you don&apos;t have to.
           </motion.p>
 
           {/* CTA */}
@@ -148,20 +173,30 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full mt-16 md:mt-24 self-stretch"
-          style={{ perspective: '1200px' }}
+          className="w-full mt-16 md:mt-24 max-w-5xl mx-auto px-6"
         >
           <div
             className="relative"
             style={{
-              transform: 'rotateX(12deg) rotateY(-8deg) rotateZ(2deg) scale(0.95)',
-              transformOrigin: 'center center',
-              marginLeft: '5%',
-              width: '140%',
+              transform: 'perspective(75em) rotateX(18deg)',
+              transformOrigin: 'top center',
             }}
           >
-            <div className="rounded-l-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/25">
-              {/* Crop 8px off top */}
+            <div className="rounded-2xl overflow-hidden border border-[#E8DCC8]/60" style={{
+              boxShadow: 'rgba(139, 111, 71, 0.3) 0px 60px 120px -25px, rgba(139, 111, 71, 0.1) 0px 35px 75px -35px',
+            }}>
+              {/* macOS title bar */}
+              <div className="bg-[#F5EFE6] px-4 py-3 flex items-center gap-2 border-b border-[#E8DCC8]/60">
+                <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+                <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+                <div className="flex-1 mx-12">
+                  <div className="bg-white/60 rounded-md py-1 px-3 text-center">
+                    <span className="text-[10px] text-[#8B7355]/50 font-medium">app.helloml.app</span>
+                  </div>
+                </div>
+              </div>
+              {/* Screenshot */}
               <div className="overflow-hidden" style={{ marginTop: '-8px' }}>
                 <Image
                   src="/dashboard-preview.png"
@@ -173,15 +208,10 @@ export default function LandingPage() {
                 />
               </div>
             </div>
-            {/* Left edge fade */}
-            <div
-              className="absolute inset-y-0 left-0 w-16 md:w-28 pointer-events-none rounded-l-2xl"
-              style={{ background: 'linear-gradient(to right, #FAF8F3, transparent)' }}
-            />
             {/* Bottom fade */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-32 md:h-48 pointer-events-none"
-              style={{ background: 'linear-gradient(to top, #FAF8F3 5%, transparent)' }}
+              className="absolute bottom-0 left-0 right-0 h-40 md:h-56 pointer-events-none"
+              style={{ background: 'linear-gradient(to top, #FAF8F3 10%, transparent)' }}
             />
           </div>
         </motion.div>
@@ -190,32 +220,17 @@ export default function LandingPage() {
       {/* How It Works Section */}
       <AnimatedSection className="py-32 px-6">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="space-y-6 mb-16"
-          >
-            <motion.p
-              variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
-            >
-              Tell us about your business.
-            </motion.p>
-            <motion.p
-              variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
-            >
-              We build your voice agent.
-            </motion.p>
-            <motion.p
-              variants={staggerItem}
-              className="text-2xl md:text-3xl text-[#8B6F47] font-medium"
-            >
-              Calls <span style={{ fontFamily: 'Borel, cursive' }}>handled</span>. You notified.
-            </motion.p>
-          </motion.div>
+          <div className="space-y-6 mb-16">
+            <ScrollHighlightLine>
+              Upload your docs. Connect your calendar.
+            </ScrollHighlightLine>
+            <ScrollHighlightLine delay={0.15}>
+              Your AI agent learns your business and starts taking calls.
+            </ScrollHighlightLine>
+            <ScrollHighlightLine delay={0.3}>
+              Bookings made. Questions <span style={{ fontFamily: 'Borel, cursive' }}>handled</span>. You notified.
+            </ScrollHighlightLine>
+          </div>
 
           {/* How It Works Graphic Zone */}
           <GraphicPlaceholder
@@ -233,7 +248,7 @@ export default function LandingPage() {
             Works with the tools you <span style={{ fontFamily: 'Borel, cursive' }}>already</span> use.
           </h2>
           <p className="text-lg text-[#8B7355] mb-16">
-            Seamlessly connects to your calendar and more.
+            Your agent books through your calendar, searches your documents, and pulls context from your files — automatically.
           </p>
 
           {/* Integration Logos */}
@@ -281,10 +296,10 @@ export default function LandingPage() {
             className="grid md:grid-cols-2 gap-12 md:gap-16 mb-16"
           >
             {[
-              { title: "Every call answered.", desc: "Never miss a customer again." },
-              { title: "Your schedule, synced.", desc: "Calendar integration keeps you organized." },
-              { title: "Transcripts delivered.", desc: "Know what was said, when you need it." },
-              { title: "One number. Zero hassle.", desc: "We provision it. You own it." },
+              { title: "Books appointments on the spot.", desc: "Your agent checks availability and creates bookings directly on your calendar. No back-and-forth." },
+              { title: "Answers from your documents.", desc: "Upload FAQs, policies, or menus. Your agent searches them in real time to answer caller questions." },
+              { title: "Transcripts after every call.", desc: "Get a full transcription and summary delivered to your dashboard the moment a call ends." },
+              { title: "One number. Always on.", desc: "We provision a dedicated phone number for your business. Your agent picks up 24/7." },
             ].map((feature, i) => (
               <motion.div
                 key={i}
@@ -368,10 +383,10 @@ export default function LandingPage() {
             variants={fadeIn}
             className="text-xl md:text-2xl lg:text-3xl text-[#8B6F47] leading-relaxed"
           >
-            For the contractor on the job site.{' '}
-            <span className="text-[#8B7355]">The stylist mid-appointment.</span>{' '}
-            The attorney in court.{' '}
-            <span className="text-[#8B7355]">The owner who can&apos;t be everywhere.</span>
+            For the contractor on the job site — your agent books the estimate.{' '}
+            <span className="text-[#8B7355]">The stylist mid-appointment — your agent reschedules the no-show.</span>{' '}
+            The attorney in court — your agent takes the message.{' '}
+            <span className="text-[#8B7355]">The owner who can&apos;t be everywhere — your agent can.</span>
           </motion.p>
 
           {/* Subtle profession silhouettes */}
