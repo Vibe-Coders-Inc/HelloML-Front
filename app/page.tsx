@@ -98,12 +98,12 @@ export default function LandingPage() {
           </Link>
           <div className="flex items-center gap-4">
             <Link
-              href="/auth"
+              href="/auth?mode=signin"
               className="text-[#5D4E37] hover:text-[#8B6F47] font-medium transition-colors"
             >
               Sign In
             </Link>
-            <Link href="/auth">
+            <Link href="/auth?mode=signup">
               <Button className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-6">
                 Get Started
               </Button>
@@ -149,7 +149,7 @@ export default function LandingPage() {
 
           {/* CTA */}
           <motion.div variants={staggerItem}>
-            <Link href="/auth">
+            <Link href="/auth?mode=signup">
               <Button
                 size="lg"
                 className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-10 py-7 text-lg font-medium shadow-xl shadow-[#5D4E37]/20 hover:shadow-2xl hover:shadow-[#5D4E37]/30 transition-all duration-300 group"
@@ -361,7 +361,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Link href="/auth">
+            <Link href="/auth?mode=signup">
               <Button
                 size="lg"
                 className="bg-[#5D4E37] hover:bg-[#8B6F47] text-white rounded-full px-12 py-8 text-xl font-medium shadow-2xl shadow-[#5D4E37]/20 hover:shadow-3xl hover:shadow-[#5D4E37]/30 transition-all duration-300 group"

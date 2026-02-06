@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -105,6 +105,19 @@ export default function Page() {
   const [isViewTransitioning, setIsViewTransitioning] = useState(false);
   const { signIn, signUp, signInWithGoogle, isAuthenticated } = useApp();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Set initial tab based on URL query param
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'signup' || mode === 'register') {
+      setActiveTab('register');
+      setMobileView('register');
+    } else if (mode === 'signin' || mode === 'login') {
+      setActiveTab('login');
+      setMobileView('login');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);

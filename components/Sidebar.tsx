@@ -184,7 +184,7 @@ export function Sidebar({ onCreateBusiness, activeBusiness, activeSection }: Sid
 
   const handleLogout = async () => {
     await signOut();
-    router.push('/auth');
+    router.push('/');
   };
 
   const sidebarContent = (isExpanded: boolean) => (
