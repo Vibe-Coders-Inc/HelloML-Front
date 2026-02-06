@@ -149,13 +149,13 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
           className="w-full mt-16 md:mt-24 self-stretch"
-          style={{ perspective: '700px' }}
+          style={{ perspective: '1000px' }}
         >
           <div
             className="relative"
             style={{
-              transform: 'rotateX(25deg) rotateY(12deg)',
-              transformOrigin: 'center bottom',
+              transform: 'rotateY(-16deg) rotateX(6deg)',
+              transformOrigin: 'center center',
               marginLeft: '5%',
               width: '140%',
             }}
@@ -175,7 +175,7 @@ export default function LandingPage() {
             </div>
             {/* Left edge fade */}
             <div
-              className="absolute inset-y-0 left-0 w-24 md:w-40 pointer-events-none rounded-l-2xl"
+              className="absolute inset-y-0 left-0 w-16 md:w-28 pointer-events-none rounded-l-2xl"
               style={{ background: 'linear-gradient(to right, #FAF8F3, transparent)' }}
             />
             {/* Bottom fade */}
