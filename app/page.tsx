@@ -106,7 +106,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-20">
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-32 md:pt-40">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -153,10 +153,10 @@ export default function LandingPage() {
         >
           <div
             className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#8B6F47]/20 border border-[#E8DCC8]/60"
-            style={{ transform: 'rotateX(8deg) rotateY(-4deg) rotateZ(1deg)' }}
+            style={{ transform: 'rotate(-6deg)' }}
           >
-            {/* Crop 20px off top */}
-            <div className="overflow-hidden" style={{ marginTop: '-20px' }}>
+            {/* Crop 10px off top */}
+            <div className="overflow-hidden" style={{ marginTop: '-10px' }}>
               <Image
                 src="/dashboard-preview.png"
                 alt="HelloML Dashboard"
@@ -232,7 +232,7 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="flex flex-wrap items-center justify-center gap-8 md:gap-12"
+            className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mx-auto max-w-lg md:max-w-2xl"
           >
             {[
               { name: 'Google Calendar', src: 'https://img.icons8.com/color/96/google-calendar--v1.png' },
