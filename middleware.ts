@@ -51,8 +51,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Redirect to dashboard if authenticated and trying to access auth page
-  if (request.nextUrl.pathname === '/auth' && session) {
+  // Redirect to dashboard if authenticated and on auth or home page
+  if ((request.nextUrl.pathname === '/auth' || request.nextUrl.pathname === '/') && session) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/dashboard';
     return NextResponse.redirect(redirectUrl);

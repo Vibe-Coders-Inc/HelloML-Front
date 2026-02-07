@@ -91,19 +91,19 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#FAF8F3] overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/80 backdrop-blur-md border-b border-[#E8DCC8]/50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+          <Link href="/" className="hover:opacity-80 transition-opacity shrink-0">
             <Logo size="small" lightMode />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link
               href="/auth?mode=signin"
-              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors"
+              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-sm md:text-base"
             >
               Sign In
             </Link>
             <Link href="/auth?mode=signup">
-              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-6">
+              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-4 md:px-6 text-sm md:text-base">
                 Get Started
               </Button>
             </Link>
@@ -140,7 +140,7 @@ export default function LandingPage() {
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
-                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-10 py-7 text-lg font-medium shadow-xl shadow-[#8B6F47]/20 hover:shadow-2xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
+                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 md:px-10 md:py-7 text-base md:text-lg font-medium shadow-xl shadow-[#8B6F47]/20 hover:shadow-2xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
               >
                 Get Your Number
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -443,7 +443,7 @@ export default function LandingPage() {
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
-                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-12 py-8 text-xl font-medium shadow-2xl shadow-[#8B6F47]/20 hover:shadow-3xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
+                className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-6 md:px-12 md:py-8 text-lg md:text-xl font-medium shadow-2xl shadow-[#8B6F47]/20 hover:shadow-3xl hover:shadow-[#8B6F47]/30 transition-all duration-300 group"
               >
                 Get Started Free
                 <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
@@ -477,7 +477,7 @@ export default function LandingPage() {
       <footer className="py-12 px-6 border-t border-[#E8DCC8]/50">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Logo size="small" lightMode />
-          <div className="flex items-center gap-8 text-sm text-[#8B7355]">
+          <div className="flex items-center gap-4 md:gap-8 text-sm text-[#8B7355]">
             <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-[#8B6F47] transition-colors">Terms</Link>
