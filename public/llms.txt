@@ -1,0 +1,35 @@
+# HelloML
+
+> AI-powered voice agent platform that enables businesses to deploy intelligent
+> phone-based customer service agents with automated call handling, appointment
+> booking, and real-time transcription.
+
+HelloML provides a complete platform for deploying AI voice agents. Businesses
+can set up automated phone handling, book appointments through connected
+calendars, answer caller questions from uploaded documents, view call
+transcriptions, and manage their customer service operations from a single
+dashboard.
+
+## Key Features
+
+- AI voice agents that answer business phone calls 24/7
+- Automated appointment booking via Google Calendar and Outlook
+- Document-based Q&A from uploaded PDFs and text files
+- Real-time call transcription and summaries
+- Dedicated provisioned phone numbers per business
+- Integration with Google Calendar, Outlook, Google Drive, Notion, and Dropbox
+
+## Pages
+
+- [Home](https://www.helloml.app): Main landing page with product overview
+- [Pricing](https://www.helloml.app/pricing): Plans and pricing information
+- [Support](https://www.helloml.app/support): FAQ and contact form
+- [Privacy Policy](https://www.helloml.app/privacy): Privacy notice
+- [Terms of Service](https://www.helloml.app/terms): Terms of service
+
+## Use Cases
+
+- Contractors on job sites: agent books estimates while you work
+- Hair stylists mid-appointment: agent reschedules no-shows
+- Attorneys in court: agent takes messages
+- Small business owners: agent handles calls when you can't

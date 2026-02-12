@@ -26,6 +26,45 @@ const borel = Borel({
 
 export const metadata: Metadata = getMetadata();
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'HelloML',
+  url: 'https://www.helloml.app',
+  logo: 'https://www.helloml.app/icon',
+  description:
+    'AI-powered voice agent platform that enables businesses to deploy intelligent phone-based customer service agents.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'noah@helloml.app',
+    contactType: 'customer support',
+  },
+};
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'HelloML',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description:
+    'Deploy AI-powered voice agents that answer your business phone 24/7. Automated call handling, appointment booking, real-time transcription, and document-based Q&A.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free tier available. Upgrade when ready.',
+  },
+  featureList: [
+    'AI voice agents for 24/7 call handling',
+    'Automated appointment booking',
+    'Real-time call transcription',
+    'Document-based Q&A',
+    'Dedicated phone numbers',
+    'Google Calendar and Outlook integration',
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +73,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c'),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(softwareJsonLd).replace(/</g, '\\u003c'),
+          }}
+        />
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&libraries=places&loading=async`}
           strategy="afterInteractive"
