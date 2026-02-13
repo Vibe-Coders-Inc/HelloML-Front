@@ -316,6 +316,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     const checkoutStatus = searchParams.get('checkout');
     if (checkoutStatus === 'success') {
+      // Fire Google Ads purchase conversion tracking
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', {
+          page_location: 'https://www.helloml.app/purchase-success',
+          page_path: '/purchase-success',
+          send_to: 'AW-11501080696',
+        });
+      }
       toast.success('Subscription activated successfully!');
       refetchSubscription();
       // Clean up URL
