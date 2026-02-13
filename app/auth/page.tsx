@@ -162,6 +162,14 @@ function AuthContent() {
 
     try {
       await signUp(data.email, data.password, data.name);
+      // Fire Google Ads conversion tracking (virtual pageview)
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', {
+          page_location: 'https://www.helloml.app/signup-success',
+          page_path: '/signup-success',
+          send_to: 'AW-11501080696',
+        });
+      }
       // Show success message - user needs to verify email
       setError('Check your email to verify your account!');
       setIsLoading(false);
