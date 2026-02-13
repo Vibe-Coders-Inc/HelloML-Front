@@ -62,6 +62,20 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, router]);
 
+  // Fire Google Ads conversion event on first dashboard visit
+  useEffect(() => {
+    if (isAuthenticated && typeof window !== 'undefined' && window.gtag) {
+      // Check if conversion already fired this session
+      const conversionFired = sessionStorage.getItem('gads_conversion_fired');
+      if (!conversionFired) {
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-11501080696/DPFvCIyu3PcbEPigkuwq',
+        });
+        sessionStorage.setItem('gads_conversion_fired', 'true');
+      }
+    }
+  }, [isAuthenticated]);
+
   if (!isAuthenticated) {
     return null;
   }
