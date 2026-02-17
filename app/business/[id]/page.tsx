@@ -316,12 +316,18 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     const checkoutStatus = searchParams.get('checkout');
     if (checkoutStatus === 'success') {
-      // Fire Google Ads purchase conversion tracking
+      // Fire Google Ads purchase conversion tracking (old account)
       if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
         window.gtag('event', 'page_view', {
           page_location: 'https://www.helloml.app/purchase-success',
           page_path: '/purchase-success',
           send_to: 'AW-11501080696',
+        });
+        // Fire Google Ads purchase conversion tracking (new account)
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-17958638557/Lar2CKil8fkbEN2nrPNC',
+          page_location: 'https://www.helloml.app/purchase-success',
+          page_path: '/purchase-success',
         });
       }
       toast.success('Subscription activated successfully!');

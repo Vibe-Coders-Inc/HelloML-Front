@@ -95,12 +95,18 @@ export default function RootLayout({
           strategy="afterInteractive"
           async
         />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17958638557"
+          strategy="afterInteractive"
+          async
+        />
         <Script id="google-ads-gtag" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'AW-11501080696');
+            gtag('config', 'AW-17958638557');
           `}
         </Script>
       </head>
