@@ -214,20 +214,23 @@ export default function LandingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.8 }}
-          className="mt-8 md:mt-12 text-center"
+          className="mt-8 md:mt-12 text-center relative z-10"
         >
           <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#A67A5B]/50 font-medium mb-4 md:mb-6">
             Built by engineers from
           </p>
-          <div className="flex items-center justify-center gap-6 sm:gap-10 md:gap-14 opacity-40">
+          <div className="flex items-center justify-center gap-6 sm:gap-10 md:gap-14 opacity-[0.35]">
             {/* Apple */}
             <svg className="h-6 sm:h-7 md:h-8 w-auto" viewBox="0 0 170 170" fill="#8B6F47">
               <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.28 2.13-9.54 3.24-12.8 3.35-4.92.21-9.84-1.96-14.75-6.52-3.13-2.73-7.04-7.41-11.75-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.2-5.21-20.07-5.21-29.59 0-10.95 2.36-20.4 7.09-28.32a41.66 41.66 0 0 1 14.84-15.07 39.82 39.82 0 0 1 20.07-5.65c3.92 0 9.06 1.21 15.43 3.59 6.35 2.39 10.42 3.6 12.22 3.6 1.35 0 5.92-1.42 13.67-4.24 7.32-2.62 13.5-3.7 18.56-3.27 13.71 1.11 24.02 6.52 30.86 16.27-12.27 7.44-18.33 17.86-18.2 31.22.12 10.41 3.89 19.07 11.28 25.94 3.35 3.18 7.1 5.64 11.25 7.39-.9 2.62-1.85 5.13-2.87 7.54zM119.04 7.01c0 8.16-2.98 15.78-8.92 22.82-7.17 8.4-15.85 13.25-25.25 12.49a25.4 25.4 0 0 1-.19-3.09c0-7.84 3.41-16.22 9.47-23.08 3.02-3.47 6.87-6.35 11.55-8.64 4.66-2.26 9.07-3.51 13.23-3.73.12 1.08.17 2.16.17 3.23h-.06z"/>
             </svg>
             {/* Disney */}
-            <svg className="h-5 sm:h-6 md:h-7 w-auto" viewBox="0 0 200 50" fill="#8B6F47">
-              <text x="0" y="40" fontFamily="Georgia, serif" fontSize="42" fontWeight="bold" fontStyle="italic">Disney</text>
-            </svg>
+            <img
+              src="https://img.icons8.com/color/480/walt-disney.png"
+              alt="Disney"
+              className="h-7 sm:h-8 md:h-10 w-auto"
+              style={{ filter: 'grayscale(100%) sepia(30%) brightness(0.6) contrast(1.2)' }}
+            />
             {/* LLNL */}
             <div className="flex flex-col items-center">
               <span className="text-[8px] sm:text-[10px] md:text-xs font-bold tracking-wider text-[#8B6F47]">LAWRENCE LIVERMORE</span>
