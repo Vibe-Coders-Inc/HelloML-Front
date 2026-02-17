@@ -129,13 +129,24 @@ export default function LandingPage() {
           {/* Subheadline */}
           <motion.p
             variants={staggerItem}
-            className="text-base sm:text-lg md:text-2xl text-[#8B7355] mb-12 max-w-2xl mx-auto leading-relaxed px-2"
+            className="text-base sm:text-lg md:text-2xl text-[#8B7355] mb-6 max-w-2xl mx-auto leading-relaxed px-2"
           >
             A voice agent that books appointments, answers questions from your documents, and handles every call so you don&apos;t have to.
           </motion.p>
 
+          {/* Pricing hook */}
+          <motion.div variants={staggerItem} className="mb-10">
+            <Link href="/pricing" className="inline-flex items-center gap-2 group">
+              <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#8B6F47]">$5</span>
+              <span className="text-left">
+                <span className="block text-sm sm:text-base text-[#8B7355] font-medium">/month</span>
+                <span className="block text-xs sm:text-sm text-[#A67A5B] group-hover:underline">100 minutes included &rarr;</span>
+              </span>
+            </Link>
+          </motion.div>
+
           {/* CTA */}
-          <motion.div variants={staggerItem}>
+          <motion.div variants={staggerItem} className="mb-8">
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
@@ -146,6 +157,14 @@ export default function LandingPage() {
               </Button>
             </Link>
           </motion.div>
+
+          {/* Social proof */}
+          <motion.p
+            variants={staggerItem}
+            className="text-xs sm:text-sm text-[#A67A5B]/70 tracking-wide"
+          >
+            Built by engineers from <span className="font-semibold text-[#8B7355]">Apple</span>, <span className="font-semibold text-[#8B7355]">Lawrence Livermore National Lab</span> &amp; <span className="font-semibold text-[#8B7355]">Disney</span>
+          </motion.p>
         </motion.div>
 
         {/* Hero Product Screenshot - Linear perspective style */}
@@ -400,16 +419,44 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
             Simple pricing. No surprises.
           </h2>
-          <p className="text-lg text-[#8B7355] mb-8">
-            Start free. Upgrade when you&apos;re ready.
+          <p className="text-lg text-[#8B7355] mb-10">
+            One plan. Everything included.
           </p>
-          <Link href="/pricing">
-            <Button
-              variant="outline"
-              className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white rounded-full w-full sm:w-auto px-8 py-6"
-            >
-              View Pricing
-            </Button>
+
+          {/* Pricing card */}
+          <div className="max-w-sm mx-auto bg-white/60 backdrop-blur-sm border border-[#E8DCC8]/60 rounded-3xl p-8 shadow-lg shadow-[#8B6F47]/5 mb-8">
+            <div className="flex items-baseline justify-center gap-1 mb-2">
+              <span className="text-5xl md:text-6xl font-bold text-[#8B6F47]">$5</span>
+              <span className="text-lg text-[#8B7355]">/mo</span>
+            </div>
+            <p className="text-sm text-[#A67A5B] mb-6">per agent</p>
+            <div className="space-y-3 text-left mb-8">
+              {[
+                '100 minutes included',
+                'Dedicated phone number',
+                'Knowledge base uploads',
+                'Real-time transcription',
+                'Call analytics & history',
+                '$0.10/min after 100',
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm text-[#8B7355]">
+                  <svg className="w-4 h-4 text-[#8B6F47] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {feature}
+                </div>
+              ))}
+            </div>
+            <Link href="/auth?mode=signup">
+              <Button className="w-full bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full py-5 font-medium">
+                Start Free Trial
+              </Button>
+            </Link>
+            <p className="text-xs text-[#A67A5B]/60 mt-3">No credit card required</p>
+          </div>
+
+          <Link href="/pricing" className="text-sm text-[#8B6F47] hover:underline">
+            View full pricing details &rarr;
           </Link>
         </div>
       </AnimatedSection>
