@@ -43,11 +43,12 @@ function AnimatedSection({
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
     <motion.section
       ref={ref}
+      initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       variants={{
         hidden: { opacity: 0, y: 40 },
@@ -70,7 +71,7 @@ function ScrollHighlightLine({
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-15%" });
+  const isInView = useInView(ref, { once: true, margin: "-10%" });
 
   return (
     <motion.p
@@ -112,7 +113,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center pt-32 md:pt-40">
+      <section className="min-h-[80vh] md:min-h-screen flex flex-col items-center justify-center pt-24 md:pt-40">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -154,7 +155,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full mt-16 md:mt-24 max-w-5xl mx-auto px-6"
+          className="w-full mt-12 md:mt-24 max-w-5xl mx-auto px-4 md:px-6"
         >
           <div
             className="relative"
@@ -200,7 +201,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <AnimatedSection className="py-32 px-6">
+      <AnimatedSection className="py-16 md:py-32 px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-6 mb-16">
             <ScrollHighlightLine>
@@ -230,9 +231,9 @@ export default function LandingPage() {
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, margin: "-50px" }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="flex flex-wrap items-center justify-center gap-8 md:gap-12 mx-auto max-w-lg md:max-w-2xl"
+            className="flex flex-wrap items-center justify-center gap-6 md:gap-12 mx-auto max-w-lg md:max-w-2xl"
           >
             {[
               { name: 'Google Calendar', src: 'https://img.icons8.com/color/96/google-calendar--v1.png' },
@@ -261,14 +262,14 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* Features Section */}
-      <AnimatedSection className="py-32 px-6">
+      <AnimatedSection className="py-16 md:py-32 px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, margin: "-100px" }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-12 md:gap-16 mb-16"
+            className="grid md:grid-cols-2 gap-8 md:gap-16 mb-16"
           >
             {[
               { title: "Books appointments on the spot.", desc: "Your agent checks availability and creates bookings directly on your calendar. No back-and-forth." },
@@ -397,7 +398,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* Pricing Preview Section */}
-      <AnimatedSection className="py-32 px-6">
+      <AnimatedSection className="py-16 md:py-32 px-4 md:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
             Simple pricing. No surprises.
@@ -427,7 +428,7 @@ export default function LandingPage() {
           <motion.h2
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false }}
+            viewport={{ once: true }}
             variants={fadeInUp}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B6F47] mb-8"
           >
@@ -437,7 +438,7 @@ export default function LandingPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <Link href="/auth?mode=signup">
@@ -454,7 +455,7 @@ export default function LandingPage() {
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
+            viewport={{ once: true }}
             transition={{ delay: 0.4 }}
             className="mt-6 text-[#8B7355]"
           >
@@ -477,7 +478,7 @@ export default function LandingPage() {
       <footer className="py-12 px-6 border-t border-[#E8DCC8]/50">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Logo size="small" lightMode />
-          <div className="flex items-center gap-4 md:gap-8 text-sm text-[#8B7355]">
+          <div className="flex items-center gap-6 md:gap-8 text-sm text-[#8B7355]">
             <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-[#8B6F47] transition-colors">Terms</Link>
