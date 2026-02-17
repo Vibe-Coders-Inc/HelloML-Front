@@ -288,8 +288,8 @@ export default function LandingPage() {
             ))}
           </motion.div>
 
-          {/* Feature Icons — CSS visuals */}
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+          {/* Feature Icons — CSS visuals (hidden on mobile, text descriptions suffice) */}
+          <div className="hidden md:flex flex-wrap items-center justify-center gap-4 md:gap-6">
             {/* Sound wave — calls */}
             <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#8B6F47]/10 to-[#A67A5B]/5 flex items-center justify-center">
               <svg className="w-8 h-8 md:w-12 md:h-12" viewBox="0 0 48 48" fill="none">
@@ -346,7 +346,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* Who It's For Section */}
-      <AnimatedSection className="py-32 px-6 bg-gradient-to-b from-[#F5EFE6] to-[#FAF8F3]">
+      <AnimatedSection className="py-16 md:py-32 px-4 md:px-6 bg-gradient-to-b from-[#F5EFE6] to-[#FAF8F3]">
         <div className="max-w-3xl mx-auto">
           <div className="space-y-6">
             <ScrollHighlightLine>
@@ -364,7 +364,7 @@ export default function LandingPage() {
           </div>
 
           {/* Profession silhouettes */}
-          <div className="mt-16 flex items-center justify-center gap-12 md:gap-20 opacity-[0.6]">
+          <div className="mt-10 md:mt-16 flex items-center justify-center gap-8 md:gap-20 opacity-[0.6]">
             {/* Hard hat — contractor */}
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <path d="M6 22h20M8 22v-6a8 8 0 1 1 16 0v6" stroke="#8B6F47" strokeWidth="1.5" strokeLinecap="round"/>
@@ -405,7 +405,7 @@ export default function LandingPage() {
           <Link href="/pricing">
             <Button
               variant="outline"
-              className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white rounded-full px-8 py-6"
+              className="border-[#8B6F47] text-[#8B6F47] hover:bg-[#8B6F47] hover:text-white rounded-full w-full sm:w-auto px-8 py-6"
             >
               View Pricing
             </Button>
@@ -414,7 +414,7 @@ export default function LandingPage() {
       </AnimatedSection>
 
       {/* Final CTA Section */}
-      <AnimatedSection className="py-32 px-6 relative overflow-hidden">
+      <AnimatedSection className="py-16 md:py-32 px-4 md:px-6 relative overflow-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[600px] h-[600px] bg-gradient-radial from-[#E8DCC8]/40 via-transparent to-transparent rounded-full blur-3xl" />
