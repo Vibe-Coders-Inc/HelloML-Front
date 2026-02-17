@@ -75,3 +75,13 @@ body {
 .animate-bubble {
   animation: bubble 1s ease-in-out infinite;
 }
+
+.perspective-mobile {
+  transform: perspective(50em) rotateX(12deg);
+}
+
+@media (min-width: 768px) {
+  .perspective-desktop {
+    transform: perspective(75em) rotateX(18deg);
+  }
+}
