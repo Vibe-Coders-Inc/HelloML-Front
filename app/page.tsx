@@ -89,18 +89,20 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/80 backdrop-blur-md border-b border-[#E8DCC8]/50">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity shrink-0 scale-[0.7] sm:scale-[0.85] md:scale-100 origin-left">
-            <Logo size="small" lightMode />
+          <Link href="/" className="hover:opacity-80 transition-opacity shrink-0">
+            <div className="scale-[0.65] sm:scale-[0.8] md:scale-100 origin-left">
+              <Logo size="small" lightMode />
+            </div>
           </Link>
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <Link
               href="/auth?mode=signin"
-              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-sm md:text-base"
+              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap"
             >
               Sign In
             </Link>
             <Link href="/auth?mode=signup">
-              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-5 md:px-6 py-2 md:py-2.5 text-sm md:text-base min-h-[44px]">
+              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-3 sm:px-5 md:px-6 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base min-h-[36px] sm:min-h-[44px] whitespace-nowrap">
                 Get Started
               </Button>
             </Link>
@@ -154,23 +156,22 @@ export default function LandingPage() {
           className="w-full mt-12 md:mt-24 max-w-5xl mx-auto px-4 md:px-6"
         >
           <div
-            className="relative"
+            className="relative perspective-mobile md:perspective-desktop"
             style={{
-              transform: 'perspective(75em) rotateX(18deg)',
               transformOrigin: 'top center',
             }}
           >
-            <div className="rounded-2xl overflow-hidden border border-[#E8DCC8]/60" style={{
+            <div className="rounded-lg sm:rounded-2xl overflow-hidden border border-[#E8DCC8]/60" style={{
               boxShadow: 'rgba(139, 111, 71, 0.3) 0px 60px 120px -25px, rgba(139, 111, 71, 0.1) 0px 35px 75px -35px',
             }}>
               {/* macOS title bar */}
-              <div className="bg-[#F5EFE6] px-2 md:px-4 py-1.5 md:py-3 flex items-center gap-1 md:gap-2 border-b border-[#E8DCC8]/60">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-[#28C840]" />
-                <div className="flex-1 mx-2 md:mx-12">
-                  <div className="bg-white/60 rounded-md py-0.5 md:py-1 px-2 md:px-3 text-center">
-                    <span className="text-[6px] sm:text-[8px] md:text-[10px] text-[#8B7355]/50 font-medium">helloml.app/dashboard</span>
+              <div className="bg-[#F5EFE6] px-1.5 sm:px-2 md:px-4 py-1 sm:py-1.5 md:py-3 flex items-center gap-0.5 sm:gap-1 md:gap-2 border-b border-[#E8DCC8]/60">
+                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
+                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
+                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-3 md:h-3 rounded-full bg-[#28C840]" />
+                <div className="flex-1 mx-1 sm:mx-2 md:mx-12">
+                  <div className="bg-white/60 rounded py-px sm:py-0.5 md:py-1 px-1 sm:px-2 md:px-3 text-center">
+                    <span className="text-[4px] sm:text-[6px] md:text-[10px] text-[#8B7355]/50 font-medium">helloml.app/dashboard</span>
                   </div>
                 </div>
               </div>
