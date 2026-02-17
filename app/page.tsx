@@ -43,17 +43,13 @@ function AnimatedSection({
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const isInView = useInView(ref, { once: true, margin: "200px" });
 
   return (
     <motion.section
       ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={{
-        hidden: { opacity: 0, y: 40 },
-        visible: { opacity: 1, y: 0 }
-      }}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
       transition={{ duration: 0.7, delay }}
       className={className}
     >
@@ -71,7 +67,7 @@ function ScrollHighlightLine({
   delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-10%" });
+  const isInView = useInView(ref, { once: true, margin: "100px" });
 
   return (
     <motion.p
