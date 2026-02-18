@@ -354,8 +354,8 @@ function AuthContent() {
         </div>
 
         {/* Form Card - matches desktop styling */}
-        <div className="flex-1 px-5 pb-4 overflow-y-auto relative z-10 flex items-center">
-          <div className="w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+        <div className="flex-1 px-5 py-4 overflow-y-auto relative z-10 flex flex-col min-h-0">
+          <div className="w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 my-auto shrink-0">
             {/* Header */}
             <div className="text-center pb-5">
               <h1 className="text-xl font-bold text-[#8B6F47] mb-1">{authContent.mobile.login.title}</h1>
@@ -541,8 +541,8 @@ function AuthContent() {
         </div>
 
         {/* Form Card - matches desktop styling */}
-        <div className="flex-1 px-5 pb-4 overflow-y-auto relative z-10 flex items-center">
-          <div className="w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+        <div className="flex-1 px-5 py-4 overflow-y-auto relative z-10 flex flex-col min-h-0">
+          <div className="w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 my-auto shrink-0">
             {/* Header */}
             <div className="text-center pb-4">
               <h1 className="text-xl font-bold text-[#8B6F47] mb-1">{authContent.mobile.register.title}</h1>
