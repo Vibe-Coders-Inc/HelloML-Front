@@ -96,6 +96,12 @@ export default function LandingPage() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <Link
+              href="/demo"
+              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap"
+            >
+              Try It Live
+            </Link>
+            <Link
               href="/auth?mode=signin"
               className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap"
             >
@@ -146,7 +152,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* CTA */}
-          <motion.div variants={staggerItem} className="mb-8">
+          <motion.div variants={staggerItem} className="mb-8 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center">
             <Link href="/auth?mode=signup">
               <Button
                 size="lg"
@@ -154,6 +160,15 @@ export default function LandingPage() {
               >
                 Get Your Number
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link href="/demo">
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-full px-8 py-5 md:px-10 md:py-7 text-base md:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 transition-all duration-300"
+              >
+                🎙️ Try It Live
               </Button>
             </Link>
           </motion.div>
@@ -544,6 +559,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Logo size="small" lightMode />
           <div className="flex items-center gap-6 md:gap-8 text-sm text-[#8B7355]">
+            <Link href="/demo" className="hover:text-[#8B6F47] transition-colors">Demo</Link>
             <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-[#8B6F47] transition-colors">Terms</Link>
