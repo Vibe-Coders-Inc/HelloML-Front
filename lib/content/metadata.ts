@@ -4,22 +4,28 @@ const BASE_URL = 'https://www.helloml.app';
 
 export const siteMetadata = {
   title: {
-    default: 'HelloML - AI Voice Agents for Business Phone Automation',
-    template: '%s | HelloML',
+    default: 'HelloML — AI Phone Agent & Virtual Receptionist for Small Business',
+    template: '%s | HelloML — AI Phone Agent',
   },
   description:
-    'Deploy AI-powered voice agents that answer your business phone 24/7. Automated call handling, appointment booking, real-time transcription, and document-based Q&A.',
+    'HelloML is an AI phone agent that answers calls 24/7, books appointments, and responds from your knowledge base. The AI receptionist for small business — just $5/mo for 100 minutes. Try automated phone answering free.',
   keywords: [
+    'ai phone agent',
+    'ai receptionist',
+    'automated phone answering',
+    'ai appointment booking',
+    'virtual receptionist ai',
+    'ai answering service small business',
     'AI voice agent',
     'AI phone answering',
     'automated call handling',
     'business phone automation',
-    'AI receptionist',
     'voice AI',
-    'appointment booking AI',
     'call transcription',
     'AI customer service',
     'virtual receptionist',
+    'ai phone answering service',
+    'small business ai receptionist',
   ],
   authors: [{ name: 'HelloML' }],
   openGraph: {
