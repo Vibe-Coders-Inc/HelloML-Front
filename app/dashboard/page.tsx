@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
@@ -50,6 +50,14 @@ function LoadingSkeleton() {
 }
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const { user, isAuthenticated } = useApp();
   const { data: businesses = [], isLoading: businessesLoading } = useBusinesses();
   const deleteBusinessMutation = useDeleteBusiness();
