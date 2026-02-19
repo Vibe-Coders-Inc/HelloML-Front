@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { AnimatePresence, LayoutGroup } from 'framer-motion';
 import { GlowButton } from '@/components/ui/glow-button';
@@ -62,6 +62,8 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, router]);
 
+  const searchParams = useSearchParams();
+
   // Fire Google Ads conversion event on first dashboard visit
   useEffect(() => {
     if (isAuthenticated && typeof window !== 'undefined' && window.gtag) {
@@ -75,6 +77,30 @@ export default function DashboardPage() {
       }
     }
   }, [isAuthenticated]);
+
+  // Fire signup conversion for OAuth signups (Google sign-in redirects here with ?new_signup=true)
+  useEffect(() => {
+    if (searchParams.get('new_signup') === 'true' && typeof window !== 'undefined' && window.gtag) {
+      const oauthConversionFired = sessionStorage.getItem('gads_oauth_signup_fired');
+      if (!oauthConversionFired) {
+        // Old account page_view event
+        window.gtag('event', 'page_view', {
+          page_location: 'https://www.helloml.app/signup-success',
+          page_path: '/signup-success',
+          send_to: 'AW-11501080696',
+        });
+        // New account signup conversion
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-17958638557/dcSMCKWl8fkbEN2nrPNC',
+          page_location: 'https://www.helloml.app/signup-success',
+          page_path: '/signup-success',
+        });
+        sessionStorage.setItem('gads_oauth_signup_fired', 'true');
+        // Clean up URL
+        router.replace('/dashboard', { scroll: false });
+      }
+    }
+  }, [searchParams, router]);
 
   if (!isAuthenticated) {
     return null;

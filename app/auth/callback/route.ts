@@ -8,7 +8,16 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+
+    // Detect if this is a brand-new signup (created within last 60 seconds)
+    if (data?.user?.created_at) {
+      const createdAt = new Date(data.user.created_at).getTime();
+      const now = Date.now();
+      if (now - createdAt < 60_000) {
+        return NextResponse.redirect(`${origin}/dashboard?new_signup=true`);
+      }
+    }
   }
 
   // URL to redirect to after sign in process completes
