@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { getMetadata } from '@/lib/content';
 
 export const metadata: Metadata = getMetadata({
-  title: 'Pricing',
+  title: 'Pricing — AI Phone Agent Starting at $5/mo',
   description:
-    'Simple, transparent pricing for HelloML AI voice agents. Start free and upgrade when you are ready. No credit card required.',
+    'HelloML AI phone agent pricing: free tier available, Starter plan just $5/mo for 100 minutes. The most affordable AI receptionist and automated phone answering service for small business.',
   path: '/pricing',
 });
 

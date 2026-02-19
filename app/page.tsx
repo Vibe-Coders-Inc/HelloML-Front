@@ -192,7 +192,7 @@ export default function LandingPage() {
               <div className="overflow-hidden" style={{ margin: '-8px' }}>
                 <Image
                   src="/dashboard-preview.png"
-                  alt="HelloML Dashboard"
+                  alt="HelloML AI phone agent dashboard showing call transcription, appointment booking, and automated phone answering"
                   width={1600}
                   height={1000}
                   className="w-full h-auto"
