@@ -173,6 +173,7 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'AW-11501080696');
             gtag('config', 'AW-17958638557');
+            gtag('config', 'G-DNYM0FD9B5');
           `}
         </Script>
       </head>
