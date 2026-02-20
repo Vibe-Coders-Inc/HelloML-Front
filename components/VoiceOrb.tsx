@@ -1,8 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Mic } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 
 interface VoiceOrbProps {
   state: 'idle' | 'connecting' | 'active' | 'ended';
@@ -12,100 +11,128 @@ interface VoiceOrbProps {
 }
 
 export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
-  const timeRef = useRef(0);
   const isActive = state === 'active';
   const isConnecting = state === 'connecting';
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d')!;
-    const size = 300;
-    canvas.width = size * 2;
-    canvas.height = size * 2;
-    ctx.scale(2, 2); // retina
-
-    const draw = () => {
-      timeRef.current += 0.012;
-      const t = timeRef.current;
-      ctx.clearRect(0, 0, size, size);
-
-      const cx = size / 2;
-      const cy = size / 2;
-      const baseRadius = isActive ? 80 + audioLevel * 30 : isConnecting ? 80 : 80;
-      const blobCount = 6;
-
-      // Draw multiple layered blobs for Siri-like effect
-      const layers = [
-        { offset: 0, alpha: 0.12, radiusMult: 1.4, colors: aiSpeaking ? ['#C084FC', '#818CF8', '#6366F1'] : ['#8B6F47', '#C9A87C', '#A67A5B'] },
-        { offset: 0.5, alpha: 0.18, radiusMult: 1.2, colors: aiSpeaking ? ['#A78BFA', '#7C3AED', '#8B5CF6'] : ['#A67A5B', '#8B6F47', '#D4B896'] },
-        { offset: 1.0, alpha: 0.35, radiusMult: 1.0, colors: aiSpeaking ? ['#8B5CF6', '#6D28D9', '#7C3AED'] : ['#C9A87C', '#B89B6A', '#8B6F47'] },
-      ];
-
-      for (const layer of layers) {
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseRadius * layer.radiusMult);
-        grad.addColorStop(0, layer.colors[0] + Math.round(layer.alpha * 255).toString(16).padStart(2, '0'));
-        grad.addColorStop(0.5, layer.colors[1] + Math.round(layer.alpha * 200).toString(16).padStart(2, '0'));
-        grad.addColorStop(1, layer.colors[2] + '00');
-
-        ctx.beginPath();
-        for (let i = 0; i <= blobCount * 10; i++) {
-          const angle = (i / (blobCount * 10)) * Math.PI * 2;
-          const wobble = isActive
-            ? Math.sin(angle * blobCount + t * 2 + layer.offset) * (10 + audioLevel * 25)
-              + Math.sin(angle * (blobCount - 2) + t * 3.3 + layer.offset * 2) * (6 + audioLevel * 15)
-            : isConnecting
-              ? Math.sin(angle * blobCount + t * 1.5 + layer.offset) * 8
-              : Math.sin(angle * blobCount + t * 0.8 + layer.offset) * 4;
-          const r = baseRadius * layer.radiusMult + wobble;
-          const x = cx + Math.cos(angle) * r;
-          const y = cy + Math.sin(angle) * r;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = grad;
-        ctx.fill();
-      }
-
-      // Inner bright core
-      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseRadius * 0.6);
-      if (aiSpeaking) {
-        coreGrad.addColorStop(0, 'rgba(167, 139, 250, 0.5)');
-        coreGrad.addColorStop(0.5, 'rgba(139, 92, 246, 0.2)');
-        coreGrad.addColorStop(1, 'rgba(109, 40, 217, 0)');
-      } else {
-        coreGrad.addColorStop(0, 'rgba(201, 168, 124, 0.5)');
-        coreGrad.addColorStop(0.5, 'rgba(166, 122, 91, 0.2)');
-        coreGrad.addColorStop(1, 'rgba(139, 111, 71, 0)');
-      }
-      ctx.beginPath();
-      ctx.arc(cx, cy, baseRadius * 0.6, 0, Math.PI * 2);
-      ctx.fillStyle = coreGrad;
-      ctx.fill();
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    draw();
-    return () => cancelAnimationFrame(animRef.current);
-  }, [isActive, isConnecting, audioLevel, aiSpeaking]);
+  // Scale factor based on audio level for active state
+  const pulse = isActive ? 1 + audioLevel * 0.35 : 1;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
-      {/* Canvas blob */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ width: 280, height: 280 }}
+      {/* Outer ambient glow rings — only visible when active */}
+      <AnimatePresence>
+        {isActive && (
+          <>
+            {/* Ring 3 — outermost */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: aiSpeaking ? [0.08, 0.15, 0.08] : [0.05, 0.1, 0.05],
+                scale: pulse * 1.5,
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{
+                opacity: { duration: aiSpeaking ? 1.2 : 2.5, repeat: Infinity, ease: 'easeInOut' },
+                scale: { duration: 0.15, ease: 'easeOut' },
+              }}
+              className="absolute rounded-full"
+              style={{
+                width: 240,
+                height: 240,
+                background: aiSpeaking
+                  ? 'radial-gradient(circle, rgba(139,92,246,0.3) 0%, rgba(139,92,246,0) 70%)'
+                  : 'radial-gradient(circle, rgba(139,111,71,0.25) 0%, rgba(139,111,71,0) 70%)',
+              }}
+            />
+            {/* Ring 2 — middle */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: aiSpeaking ? [0.12, 0.25, 0.12] : [0.08, 0.18, 0.08],
+                scale: pulse * 1.25,
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{
+                opacity: { duration: aiSpeaking ? 1.0 : 2.0, repeat: Infinity, ease: 'easeInOut', delay: 0.15 },
+                scale: { duration: 0.15, ease: 'easeOut' },
+              }}
+              className="absolute rounded-full"
+              style={{
+                width: 200,
+                height: 200,
+                background: aiSpeaking
+                  ? 'radial-gradient(circle, rgba(167,139,250,0.35) 0%, rgba(139,92,246,0) 70%)'
+                  : 'radial-gradient(circle, rgba(201,168,124,0.3) 0%, rgba(139,111,71,0) 70%)',
+              }}
+            />
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Ring 1 — inner glow (always visible, subtler when idle) */}
+      <motion.div
+        animate={{
+          scale: isActive
+            ? pulse * 1.08
+            : isConnecting
+              ? [1, 1.08, 1]
+              : [1, 1.04, 1],
+          opacity: isActive
+            ? 0.4 + audioLevel * 0.3
+            : isConnecting
+              ? [0.15, 0.3, 0.15]
+              : 0.2,
+        }}
+        transition={
+          isActive
+            ? { scale: { duration: 0.15, ease: 'easeOut' }, opacity: { duration: 0.15, ease: 'easeOut' } }
+            : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
+        }
+        className="absolute rounded-full"
+        style={{
+          width: 160,
+          height: 160,
+          background: isActive && aiSpeaking
+            ? 'radial-gradient(circle, rgba(167,139,250,0.5) 0%, rgba(139,92,246,0.15) 50%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(201,168,124,0.5) 0%, rgba(166,122,91,0.15) 50%, transparent 70%)',
+        }}
       />
 
-      {/* Clickable center area */}
+      {/* Core circle */}
+      <motion.div
+        animate={{
+          scale: isActive ? pulse : isConnecting ? [1, 1.03, 1] : 1,
+          boxShadow: isActive
+            ? aiSpeaking
+              ? `0 0 ${30 + audioLevel * 40}px rgba(139,92,246,${0.2 + audioLevel * 0.25})`
+              : `0 0 ${20 + audioLevel * 35}px rgba(166,122,91,${0.15 + audioLevel * 0.2})`
+            : '0 0 20px rgba(166,122,91,0.1)',
+        }}
+        transition={
+          isActive
+            ? { duration: 0.12, ease: 'easeOut' }
+            : isConnecting
+              ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
+              : { duration: 0.3 }
+        }
+        className="absolute rounded-full"
+        style={{
+          width: 120,
+          height: 120,
+          background: isActive && aiSpeaking
+            ? 'linear-gradient(135deg, rgba(167,139,250,0.15) 0%, rgba(139,92,246,0.08) 100%)'
+            : 'linear-gradient(135deg, rgba(201,168,124,0.18) 0%, rgba(166,122,91,0.08) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: isActive && aiSpeaking
+            ? '1px solid rgba(167,139,250,0.15)'
+            : '1px solid rgba(201,168,124,0.15)',
+        }}
+      />
+
+      {/* Clickable center */}
       <motion.button
         className="relative z-10 rounded-full flex items-center justify-center cursor-pointer"
-        style={{ width: 140, height: 140 }}
+        style={{ width: 120, height: 120 }}
         onClick={onClick}
         whileHover={state === 'idle' ? { scale: 1.05 } : undefined}
         whileTap={state === 'idle' ? { scale: 0.97 } : undefined}
@@ -125,10 +152,31 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
         )}
         {isActive && (
           <motion.div
-            className="w-3 h-3 rounded-full bg-[#8B6F47]/60"
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          />
+            className="flex items-center gap-[3px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {/* Audio bars visualizer */}
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.div
+                key={i}
+                className="w-[3px] rounded-full"
+                style={{
+                  backgroundColor: aiSpeaking ? 'rgba(139,92,246,0.7)' : 'rgba(139,111,71,0.6)',
+                }}
+                animate={{
+                  height: isActive
+                    ? [8, 8 + (audioLevel * 28 * (i === 2 ? 1 : i === 1 || i === 3 ? 0.75 : 0.5)), 8]
+                    : 8,
+                }}
+                transition={{
+                  duration: 0.15,
+                  ease: 'easeOut',
+                  delay: i * 0.03,
+                }}
+              />
+            ))}
+          </motion.div>
         )}
       </motion.button>
     </div>
