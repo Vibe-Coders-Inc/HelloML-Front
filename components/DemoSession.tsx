@@ -36,10 +36,12 @@ export function useDemoSession(): UseDemoSessionReturn {
   const rafRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const dcRef = useRef<RTCDataChannel | null>(null);
+  const aiSpeakingTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (timerRef.current) clearInterval(timerRef.current);
+    if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
     dcRef.current?.close();
     pcRef.current?.close();
     localStreamRef.current?.getTracks().forEach(t => t.stop());
@@ -88,8 +90,6 @@ export function useDemoSession(): UseDemoSessionReturn {
         remoteLevel = Math.sqrt(sum / remoteData.length);
       }
 
-      const isAi = remoteLevel > 0.02;
-      setAiSpeaking(isAi);
       setAudioLevel(Math.min(1, Math.max(localLevel, remoteLevel) * 4));
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -182,9 +182,14 @@ export function useDemoSession(): UseDemoSessionReturn {
         try {
           const msg = JSON.parse(e.data);
           if (msg.type === 'response.audio.delta') {
+            // Clear any pending "stop speaking" timeout
+            if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
             setAiSpeaking(true);
           } else if (msg.type === 'response.audio.done' || msg.type === 'response.done') {
-            setAiSpeaking(false);
+            // Debounce: wait 400ms before marking as not speaking
+            // Prevents flicker between consecutive audio chunks
+            if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
+            aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 400);
           }
         } catch { /* ignore */ }
       };
