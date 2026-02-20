@@ -130,29 +130,41 @@ export default function DemoPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center text-center"
+            className="relative flex flex-col items-center text-center"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#3D2E1F] mb-3">
-              Hope that was impressive!
-            </h2>
-            <p className="text-[#8B6F47]/80 text-lg mb-8">
-              Ready to build your own?
-            </p>
-            <Link href="/auth?mode=signup">
-              <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 text-base font-medium group">
-                Create Your Agent — Free
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <p className="mt-4 text-[#8B6F47]/40 text-xs">
-              No credit card required
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-6 text-sm text-[#8B6F47] hover:text-[#A67A5B] transition-colors"
-            >
-              Try again
-            </button>
+            {/* Decorative ripple rings */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.07]">
+              <div className="relative w-[400px] h-[400px]">
+                <div className="absolute inset-0 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-8 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-16 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-24 rounded-full border border-[#A67A5B]"/>
+              </div>
+            </div>
+
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#3D2E1F] mb-3">
+                Hope that was impressive!
+              </h2>
+              <p className="text-[#8B6F47]/80 text-lg mb-8">
+                Ready to build your own?
+              </p>
+              <Link href="/auth?mode=signup">
+                <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 text-base font-medium group">
+                  Create Your Agent — Free
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <p className="mt-4 text-[#8B6F47]/40 text-xs">
+                No credit card required
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-6 text-sm text-[#8B6F47] hover:text-[#A67A5B] transition-colors"
+              >
+                Try again
+              </button>
+            </div>
           </motion.div>
         )}
 
