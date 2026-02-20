@@ -96,12 +96,6 @@ export default function LandingPage() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <Link
-              href="/demo"
-              className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap"
-            >
-              Try It Live
-            </Link>
-            <Link
               href="/auth?mode=signin"
               className="text-[#8B6F47] hover:text-[#A67A5B] font-medium transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap"
             >
@@ -166,7 +160,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-full px-8 py-5 md:px-10 md:py-7 text-base md:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 transition-all duration-300"
+                className="rounded-full px-8 py-5 md:px-10 md:py-7 text-base md:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:text-[#8B6F47] hover:bg-[#8B6F47]/10 transition-all duration-300"
               >
                 🎙️ Try It Live
               </Button>

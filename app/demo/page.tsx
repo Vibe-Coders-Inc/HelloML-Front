@@ -22,7 +22,7 @@ export default function DemoPage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-4 md:px-8 py-4">
         <Link href="/" className="hover:opacity-80 transition-opacity">
-          <Logo size="small" />
+          <Logo size="small" lightMode />
         </Link>
         <Link
           href="/"
@@ -42,10 +42,10 @@ export default function DemoPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center text-center"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#3D2E1F] mb-3">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#3D2E1F] mb-4">
               Talk to an AI Phone Agent
             </h1>
-            <p className="text-[#8B6F47]/80 text-base sm:text-lg mb-10 max-w-md">
+            <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-12 max-w-md">
               Experience what HelloML sounds like — live.
             </p>
 
