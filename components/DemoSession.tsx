@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DEMO_DURATION = 120; // seconds
-const REALTIME_MODEL = 'gpt-4o-realtime-preview-2024-12-17';
+const REALTIME_MODEL = 'gpt-realtime';
 
 interface DemoSessionState {
   status: 'idle' | 'connecting' | 'active' | 'ended' | 'error';
@@ -106,7 +106,12 @@ export function useDemoSession(): UseDemoSessionReturn {
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 24000,
+          },
         });
       } catch {
         setStatus('error');
@@ -122,6 +127,9 @@ export function useDemoSession(): UseDemoSessionReturn {
       const { ephemeral_key } = await res.json();
 
       // 3. WebRTC setup
+      const remoteAudio = new Audio();
+      remoteAudio.autoplay = true;
+
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
 
@@ -140,9 +148,7 @@ export function useDemoSession(): UseDemoSessionReturn {
 
       // Handle remote audio
       pc.ontrack = (e) => {
-        const remoteAudio = new Audio();
         remoteAudio.srcObject = e.streams[0];
-        remoteAudio.play();
 
         const remoteSource = audioCtx.createMediaStreamSource(e.streams[0]);
         const remoteAnalyser = audioCtx.createAnalyser();
@@ -156,18 +162,6 @@ export function useDemoSession(): UseDemoSessionReturn {
       dcRef.current = dc;
 
       dc.onopen = () => {
-        // Send session config
-        dc.send(JSON.stringify({
-          type: 'session.update',
-          session: {
-            modalities: ['text', 'audio'],
-            instructions: 'You are a friendly AI phone agent demo for HelloML. Greet the user warmly, introduce yourself as a HelloML demo agent, and show off your conversational abilities. You can answer questions about HelloML (an AI phone answering service for businesses that costs $5/month, books appointments, answers from uploaded documents, provides transcriptions). Keep responses concise and natural. You have about 2 minutes with the caller.',
-            voice: 'alloy',
-            input_audio_transcription: { model: 'whisper-1' },
-            turn_detection: { type: 'server_vad' },
-          },
-        }));
-
         // Trigger greeting
         dc.send(JSON.stringify({
           type: 'response.create',
