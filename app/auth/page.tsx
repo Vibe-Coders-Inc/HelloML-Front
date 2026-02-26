@@ -245,11 +245,22 @@ function AuthContent() {
           }}></div>
         </div>
 
+        {/* Back to site */}
+        <div className="px-6 pt-6 relative z-10">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back to site
+          </Link>
+        </div>
+
         {/* Content */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 relative z-10">
-          <div className="mb-8">
+          <Link href="/" className="mb-8 inline-block hover:opacity-80 transition-opacity">
             <Logo size="large" />
-          </div>
+          </Link>
 
           <h1 className="text-3xl font-bold text-white text-center leading-tight mb-2">
             {authContent.hero.headline}
@@ -767,9 +778,9 @@ function AuthContent() {
 
         <div className="w-full max-w-3xl px-16 relative z-10 text-center flex flex-col items-center justify-center">
           {/* HelloML Logo */}
-          <div className="mb-8">
+          <Link href="/" className="mb-8 inline-block hover:opacity-80 transition-opacity">
             <Logo size="hero" />
-          </div>
+          </Link>
           <h1 className="text-7xl font-bold mb-6 leading-tight">
             {authContent.hero.headline}
           </h1>
@@ -812,9 +823,9 @@ function AuthContent() {
         <div className="w-full max-w-md mx-auto bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] backdrop-blur-sm rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center pb-6">
-            <div className="flex justify-center mb-6">
+            <Link href="/" className="flex justify-center mb-6 hover:opacity-80 transition-opacity">
               <Logo size="large" lightMode />
-            </div>
+            </Link>
             <h2 className="text-2xl font-bold text-[#8B6F47] mb-2">{authContent.card.title}</h2>
             <p className="text-[#A67A5B]/70">
               {authContent.card.description}
