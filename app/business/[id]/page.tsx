@@ -36,11 +36,36 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import type { Conversation, GoogleCalendarSettings } from '@/lib/types';
+import Image from 'next/image';
+
+const VOICE_OPTIONS = [
+  { id: 'alloy', label: 'Alloy — Neutral, balanced' },
+  { id: 'ash', label: 'Ash — Warm, confident' },
+  { id: 'ballad', label: 'Ballad — Expressive, dramatic' },
+  { id: 'coral', label: 'Coral — Clear, friendly' },
+  { id: 'echo', label: 'Echo — Smooth, deep' },
+  { id: 'sage', label: 'Sage — Calm, measured' },
+  { id: 'shimmer', label: 'Shimmer — Soft, gentle' },
+  { id: 'verse', label: 'Verse — Versatile, natural' },
+  { id: 'marin', label: 'Marin — Latest, natural' },
+] as const;
+
+const MODEL_OPTIONS = [
+  { value: 'gpt-realtime-1.5', label: 'GPT Realtime 1.5 (Flagship)' },
+  { value: 'gpt-realtime', label: 'GPT Realtime' },
+  { value: 'gpt-4o-realtime-preview', label: 'GPT-4o Realtime Preview' },
+  { value: 'gpt-4o-realtime-preview-2024-12-17', label: 'GPT-4o Realtime (Dec 2024)' },
+] as const;
+
+const getModelLabel = (modelType: string) => {
+  return MODEL_OPTIONS.find(m => m.value === modelType)?.label || modelType;
+};
 
 const agentSchema = z.object({
   name: z.string().min(1),
   area_code: z.string().length(3),
   model_type: z.string().min(1),
+  voice_model: z.string().optional(),
   temperature: z.number().min(0.6).max(1.2),
   prompt: z.string().optional(),
   greeting: z.string().min(1).max(500),
@@ -343,7 +368,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     defaultValues: {
       name: 'Voice Agent',
       area_code: '555',
-      model_type: 'gpt-realtime',
+      model_type: 'gpt-realtime-1.5',
+      voice_model: 'ash',
       temperature: 0.8,
       prompt: '',
       greeting: 'Hello! Thank you for calling. How can I help you today?',
@@ -357,6 +383,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         name: agent.name,
         area_code: '555',
         model_type: agent.model_type,
+        voice_model: (agent as unknown as Record<string, unknown>).voice_model as string || 'ash',
         temperature: agent.temperature,
         prompt: agent.prompt || '',
         greeting: agent.greeting,
@@ -1075,7 +1102,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         ) : (
                           <h3 className="text-lg font-semibold text-[#5D4E37]">{agent.name}</h3>
                         )}
-                        <span className="text-xs text-[#8B7355]">{agent.model_type}</span>
+                        <span className="text-xs text-[#8B7355] flex items-center gap-1">
+                          <Image src="/openai-logo.svg" alt="OpenAI" width={12} height={12} className="opacity-60" />
+                          {getModelLabel(agent.model_type)}
+                        </span>
                       </div>
                     </div>
                     <Button
@@ -1701,10 +1731,22 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               </div>
             </div>
             <div>
-              <Label className="text-[#8B7355]">Model</Label>
+              <Label className="text-[#8B7355] flex items-center gap-1.5">
+                <Image src="/openai-logo.svg" alt="OpenAI" width={14} height={14} className="opacity-60" />
+                Realtime Model
+              </Label>
               <select className="w-full h-10 mt-1.5 rounded-md border border-[#E8DCC8] bg-white px-3 text-sm text-[#5D4E37]" {...form.register('model_type')}>
-                <option value="gpt-realtime">GPT Realtime</option>
-                <option value="gpt-4o-realtime-preview">GPT-4o Preview</option>
+                {MODEL_OPTIONS.map(m => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label className="text-[#8B7355]">Voice</Label>
+              <select className="w-full h-10 mt-1.5 rounded-md border border-[#E8DCC8] bg-white px-3 text-sm text-[#5D4E37]" {...form.register('voice_model')}>
+                {VOICE_OPTIONS.map(v => (
+                  <option key={v.id} value={v.id}>{v.label}</option>
+                ))}
               </select>
             </div>
             <div>
