@@ -196,15 +196,16 @@ export function useDemoSession(): UseDemoSessionReturn {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      // Use the new /v1/realtime/calls endpoint per OpenAI docs
       const sdpRes = await fetch(
-        `https://api.openai.com/v1/realtime?model=${REALTIME_MODEL}`,
+        'https://api.openai.com/v1/realtime/calls',
         {
           method: 'POST',
+          body: offer.sdp,
           headers: {
             Authorization: `Bearer ${ephemeral_key}`,
             'Content-Type': 'application/sdp',
           },
-          body: offer.sdp,
         }
       );
       if (!sdpRes.ok) throw new Error('SDP exchange failed');
