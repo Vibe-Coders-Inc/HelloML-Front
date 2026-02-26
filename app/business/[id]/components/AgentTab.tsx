@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 import { Bot, Phone, Play, Pause, Trash2, Edit, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,10 +15,26 @@ import { useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/lib/hooks/use-
 import { useDeletePhoneByAgent, useProvisionPhoneNumber, useReactivatePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
 import type { AgentWithPhone } from '@/lib/types';
 
+const VOICE_OPTIONS = [
+  { id: 'alloy', label: 'Alloy — Neutral, balanced' },
+  { id: 'ash', label: 'Ash — Warm, confident' },
+  { id: 'ballad', label: 'Ballad — Expressive, dramatic' },
+  { id: 'coral', label: 'Coral — Clear, friendly' },
+  { id: 'echo', label: 'Echo — Smooth, deep' },
+  { id: 'fable', label: 'Fable — Storytelling, animated' },
+  { id: 'onyx', label: 'Onyx — Deep, authoritative' },
+  { id: 'nova', label: 'Nova — Energetic, bright' },
+  { id: 'sage', label: 'Sage — Calm, measured' },
+  { id: 'shimmer', label: 'Shimmer — Soft, gentle' },
+  { id: 'verse', label: 'Verse — Versatile, natural' },
+  { id: 'marin', label: 'Marin — Latest, natural' },
+] as const;
+
 const agentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   area_code: z.string().min(3, 'Area code is required').max(3, 'Area code must be 3 digits'),
   model_type: z.string().min(1, 'Model type is required'),
+  voice_model: z.string().optional(),
   temperature: z.number().min(0.6).max(1.2),
   prompt: z.string().optional(),
   greeting: z.string()
@@ -33,6 +50,7 @@ const agentSchema = z.object({
 const editAgentSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   model_type: z.string().min(1, 'Model type is required'),
+  voice_model: z.string().optional(),
   temperature: z.number().min(0.6).max(1.2),
   prompt: z.string().optional(),
   greeting: z.string()
@@ -72,6 +90,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       name: 'My Voice Agent',
       area_code: '555',
       model_type: 'gpt-realtime',
+      voice_model: 'ash',
       temperature: 0.8,
       prompt: '',
       greeting: 'Hello! How can I help you today?',
@@ -84,6 +103,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     defaultValues: {
       name: agent?.name || 'Agent',
       model_type: agent?.model_type || 'gpt-realtime',
+      voice_model: (agent as unknown as Record<string, unknown>)?.voice_model as string || 'ash',
       temperature: agent?.temperature || 0.8,
       prompt: agent?.prompt || '',
       greeting: agent?.greeting || 'Hello! How can I help you today?',
@@ -98,6 +118,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       editForm.reset({
         name: agent.name,
         model_type: agent.model_type,
+        voice_model: (agent as unknown as Record<string, unknown>).voice_model as string || 'ash',
         temperature: agent.temperature,
         prompt: agent.prompt || '',
         greeting: agent.greeting,
@@ -293,7 +314,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="model_type" className="text-[#8B6F47]">Realtime Model</Label>
+                      <Label htmlFor="model_type" className="text-[#8B6F47] flex items-center gap-1.5">
+                        <Image src="/openai-logo.svg" alt="OpenAI" width={16} height={16} className="opacity-60" />
+                        Realtime Model
+                      </Label>
                       <select
                         id="model_type"
                         className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
@@ -302,6 +326,19 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                         <option value="gpt-realtime">GPT Realtime (Latest)</option>
                         <option value="gpt-4o-realtime-preview">GPT-4o Realtime Preview</option>
                         <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="voice_model" className="text-[#8B6F47]">Voice</Label>
+                      <select
+                        id="voice_model"
+                        className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
+                        {...form.register('voice_model')}
+                      >
+                        {VOICE_OPTIONS.map(v => (
+                          <option key={v.id} value={v.id}>{v.label}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -428,7 +465,14 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm text-[#8B6F47]">AI Model</h4>
-                <p className="text-sm text-[#8B6F47] font-medium">{agent.model_type}</p>
+                <p className="text-sm text-[#8B6F47] font-medium flex items-center gap-1.5">
+                  <Image src="/openai-logo.svg" alt="OpenAI" width={16} height={16} className="opacity-60" />
+                  {agent.model_type}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-sm text-[#8B6F47]">Voice</h4>
+                <p className="text-sm text-[#8B6F47] font-medium capitalize">{(agent as unknown as Record<string, unknown>).voice_model as string || 'ash'}</p>
               </div>
               <div>
                 <h4 className="font-medium text-sm text-[#8B6F47]">Temperature</h4>
@@ -717,7 +761,10 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-model_type" className="text-[#8B6F47]">Realtime Model</Label>
+                <Label htmlFor="edit-model_type" className="text-[#8B6F47] flex items-center gap-1.5">
+                  <Image src="/openai-logo.svg" alt="OpenAI" width={16} height={16} className="opacity-60" />
+                  Realtime Model
+                </Label>
                 <select
                   id="edit-model_type"
                   className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
@@ -728,6 +775,19 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                 </select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-voice_model" className="text-[#8B6F47]">Voice</Label>
+              <select
+                id="edit-voice_model"
+                className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
+                {...editForm.register('voice_model')}
+              >
+                {VOICE_OPTIONS.map(v => (
+                  <option key={v.id} value={v.id}>{v.label}</option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
