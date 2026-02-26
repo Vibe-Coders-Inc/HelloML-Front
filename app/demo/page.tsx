@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MicOff, PhoneOff, ArrowRight } from 'lucide-react';
@@ -7,6 +8,21 @@ import { Button } from '@/components/ui/button';
 import { VoiceOrb } from '@/components/VoiceOrb';
 import { useDemoSession } from '@/components/DemoSession';
 import { Logo } from '@/components/Logo';
+
+const VOICES = [
+  { id: 'alloy', label: 'Alloy', desc: 'Neutral, balanced' },
+  { id: 'ash', label: 'Ash', desc: 'Warm, confident' },
+  { id: 'ballad', label: 'Ballad', desc: 'Expressive, dramatic' },
+  { id: 'coral', label: 'Coral', desc: 'Clear, friendly' },
+  { id: 'echo', label: 'Echo', desc: 'Smooth, deep' },
+  { id: 'fable', label: 'Fable', desc: 'Storytelling, animated' },
+  { id: 'onyx', label: 'Onyx', desc: 'Deep, authoritative' },
+  { id: 'nova', label: 'Nova', desc: 'Energetic, bright' },
+  { id: 'sage', label: 'Sage', desc: 'Calm, measured' },
+  { id: 'shimmer', label: 'Shimmer', desc: 'Soft, gentle' },
+  { id: 'verse', label: 'Verse', desc: 'Versatile, natural' },
+  { id: 'marin', label: 'Marin', desc: 'Latest, natural' },
+] as const;
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -16,6 +32,7 @@ function formatTime(seconds: number) {
 
 export default function DemoPage() {
   const session = useDemoSession();
+  const [selectedVoice, setSelectedVoice] = useState('ash');
 
   return (
     <div className="min-h-screen bg-[#FAF6F0] flex flex-col">
@@ -45,15 +62,39 @@ export default function DemoPage() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#3D2E1F] mb-4">
               Talk to an AI Phone Agent
             </h1>
-            <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-12 max-w-md">
+            <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-6 max-w-md">
               Experience what HelloML sounds like — live.
             </p>
+
+            {/* Voice Picker */}
+            <div className="w-full max-w-lg mb-8">
+              <p className="text-[#8B6F47]/50 text-xs mb-3 text-center">Choose a voice</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {VOICES.map((voice) => (
+                  <button
+                    key={voice.id}
+                    onClick={() => setSelectedVoice(voice.id)}
+                    title={voice.desc}
+                    className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                      selectedVoice === voice.id
+                        ? 'bg-[#8B6F47] text-white shadow-md scale-105'
+                        : 'bg-[#E8DCC8]/60 text-[#8B6F47]/80 hover:bg-[#E8DCC8] hover:text-[#8B6F47]'
+                    }`}
+                  >
+                    {voice.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[#8B6F47]/30 text-xs mt-2 text-center">
+                {VOICES.find(v => v.id === selectedVoice)?.desc}
+              </p>
+            </div>
 
             <VoiceOrb
               state="idle"
               audioLevel={0}
               aiSpeaking={false}
-              onClick={session.start}
+              onClick={() => session.start(selectedVoice)}
             />
 
             <p className="mt-10 text-[#8B6F47]/50 text-xs sm:text-sm">

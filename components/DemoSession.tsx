@@ -15,7 +15,7 @@ interface DemoSessionState {
 }
 
 interface UseDemoSessionReturn extends DemoSessionState {
-  start: () => Promise<void>;
+  start: (voice?: string) => Promise<void>;
   end: () => void;
   toggleMute: () => void;
 }
@@ -96,7 +96,7 @@ export function useDemoSession(): UseDemoSessionReturn {
     rafRef.current = requestAnimationFrame(tick);
   }, []);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (voice?: string) => {
     try {
       setStatus('connecting');
       setErrorMessage(undefined);
@@ -122,7 +122,11 @@ export function useDemoSession(): UseDemoSessionReturn {
 
       // 2. Get ephemeral key
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${apiUrl}/demo/session`, { method: 'POST' });
+      const res = await fetch(`${apiUrl}/demo/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voice: voice || 'ash' }),
+      });
       if (!res.ok) throw new Error('Failed to get session');
       const { ephemeral_key } = await res.json();
 
