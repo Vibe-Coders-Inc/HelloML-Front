@@ -89,7 +89,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     defaultValues: {
       name: 'My Voice Agent',
       area_code: '555',
-      model_type: 'gpt-realtime',
+      model_type: 'gpt-realtime-1.5',
       voice_model: 'ash',
       temperature: 0.8,
       prompt: '',
@@ -102,7 +102,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     resolver: zodResolver(editAgentSchema),
     defaultValues: {
       name: agent?.name || 'Agent',
-      model_type: agent?.model_type || 'gpt-realtime',
+      model_type: agent?.model_type || 'gpt-realtime-1.5',
       voice_model: (agent as unknown as Record<string, unknown>)?.voice_model as string || 'ash',
       temperature: agent?.temperature || 0.8,
       prompt: agent?.prompt || '',
@@ -323,7 +323,8 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                         className="flex h-10 w-full rounded-md border border-[#E8DCC8] bg-[#FAF8F3] px-3 py-2 text-sm text-[#8B6F47] focus:outline-none focus:ring-2 focus:ring-[#A67A5B]/10 focus:border-[#A67A5B]"
                         {...form.register('model_type')}
                       >
-                        <option value="gpt-realtime">GPT Realtime (Latest)</option>
+                        <option value="gpt-realtime-1.5">GPT Realtime 1.5 (Flagship)</option>
+                        <option value="gpt-realtime">GPT Realtime</option>
                         <option value="gpt-4o-realtime-preview">GPT-4o Realtime Preview</option>
                         <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                       </select>
@@ -770,7 +771,8 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   className="flex h-10 w-full rounded-md border border-[#D8CBA9] bg-white text-[#8B6F47] px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-[#8B6F47] focus:ring-offset-2"
                   {...editForm.register('model_type')}
                 >
-                  <option value="gpt-realtime">GPT Realtime (Latest)</option>
+                  <option value="gpt-realtime-1.5">GPT Realtime 1.5 (Flagship)</option>
+                        <option value="gpt-realtime">GPT Realtime</option>
                   <option value="gpt-4o-realtime-preview">GPT-4o Realtime Preview</option>
                   <option value="gpt-4o-realtime-preview-2024-12-17">GPT-4o Realtime (Dec 2024)</option>
                 </select>

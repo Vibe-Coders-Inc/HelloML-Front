@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DEMO_DURATION = 120; // seconds
-const REALTIME_MODEL = 'gpt-realtime';
+const REALTIME_MODEL = 'gpt-realtime-1.5';
 
 interface DemoSessionState {
   status: 'idle' | 'connecting' | 'active' | 'ended' | 'error';
