@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 import { createClient } from './supabase/client';
 
 interface AppContextType {
@@ -20,6 +21,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
+  const router = useRouter();
 
   const isAuthenticated = !!user;
 
@@ -78,10 +80,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-  };
+    // Explicitly redirect to /auth after sign out to avoid race conditions
+    // with auth state updates
+    router.push('/auth');
+  }, [supabase, router]);
 
   return (
     <AppContext.Provider
