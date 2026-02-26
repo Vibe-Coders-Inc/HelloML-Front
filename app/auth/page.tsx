@@ -163,18 +163,10 @@ function AuthContent() {
 
     try {
       await signUp(data.email, data.password, data.name);
-      // Fire Google Ads conversion tracking (old account)
+      // Fire Google Ads signup conversion tracking
       if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-        window.gtag('event', 'page_view', {
-          page_location: 'https://www.helloml.app/signup-success',
-          page_path: '/signup-success',
-          send_to: 'AW-11501080696',
-        });
-        // Fire Google Ads conversion tracking (new account)
         window.gtag('event', 'conversion', {
           send_to: 'AW-17958638557/dcSMCKWl8fkbEN2nrPNC',
-          page_location: 'https://www.helloml.app/signup-success',
-          page_path: '/signup-success',
         });
       }
       // Show success message - user needs to verify email
