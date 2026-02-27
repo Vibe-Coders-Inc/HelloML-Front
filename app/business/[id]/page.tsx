@@ -960,7 +960,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       size="sm"
                       onClick={() => createPortal.mutate(businessId)}
                       disabled={createPortal.isPending}
-                      className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                      className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] hover:text-[#5D4E37]"
                     >
                       {createPortal.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -1770,7 +1770,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               <Input className={`mt-1.5 ${inputStyles}`} {...form.register('goodbye')} />
             </div>
             <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]" onClick={() => setIsAgentDialogOpen(false)}>Cancel</Button>
+              <Button type="button" variant="outline" className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] hover:text-[#5D4E37]" onClick={() => setIsAgentDialogOpen(false)}>Cancel</Button>
               <Button
                 type="submit"
                 disabled={createAgent.isPending || updateAgent.isPending}
@@ -1820,7 +1820,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+              className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] hover:text-[#5D4E37]"
               onClick={() => setShowPhoneChangeModal(false)}
               disabled={isChangingPhone}
             >
@@ -1928,7 +1928,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+              className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] hover:text-[#5D4E37]"
               onClick={() => setSettingsDialogOpen(false)}
             >
               Cancel

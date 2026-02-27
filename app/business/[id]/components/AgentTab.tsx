@@ -389,7 +389,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
                   </div>
 
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
+                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all">
                       Cancel
                     </Button>
                     <Button
@@ -835,7 +835,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] shadow-sm hover:shadow-md transition-all">
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D8CBA9] text-[#8B6F47] hover:bg-[#FAF8F3] hover:border-[#A67A5B] hover:text-[#8B6F47] shadow-sm hover:shadow-md transition-all">
                 Cancel
               </Button>
               <Button
