@@ -478,7 +478,7 @@ function AuthContent() {
                     type="button"
                     variant="outline"
                     onClick={() => setRegisterStep(1)}
-                    className="h-12 px-4 rounded-xl border-[#E8DCC8] text-[#8B6F47] hover:bg-[#F5EFE6] transition-all"
+                    className="h-12 px-4 rounded-xl border-[#E8DCC8] text-[#8B6F47] hover:bg-[#F5EFE6] hover:text-[#8B6F47] transition-all"
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </Button>
