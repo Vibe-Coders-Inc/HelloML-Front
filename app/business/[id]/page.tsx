@@ -8,7 +8,8 @@ import {
   Trash2, Upload, Download,
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
-  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2
+  BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2,
+  Volume2, Square
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -49,6 +50,78 @@ const VOICE_OPTIONS = [
   { id: 'verse', label: 'Verse — Versatile, natural' },
   { id: 'marin', label: 'Marin — Latest, natural' },
 ] as const;
+
+// Voice preview play button
+function VoicePlayButton({ voiceId, size = 'sm' }: { voiceId: string; size?: 'sm' | 'md' }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+
+    // Stop any other playing audio
+    document.querySelectorAll('audio').forEach((a) => { a.pause(); a.currentTime = 0; });
+
+    const audio = new Audio(`/voices/${voiceId}.mp3`);
+    audioRef.current = audio;
+    audio.onended = () => setIsPlaying(false);
+    audio.onerror = () => { setIsPlaying(false); };
+    audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+  };
+
+  const sz = size === 'sm' ? 'w-7 h-7' : 'w-8 h-8';
+  const iconSz = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+
+  return (
+    <button
+      type="button"
+      onClick={togglePlay}
+      className={`${sz} rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${
+        isPlaying
+          ? 'bg-[#8B6F47] text-white'
+          : 'bg-[#F5F0E8] hover:bg-[#E8DCC8] text-[#8B7355]'
+      }`}
+      title={isPlaying ? 'Stop' : `Preview ${voiceId}`}
+    >
+      {isPlaying ? <Square className={iconSz} /> : <Volume2 className={iconSz} />}
+    </button>
+  );
+}
+
+// Inline voice selector with preview buttons
+function VoiceSelector({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (voice: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="flex-1 h-9 rounded-md border border-[#E8DCC8] bg-white px-3 text-sm text-[#5D4E37] focus:border-[#8B6F47] focus:ring-[#8B6F47]/20 focus:outline-none disabled:opacity-50"
+      >
+        {VOICE_OPTIONS.map((v) => (
+          <option key={v.id} value={v.id}>{v.label}</option>
+        ))}
+      </select>
+      <VoicePlayButton voiceId={value} />
+    </div>
+  );
+}
 
 const MODEL_OPTIONS = [
   { value: 'gpt-realtime-1.5', label: 'GPT Realtime 1.5 (Flagship)' },
@@ -1128,7 +1201,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   </div>
 
                   {/* Agent Details - Editable */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
                       <p className="text-xs text-[#8B7355] mb-2">Phone Number</p>
                       {agent.phone_number?.phone_number ? (
@@ -1161,6 +1234,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           </Button>
                         </div>
                       )}
+                    </div>
+                    <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
+                      <p className="text-xs text-[#8B7355] mb-2">Voice</p>
+                      <VoiceSelector
+                        value={(agent as unknown as Record<string, unknown>).voice_model as string || 'ash'}
+                        onChange={(voice) => handleAgentFieldUpdate('voice_model', voice)}
+                        disabled={false}
+                      />
                     </div>
                     <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
                       <p className="text-xs text-[#8B7355] mb-2">Temperature</p>
@@ -1743,11 +1824,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             </div>
             <div>
               <Label className="text-[#8B7355]">Voice</Label>
-              <select className="w-full h-10 mt-1.5 rounded-md border border-[#E8DCC8] bg-white px-3 text-sm text-[#5D4E37]" {...form.register('voice_model')}>
-                {VOICE_OPTIONS.map(v => (
-                  <option key={v.id} value={v.id}>{v.label}</option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2 mt-1.5">
+                <select className="flex-1 h-10 rounded-md border border-[#E8DCC8] bg-white px-3 text-sm text-[#5D4E37]" {...form.register('voice_model')}>
+                  {VOICE_OPTIONS.map(v => (
+                    <option key={v.id} value={v.id}>{v.label}</option>
+                  ))}
+                </select>
+                <VoicePlayButton voiceId={form.watch('voice_model') || 'ash'} size="md" />
+              </div>
             </div>
             <div>
               <Label className="text-[#8B7355]">Temperature: {form.watch('temperature')}</Label>
