@@ -12,7 +12,7 @@ for voice in voices:
         print(f"Skipping {voice} (already exists)")
         continue
     print(f"Generating {voice}...")
-    response = client.audio.speech.create(model="tts-1", voice=voice, input="Hello! How can I help you today?")
+    response = client.audio.speech.create(model="gpt-4o-mini-tts", voice=voice, input="Hello! How can I help you today?")
     response.stream_to_file(path)
     print(f"  Saved {path}")
 

@@ -70,7 +70,7 @@ function VoicePlayButton({ voiceId, size = 'sm' }: { voiceId: string; size?: 'sm
     // Stop any other playing audio
     document.querySelectorAll('audio').forEach((a) => { a.pause(); a.currentTime = 0; });
 
-    const audio = new Audio(`/voices/${voiceId}.mp3`);
+    const audio = new Audio(`/voices/${voiceId}.wav`);
     audioRef.current = audio;
     audio.onended = () => setIsPlaying(false);
     audio.onerror = () => { setIsPlaying(false); };
