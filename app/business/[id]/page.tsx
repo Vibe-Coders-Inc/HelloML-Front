@@ -443,7 +443,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
       area_code: '555',
       model_type: 'gpt-realtime-1.5',
       voice_model: 'ash',
-      temperature: 0.8,
+      temperature: 0.7,
       prompt: '',
       greeting: 'Hello! Thank you for calling. How can I help you today?',
       goodbye: 'Thank you for calling. Have a great day!',
@@ -456,7 +456,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         name: agent.name,
         area_code: '555',
         model_type: agent.model_type,
-        voice_model: (agent as unknown as Record<string, unknown>).voice_model as string || 'ash',
+        voice_model: agent.voice_model || 'ash',
         temperature: agent.temperature,
         prompt: agent.prompt || '',
         greeting: agent.greeting,
@@ -1238,30 +1238,12 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
                       <p className="text-xs text-[#8B7355] mb-2">Voice</p>
                       <VoiceSelector
-                        value={(agent as unknown as Record<string, unknown>).voice_model as string || 'ash'}
+                        value={agent.voice_model || 'ash'}
                         onChange={(voice) => handleAgentFieldUpdate('voice_model', voice)}
                         disabled={false}
                       />
                     </div>
-                    <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
-                      <p className="text-xs text-[#8B7355] mb-2">Temperature</p>
-                      {isAgentEditing ? (
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="range"
-                            min="0.6"
-                            max="1.2"
-                            step="0.1"
-                            defaultValue={agent.temperature}
-                            className="flex-1 h-2"
-                            onChange={(e) => handleAgentFieldUpdate('temperature', parseFloat(e.target.value))}
-                          />
-                          <span className="text-sm font-medium text-[#5D4E37] w-8">{agent.temperature}</span>
-                        </div>
-                      ) : (
-                        <p className="text-sm font-medium text-[#5D4E37]">{agent.temperature}</p>
-                      )}
-                    </div>
+                    {/* Temperature hidden — defaulted to 0.7 for reliability */}
                   </div>
 
                   {/* Greeting */}
@@ -1833,10 +1815,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <VoicePlayButton voiceId={form.watch('voice_model') || 'ash'} size="md" />
               </div>
             </div>
-            <div>
-              <Label className="text-[#8B7355]">Temperature: {form.watch('temperature')}</Label>
-              <input type="range" min="0.6" max="1.2" step="0.1" className="w-full mt-1.5 accent-[#8B6F47]" {...form.register('temperature', { valueAsNumber: true })} />
-            </div>
+            {/* Temperature hidden — defaulted to 0.7 for reliability */}
             <div>
               <Label className="text-[#8B7355]">System Prompt</Label>
               <Textarea

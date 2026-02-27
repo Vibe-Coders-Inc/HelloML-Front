@@ -21,6 +21,7 @@ export interface Agent {
   business_id: number;
   name: string;
   model_type: string;
+  voice_model?: string;
   temperature: number;
   prompt?: string;
   greeting: string;
