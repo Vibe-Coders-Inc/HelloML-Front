@@ -196,6 +196,7 @@ export interface CreateAgentRequest {
   prompt?: string;
   greeting?: string;
   goodbye?: string;
+  voice_model?: string;
 }
 
 export interface UpdateAgentRequest {
@@ -205,6 +206,7 @@ export interface UpdateAgentRequest {
   prompt?: string;
   greeting?: string;
   goodbye?: string;
+  voice_model?: string;
   status?: 'inactive' | 'active' | 'paused';
 }
 
