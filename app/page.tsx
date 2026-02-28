@@ -22,10 +22,10 @@ const staggerItem = {
 
 /* ─── Use Case Carousel ─── */
 const useCases = [
-  { persona: '🔧', label: 'The contractor on the job site', text: 'your agent books the estimate.' },
-  { persona: '💇', label: 'The stylist mid-appointment', text: 'your agent reschedules the no-show.' },
-  { persona: '⚖️', label: 'The attorney in court', text: 'your agent takes the message.' },
-  { persona: '🏪', label: "The owner who can't be everywhere", text: 'your agent can.' },
+  { label: 'The contractor on the job site', text: 'your agent books the estimate.' },
+  { label: 'The stylist mid-appointment', text: 'your agent reschedules the no-show.' },
+  { label: 'The attorney in court', text: 'your agent takes the message.' },
+  { label: "The owner who can't be everywhere", text: 'your agent can.' },
 ];
 
 function UseCaseCarousel() {
@@ -46,9 +46,8 @@ function UseCaseCarousel() {
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-8"
           style={{ pointerEvents: i === active ? 'auto' : 'none' }}
         >
-          <span className="text-5xl mb-3">{uc.persona}</span>
           <p className="text-lg sm:text-xl text-[#8B7355] font-medium">
-            {uc.label} — <span className="text-[#8B6F47] font-semibold">{uc.text}</span>
+            {uc.label}. <span className="text-[#8B6F47] font-semibold">{uc.text}</span>
           </p>
         </motion.div>
       ))}
@@ -99,10 +98,10 @@ function HowItWorksSteps() {
   const steps = [
     { icon: (
       <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none"><rect x="10" y="6" width="28" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="22" x2="28" y2="22" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="28" x2="30" y2="28" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/></svg>
-    ), title: 'Upload your docs', desc: 'FAQs, menus, policies — your agent learns it all.' },
+    ), title: 'Upload your docs', desc: 'FAQs, menus, policies. Your agent learns it all.' },
     { icon: (
       <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none"><rect x="8" y="12" width="32" height="28" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="8" y1="22" x2="40" y2="22" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="12" x2="16" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="32" y1="12" x2="32" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><circle cx="24" cy="30" r="3" fill="#8B6F47"/></svg>
-    ), title: 'Connect your calendar', desc: 'Google Calendar, Outlook — bookings happen automatically.' },
+    ), title: 'Connect your calendar', desc: 'Google Calendar, Outlook. Bookings happen automatically.' },
     { icon: (
       <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none"><rect x="16" y="6" width="16" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><circle cx="24" cy="36" r="2" fill="#A67A5B"/><rect x="20" y="9" width="8" height="2" rx="1" fill="#C9B790"/><circle cx="24" cy="22" r="5" stroke="#8B6F47" strokeWidth="1.5" opacity="0.3"/><circle cx="24" cy="22" r="9" stroke="#A67A5B" strokeWidth="1" opacity="0.15"/></svg>
     ), title: 'Calls answered', desc: '24/7. On your dedicated number. Instantly.' },
@@ -120,41 +119,6 @@ function HowItWorksSteps() {
           <p className="text-sm text-[#8B7355]">{step.desc}</p>
         </div>
       ))}
-    </div>
-  );
-}
-
-/* ─── Animated Counter ─── */
-function AnimatedCounter({ end, suffix = '', label }: { end: number; suffix?: string; label: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !started.current) {
-        started.current = true;
-        const duration = 1500;
-        const start = performance.now();
-        const animate = (now: number) => {
-          const progress = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          setCount(Math.round(eased * end));
-          if (progress < 1) requestAnimationFrame(animate);
-        };
-        requestAnimationFrame(animate);
-      }
-    }, { threshold: 0.5 });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [end]);
-
-  return (
-    <div ref={ref} className="text-center">
-      <div className="text-5xl md:text-7xl font-bold text-[#8B6F47] tabular-nums">{count}{suffix}</div>
-      <div className="text-sm md:text-base text-[#8B7355] mt-2 font-medium">{label}</div>
     </div>
   );
 }
@@ -197,7 +161,8 @@ export default function LandingPage() {
         </div>
         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-4xl mx-auto text-center px-6 relative z-10">
           <motion.div variants={staggerItem} className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm border border-[#E8DCC8]/60 rounded-full px-4 py-2 mb-6 shadow-sm">
-            <span className="text-sm md:text-base font-medium text-[#8B6F47]">✨ Powered by the latest in voice AI</span>
+            <span className="w-2 h-2 rounded-full bg-[#8B6F47] animate-pulse" />
+            <span className="text-sm md:text-base font-medium text-[#8B6F47]">Powered by the latest in voice AI</span>
           </motion.div>
           <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4">
             <span className="bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#8B6F47] bg-clip-text text-transparent">AI that </span>
@@ -208,7 +173,7 @@ export default function LandingPage() {
             Sounds like a human. Works like a machine.
           </motion.p>
           <motion.p variants={staggerItem} className="text-base sm:text-lg md:text-xl text-[#8B7355]/70 mb-4 max-w-2xl mx-auto leading-relaxed px-2">
-            Your AI voice agent books appointments, answers questions from your documents, and handles every call — so you don&apos;t have to.
+            Your AI voice agent books appointments, answers questions from your documents, and handles every call so you don&apos;t have to.
           </motion.p>
           <motion.div variants={staggerItem}>
             <VoiceWaveformHero />
@@ -230,7 +195,7 @@ export default function LandingPage() {
             </Link>
             <Link href="/demo">
               <Button size="lg" variant="outline" className="rounded-full px-8 py-5 md:px-10 md:py-7 text-base md:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:text-[#8B6F47] hover:bg-[#8B6F47]/10 transition-all duration-300">
-                🎙️ Try It Live
+                Try It Live
               </Button>
             </Link>
           </motion.div>
@@ -280,9 +245,18 @@ export default function LandingPage() {
       {/* ───────── 4. STATS ───────── */}
       <section className="py-12 md:py-16 px-4 md:px-6 border-t border-[#E8DCC8]/30">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 md:gap-12">
-          <AnimatedCounter end={500} suffix="ms" label="Response latency" />
-          <AnimatedCounter end={99} suffix="%" label="Uptime" />
-          <AnimatedCounter end={24} suffix="/7" label="Availability" />
+          <div className="text-center">
+            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47] tabular-nums">&lt;500<span className="text-2xl md:text-3xl">ms</span></div>
+            <div className="text-sm md:text-base text-[#8B7355] mt-2 font-medium">Response latency</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47] tabular-nums">99.9<span className="text-2xl md:text-3xl">%</span></div>
+            <div className="text-sm md:text-base text-[#8B7355] mt-2 font-medium">Uptime</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47] tabular-nums">24/7</div>
+            <div className="text-sm md:text-base text-[#8B7355] mt-2 font-medium">Availability</div>
+          </div>
         </div>
       </section>
 
@@ -331,8 +305,8 @@ export default function LandingPage() {
               {/* Call button */}
               <div className="absolute bottom-8 z-10">
                 <Link href="/demo">
-                  <Button className="relative bg-[#28C840] hover:bg-[#32d64e] text-white rounded-full w-14 h-14 text-2xl shadow-lg shadow-[#28C840]/40 animate-pulse-call">
-                    📞
+                  <Button className="relative bg-[#28C840] hover:bg-[#32d64e] text-white rounded-full w-14 h-14 shadow-lg shadow-[#28C840]/40 animate-pulse-call flex items-center justify-center">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
                   </Button>
                 </Link>
               </div>
@@ -362,13 +336,13 @@ export default function LandingPage() {
           <p className="text-base md:text-lg text-[#8B7355] mb-10 text-center">One agent. Fully loaded.</p>
           <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
             {[
-              { icon: '📅', title: 'Books appointments', desc: 'Your agent checks availability and creates bookings directly on your calendar. No back-and-forth.' },
-              { icon: '📄', title: 'Answers from your docs', desc: 'Upload FAQs, policies, or menus. Your agent searches them in real time to answer caller questions.' },
-              { icon: '📝', title: 'Full transcripts', desc: 'Get a full transcription and summary delivered to your dashboard the moment a call ends.' },
-              { icon: '📞', title: 'Always on — 24/7', desc: 'We provision a dedicated phone number for your business. Your agent picks up around the clock.' },
+              { icon: (<svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="8" y="12" width="32" height="28" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="8" y1="22" x2="40" y2="22" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="12" x2="16" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="32" y1="12" x2="32" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><circle cx="24" cy="30" r="3" fill="#8B6F47"/></svg>), title: 'Books appointments', desc: 'Your agent checks availability and creates bookings directly on your calendar. No back-and-forth.' },
+              { icon: (<svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="10" y="6" width="28" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="22" x2="28" y2="22" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="28" x2="30" y2="28" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/></svg>), title: 'Answers from your docs', desc: 'Upload FAQs, policies, or menus. Your agent searches them in real time to answer caller questions.' },
+              { icon: (<svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="6" y="8" width="36" height="32" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="12" y1="18" x2="36" y2="18" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="24" x2="30" y2="24" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="30" x2="26" y2="30" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/></svg>), title: 'Full transcripts', desc: 'Get a full transcription and summary delivered to your dashboard the moment a call ends.' },
+              { icon: (<svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="16" y="6" width="16" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><circle cx="24" cy="36" r="2" fill="#A67A5B"/><rect x="20" y="9" width="8" height="2" rx="1" fill="#C9B790"/><circle cx="24" cy="22" r="5" stroke="#8B6F47" strokeWidth="1.5" opacity="0.5"/><circle cx="24" cy="22" r="9" stroke="#A67A5B" strokeWidth="1" opacity="0.2"/></svg>), title: 'Always on, 24/7', desc: 'We provision a dedicated phone number for your business. Your agent picks up around the clock.' },
             ].map((f, i) => (
               <div key={i} className="group p-6 md:p-8 rounded-2xl bg-gradient-to-br from-white/60 to-white/30 border border-[#E8DCC8]/50 hover:border-[#8B6F47]/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#8B6F47]/10 transition-all duration-300 relative overflow-hidden feature-card-glow">
-                <div className="text-4xl md:text-5xl mb-4">{f.icon}</div>
+                <div className="mb-4">{f.icon}</div>
                 <h3 className="text-lg md:text-xl font-semibold text-[#8B6F47] mb-2">{f.title}</h3>
                 <p className="text-[#8B7355] text-sm md:text-base">{f.desc}</p>
               </div>
