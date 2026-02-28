@@ -100,7 +100,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
     defaultValues: {
       name: agent?.name || 'Agent',
       model_type: agent?.model_type || 'gpt-realtime-1.5',
-      voice_model: agent.voice_model || 'ash',
+      voice_model: agent?.voice_model || 'ash',
       temperature: agent?.temperature || 0.8,
       prompt: agent?.prompt || '',
       greeting: agent?.greeting || 'Hello! How can I help you today?',
@@ -115,7 +115,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
       editForm.reset({
         name: agent.name,
         model_type: agent.model_type,
-        voice_model: agent.voice_model || 'ash',
+        voice_model: agent?.voice_model || 'ash',
         temperature: agent.temperature,
         prompt: agent.prompt || '',
         greeting: agent.greeting,
@@ -470,7 +470,7 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               </div>
               <div>
                 <h4 className="font-medium text-sm text-[#8B6F47]">Voice</h4>
-                <p className="text-sm text-[#8B6F47] font-medium capitalize">{agent.voice_model || 'ash'}</p>
+                <p className="text-sm text-[#8B6F47] font-medium capitalize">{agent?.voice_model || 'ash'}</p>
               </div>
               <div>
                 <h4 className="font-medium text-sm text-[#8B6F47]">Temperature</h4>
