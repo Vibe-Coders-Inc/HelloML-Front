@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import { animate } from 'animejs';
 
 export function VoiceWaveformHero() {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -10,66 +10,63 @@ export function VoiceWaveformHero() {
 
     const paths = svgRef.current.querySelectorAll('.waveform-path');
 
-    // Each path morphs between two organic wave shapes
     const waveStates = [
       [
-        'M0,40 Q15,20 30,38 Q45,56 60,40 Q75,24 90,42 Q105,58 120,38 Q135,18 150,40 Q165,60 180,40 Q195,22 210,40 Q225,58 240,38 Q255,20 270,40 Q285,58 300,40',
-        'M0,40 Q15,55 30,42 Q45,28 60,40 Q75,52 90,38 Q105,24 120,42 Q135,58 150,40 Q165,22 180,40 Q195,56 210,42 Q225,26 240,40 Q255,54 270,40 Q285,26 300,40',
+        'M0,50 Q15,20 30,45 Q45,70 60,50 Q75,30 90,52 Q105,70 120,45 Q135,20 150,50 Q165,75 180,50 Q195,25 210,50 Q225,70 240,45 Q255,25 270,50 Q285,70 300,50',
+        'M0,50 Q15,70 30,55 Q45,35 60,50 Q75,65 90,48 Q105,30 120,52 Q135,70 150,50 Q165,30 180,50 Q195,68 210,48 Q225,32 240,50 Q255,68 270,50 Q285,32 300,50',
       ],
       [
-        'M0,40 Q20,15 40,35 Q60,55 80,40 Q100,25 120,42 Q140,58 160,38 Q180,18 200,40 Q220,60 240,35 Q260,15 280,42 Q295,55 300,40',
-        'M0,40 Q20,58 40,45 Q60,30 80,40 Q100,50 120,38 Q140,25 160,42 Q180,58 200,40 Q220,22 240,45 Q260,60 280,38 Q295,22 300,40',
+        'M0,50 Q20,15 40,42 Q60,68 80,50 Q100,32 120,52 Q140,70 160,45 Q180,20 200,50 Q220,75 240,42 Q260,18 280,50 Q295,68 300,50',
+        'M0,50 Q20,72 40,55 Q60,35 80,50 Q100,62 120,45 Q140,28 160,52 Q180,72 200,50 Q220,28 240,55 Q260,72 280,48 Q295,30 300,50',
       ],
       [
-        'M0,40 Q25,28 50,42 Q75,52 100,38 Q125,22 150,40 Q175,55 200,42 Q225,30 250,40 Q275,50 300,40',
-        'M0,40 Q25,52 50,38 Q75,28 100,42 Q125,55 150,40 Q175,25 200,38 Q225,50 250,40 Q275,30 300,40',
+        'M0,50 Q25,30 50,48 Q75,65 100,50 Q125,35 150,50 Q175,65 200,48 Q225,32 250,50 Q275,65 300,50',
+        'M0,50 Q25,65 50,52 Q75,38 100,50 Q125,62 150,50 Q175,38 200,52 Q225,65 250,50 Q275,38 300,50',
       ],
     ];
 
     paths.forEach((path, i) => {
       const states = waveStates[i % waveStates.length];
-      anime({
-        targets: path,
-        d: [{ value: states[0] }, { value: states[1] }, { value: states[0] }],
+      animate(path, {
+        d: [{ to: states[0] }, { to: states[1] }, { to: states[0] }],
         duration: 3000 + i * 800,
         loop: true,
-        easing: 'easeInOutSine',
-        direction: 'normal',
+        ease: 'inOutSine',
       });
     });
 
     return () => {
-      anime.remove(paths);
+      // cleanup handled by component unmount
     };
   }, []);
 
   return (
-    <div className="flex items-center justify-center my-6 md:my-8">
+    <div className="flex items-center justify-center my-4 md:my-6 w-full">
       <svg
         ref={svgRef}
-        viewBox="0 0 300 80"
-        className="w-64 sm:w-80 md:w-96 h-16 sm:h-20"
+        viewBox="0 0 300 100"
+        className="w-full max-w-3xl h-32 sm:h-40 md:h-52"
         preserveAspectRatio="none"
       >
         <path
           className="waveform-path"
-          d="M0,40 Q15,20 30,38 Q45,56 60,40 Q75,24 90,42 Q105,58 120,38 Q135,18 150,40 Q165,60 180,40 Q195,22 210,40 Q225,58 240,38 Q255,20 270,40 Q285,58 300,40"
+          d="M0,50 Q15,20 30,45 Q45,70 60,50 Q75,30 90,52 Q105,70 120,45 Q135,20 150,50 Q165,75 180,50 Q195,25 210,50 Q225,70 240,45 Q255,25 270,50 Q285,70 300,50"
           fill="none"
-          stroke="rgba(139,111,71,0.4)"
+          stroke="rgba(139,111,71,0.5)"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           className="waveform-path"
-          d="M0,40 Q20,15 40,35 Q60,55 80,40 Q100,25 120,42 Q140,58 160,38 Q180,18 200,40 Q220,60 240,35 Q260,15 280,42 Q295,55 300,40"
+          d="M0,50 Q20,15 40,42 Q60,68 80,50 Q100,32 120,52 Q140,70 160,45 Q180,20 200,50 Q220,75 240,42 Q260,18 280,50 Q295,68 300,50"
           fill="none"
-          stroke="rgba(139,111,71,0.25)"
+          stroke="rgba(139,111,71,0.3)"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
         <path
           className="waveform-path"
-          d="M0,40 Q25,28 50,42 Q75,52 100,38 Q125,22 150,40 Q175,55 200,42 Q225,30 250,40 Q275,50 300,40"
+          d="M0,50 Q25,30 50,48 Q75,65 100,50 Q125,35 150,50 Q175,65 200,48 Q225,32 250,50 Q275,65 300,50"
           fill="none"
           stroke="rgba(139,111,71,0.15)"
           strokeWidth="1"

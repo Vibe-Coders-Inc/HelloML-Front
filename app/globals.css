@@ -109,6 +109,49 @@ body {
   animation: pulse-ring-delayed 2s ease-in-out infinite 0.5s;
 }
 
+@keyframes pulse-call {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(40, 200, 64, 0); }
+}
+
+.animate-pulse-call {
+  animation: pulse-call 2s ease-in-out infinite;
+}
+
+@keyframes section-fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-fade-in {
+  animation: section-fade-in 0.6s ease-out both;
+}
+
+.feature-card-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, transparent 40%, rgba(139,111,71,0.1) 50%, transparent 60%);
+  background-size: 300% 300%;
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: -1;
+}
+.feature-card-glow:hover::before {
+  opacity: 1;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes phone-waveform {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.phone-waveform-anim {
+  animation: phone-waveform 2s ease-in-out infinite;
+}
+
 .perspective-mobile {
   transform: perspective(50em) rotateX(12deg);
 }
