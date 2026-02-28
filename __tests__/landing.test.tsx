@@ -26,6 +26,12 @@ jest.mock('framer-motion', () => ({
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
   useInView: () => true,
+  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+  useTransform: () => 0,
+}));
+
+jest.mock('animejs', () => ({
+  animate: jest.fn(),
 }));
 
 jest.mock('@/components/Logo', () => ({
@@ -61,15 +67,15 @@ describe('Landing Page', () => {
 
   it('displays feature sections', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Books appointments on the spot.')).toBeInTheDocument();
-    expect(screen.getByText('Answers from your documents.')).toBeInTheDocument();
-    expect(screen.getByText('Transcripts after every call.')).toBeInTheDocument();
-    expect(screen.getByText('One number. Always on.')).toBeInTheDocument();
+    expect(screen.getByText('Books appointments')).toBeInTheDocument();
+    expect(screen.getByText('Answers from your docs')).toBeInTheDocument();
+    expect(screen.getByText('Full transcripts')).toBeInTheDocument();
+    expect(screen.getByText('Always on, 24/7')).toBeInTheDocument();
   });
 
   it('has simple pricing section with correct details', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Simple pricing. No surprises.')).toBeInTheDocument();
+    expect(screen.getByText('One plan. $5/month. Done.')).toBeInTheDocument();
     expect(screen.getByText('100 minutes included')).toBeInTheDocument();
     expect(screen.getByText('Dedicated phone number')).toBeInTheDocument();
   });
