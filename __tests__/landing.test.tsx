@@ -23,6 +23,7 @@ jest.mock('framer-motion', () => ({
     section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
     h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
     h2: ({ children, ...props }: any) => <h2 {...props}>{children}</h2>,
+    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
   useInView: () => true,
