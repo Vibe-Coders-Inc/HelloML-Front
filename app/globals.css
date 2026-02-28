@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Borel&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -160,4 +161,18 @@ body {
   .perspective-desktop {
     transform: perspective(75em) rotateX(18deg);
   }
+}
+
+.font-serif-display {
+  font-family: 'DM Serif Display', serif;
+}
+
+@keyframes wave {
+  0% { d: path('M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40'); }
+  50% { d: path('M0,40 Q25,55 50,40 Q75,25 100,40 Q125,55 150,40 Q175,25 200,40'); }
+  100% { d: path('M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40'); }
+}
+
+.animate-wave {
+  animation: wave 3s ease-in-out infinite;
 }

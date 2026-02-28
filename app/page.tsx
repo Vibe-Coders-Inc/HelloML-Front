@@ -12,8 +12,6 @@ import { WaveformComparison } from '@/components/landing/WaveformComparison';
 
 /* ═══════════════════════════════════════════
    SCROLL-DRIVEN CONVERGENCE SECTION
-   Words scattered around a central element,
-   converging as user scrolls into view.
    ═══════════════════════════════════════════ */
 function ScatterWord({
   text,
@@ -39,7 +37,7 @@ function ScatterWord({
   return (
     <motion.span
       style={{ x, y, scale, rotate, opacity }}
-      className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-[#8B6F47] tracking-tight inline-block"
+      className="font-serif-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-[#8B6F47] tracking-tight inline-block"
     >
       {text}
     </motion.span>
@@ -61,7 +59,6 @@ function ScatterConverge({
     offset: ['start end', '0.6 0.5'],
   });
 
-  // Central element fades out as words converge
   const centralOpacity = useTransform(scrollYProgress, [0.1, 0.4, 0.8], [0.7, 0.4, 0.1]);
   const centralScale = useTransform(scrollYProgress, [0, 0.8], [1.1, 0.9]);
 
@@ -144,8 +141,8 @@ function IntegrationMarquee() {
   const doubled = [...logos, ...logos];
   return (
     <div className="overflow-hidden relative">
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#FAF8F3] to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#FAF8F3] to-transparent z-10" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#F0EBE3] to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#F0EBE3] to-transparent z-10" />
       <div className="flex gap-12 animate-marquee">
         {doubled.map((l, i) => (
           <div key={i} className="flex items-center gap-3 shrink-0">
@@ -162,8 +159,8 @@ function IntegrationMarquee() {
 /* ═══════════════════════════════════════════
    SVG ICONS (no emojis ever)
    ═══════════════════════════════════════════ */
-const CalendarIcon = () => (
-  <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="8" y="12" width="32" height="28" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="8" y1="22" x2="40" y2="22" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="12" x2="16" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="32" y1="12" x2="32" y2="7" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><circle cx="24" cy="30" r="3" fill="#8B6F47"/></svg>
+const CalendarIcon = ({ light = false }: { light?: boolean }) => (
+  <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="8" y="12" width="32" height="28" rx="4" stroke={light ? '#D4A96A' : '#8B6F47'} strokeWidth="2"/><line x1="8" y1="22" x2="40" y2="22" stroke={light ? '#D4A96A' : '#8B6F47'} strokeWidth="2"/><line x1="16" y1="12" x2="16" y2="7" stroke={light ? '#E8D5B5' : '#A67A5B'} strokeWidth="2" strokeLinecap="round"/><line x1="32" y1="12" x2="32" y2="7" stroke={light ? '#E8D5B5' : '#A67A5B'} strokeWidth="2" strokeLinecap="round"/><circle cx="24" cy="30" r="3" fill={light ? '#D4A96A' : '#8B6F47'}/></svg>
 );
 const DocumentIcon = () => (
   <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="10" y="6" width="28" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="22" x2="28" y2="22" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="28" x2="30" y2="28" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -171,8 +168,11 @@ const DocumentIcon = () => (
 const TranscriptIcon = () => (
   <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="6" y="8" width="36" height="32" rx="4" stroke="#8B6F47" strokeWidth="2"/><line x1="12" y1="18" x2="36" y2="18" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="24" x2="30" y2="24" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="30" x2="26" y2="30" stroke="#C9B790" strokeWidth="2" strokeLinecap="round"/></svg>
 );
-const PhoneIcon = () => (
-  <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="16" y="6" width="16" height="36" rx="4" stroke="#8B6F47" strokeWidth="2"/><circle cx="24" cy="36" r="2" fill="#A67A5B"/><rect x="20" y="9" width="8" height="2" rx="1" fill="#C9B790"/><circle cx="24" cy="22" r="5" stroke="#8B6F47" strokeWidth="1.5" opacity="0.5"/><circle cx="24" cy="22" r="9" stroke="#A67A5B" strokeWidth="1" opacity="0.2"/></svg>
+const PhoneIcon = ({ light = false }: { light?: boolean }) => (
+  <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><rect x="16" y="6" width="16" height="36" rx="4" stroke={light ? '#D4A96A' : '#8B6F47'} strokeWidth="2"/><circle cx="24" cy="36" r="2" fill={light ? '#E8D5B5' : '#A67A5B'}/><rect x="20" y="9" width="8" height="2" rx="1" fill={light ? '#E8D5B5' : '#C9B790'}/><circle cx="24" cy="22" r="5" stroke={light ? '#D4A96A' : '#8B6F47'} strokeWidth="1.5" opacity="0.5"/><circle cx="24" cy="22" r="9" stroke={light ? '#E8D5B5' : '#A67A5B'} strokeWidth="1" opacity="0.2"/></svg>
+);
+const SetupIcon = () => (
+  <svg className="w-10 h-10" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="16" stroke="#8B6F47" strokeWidth="2"/><path d="M24 16v8l5.5 5.5" stroke="#A67A5B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="24" r="2" fill="#8B6F47"/></svg>
 );
 
 /* ═══════════════════════════════════════════
@@ -210,8 +210,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FAF8F3] overflow-x-hidden">
 
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/80 backdrop-blur-md border-b border-[#E8DCC8]/50">
+      {/* NAV - Frosted glass */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/60 backdrop-blur-xl border-b border-[#E8DCC8]/30" style={{ borderRadius: '0 0 12px 12px' }}>
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity shrink-0">
             <div className="scale-[0.65] sm:scale-[0.8] md:scale-100 origin-left"><Logo size="small" lightMode /></div>
@@ -225,7 +225,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── 1. HERO ── */}
+      {/* 1. HERO */}
       <section className="min-h-screen flex flex-col items-center justify-center pt-16 pb-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -233,18 +233,18 @@ export default function LandingPage() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-4xl mx-auto text-center px-6 relative z-10"
         >
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-4">
+          <h1 className="font-serif-display text-5xl sm:text-6xl md:text-8xl tracking-tight mb-4">
             <span className="text-[#8B6F47]">AI that </span>
             <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
             <span className="text-[#8B6F47]"> your phone.</span>
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl text-[#8B7355] font-semibold mb-6">
+          <p className="text-xl sm:text-2xl md:text-3xl text-[#8B7355] font-medium mb-6">
             Sounds like a human. Works like a machine.
           </p>
           <VoiceWaveformHero />
           <div className="mb-6">
             <Link href="/pricing" className="inline-flex items-center gap-2 group">
-              <span className="text-5xl md:text-6xl font-bold text-[#8B6F47]">$5</span>
+              <span className="font-serif-display text-5xl md:text-6xl text-[#8B6F47]">$5</span>
               <span className="text-left">
                 <span className="block text-base text-[#8B7355] font-medium">/month</span>
                 <span className="block text-sm text-[#A67A5B] group-hover:underline">100 minutes included</span>
@@ -266,7 +266,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ── 2. SOCIAL PROOF ── */}
+      {/* 2. SOCIAL PROOF */}
       <ScrollReveal className="text-center py-8 border-t border-[#E8DCC8]/30">
         <p className="text-xs uppercase tracking-[0.2em] text-[#A67A5B]/70 font-medium mb-6">Built by engineers from</p>
         <div className="flex items-center justify-center gap-10 sm:gap-14 md:gap-20">
@@ -282,9 +282,9 @@ export default function LandingPage() {
         </div>
       </ScrollReveal>
 
-      {/* ── 3. DASHBOARD ── */}
+      {/* 3. DASHBOARD */}
       <motion.div ref={dashboardRef} style={{ y: dashY }} className="w-full max-w-5xl mx-auto px-4 md:px-6 mb-8">
-        <motion.div style={{ boxShadow: dashShadow }} className="relative perspective-mobile md:perspective-desktop rounded-2xl overflow-hidden border border-[#E8DCC8]/60">
+        <motion.div style={{ boxShadow: dashShadow }} className="relative perspective-mobile md:perspective-desktop rounded-[20px] overflow-hidden border border-[#E8DCC8]/60">
           <div className="bg-[#F5EFE6] px-2 md:px-4 py-1 md:py-3 flex items-center gap-1 md:gap-2 border-b border-[#E8DCC8]/60">
             <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
             <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
@@ -302,7 +302,7 @@ export default function LandingPage() {
         </motion.div>
       </motion.div>
 
-      {/* ── 4. SCATTER CONVERGENCE: "Sounds Like a Human" with central waveform ── */}
+      {/* 4. SCATTER CONVERGENCE: "Sounds Like a Human" */}
       <ScatterConverge
         className="py-8 md:py-12"
         centralElement={<VoiceWaveformHero />}
@@ -314,44 +314,44 @@ export default function LandingPage() {
         ]}
       />
 
-      {/* ── 5. STATS ── */}
-      <ScrollReveal className="py-10 md:py-14 px-4 border-t border-[#E8DCC8]/30 bg-[#F5EFE6]">
+      {/* 5. STATS */}
+      <ScrollReveal className="py-10 md:py-14 px-4 border-t border-[#E8DCC8]/30 bg-[#F0EBE3]">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 md:gap-12 text-center">
           <div>
-            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47]">&lt;500<span className="text-xl md:text-2xl">ms</span></div>
+            <div className="font-serif-display text-4xl md:text-6xl text-[#8B6F47]">&lt;500<span className="text-xl md:text-2xl">ms</span></div>
             <div className="text-sm text-[#8B7355] mt-1 font-medium">Response time</div>
           </div>
           <div>
-            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47]">99.9<span className="text-xl md:text-2xl">%</span></div>
+            <div className="font-serif-display text-4xl md:text-6xl text-[#8B6F47]">99.9<span className="text-xl md:text-2xl">%</span></div>
             <div className="text-sm text-[#8B7355] mt-1 font-medium">Uptime</div>
           </div>
           <div>
-            <div className="text-4xl md:text-6xl font-bold text-[#8B6F47]">24/7</div>
+            <div className="font-serif-display text-4xl md:text-6xl text-[#8B6F47]">24/7</div>
             <div className="text-sm text-[#8B7355] mt-1 font-medium">Availability</div>
           </div>
         </div>
       </ScrollReveal>
 
-      {/* ── 6. HOW IT WORKS ── */}
+      {/* 6. HOW IT WORKS */}
       <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30">
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-2">Three steps. Five minutes. Done.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-2">Three steps. Five minutes. Done.</h2>
             <p className="text-base md:text-lg text-[#8B7355] mb-10">Set up your AI phone agent in less time than it takes to brew coffee.</p>
           </ScrollReveal>
-          <div className="grid sm:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-3 gap-6">
             {[
               { icon: <DocumentIcon />, title: 'Upload your docs', desc: 'FAQs, menus, policies. Your agent learns it all.' },
               { icon: <CalendarIcon />, title: 'Connect your calendar', desc: 'Google Calendar, Outlook. Bookings happen automatically.' },
               { icon: <PhoneIcon />, title: 'Calls answered', desc: '24/7. On your dedicated number. Instantly.' },
             ].map((step, i) => (
               <ScrollReveal key={i}>
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-20 h-20 rounded-2xl bg-white/80 border border-[#E8DCC8]/50 flex items-center justify-center mb-4 shadow-md">
+                <div className="flex flex-col items-center text-center bg-white/70 rounded-[20px] border border-[#E8DCC8]/50 p-5 shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-[#FAF8F3] border border-[#E8DCC8]/50 flex items-center justify-center mb-3">
                     {step.icon}
                   </div>
-                  <div className="text-sm font-bold text-[#8B6F47]/40 mb-2">Step {i + 1}</div>
-                  <h3 className="text-lg font-semibold text-[#8B6F47] mb-2">{step.title}</h3>
+                  <div className="text-sm font-bold text-[#8B6F47]/40 mb-1">Step {i + 1}</div>
+                  <h3 className="font-serif-display text-lg text-[#8B6F47] mb-1">{step.title}</h3>
                   <p className="text-sm text-[#8B7355]">{step.desc}</p>
                 </div>
               </ScrollReveal>
@@ -360,11 +360,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 7. WAVEFORM COMPARISON ── */}
-      <section className="py-12 md:py-16 px-4 bg-[#F5EFE6] border-t border-[#E8DCC8]/30">
+      {/* 7. WAVEFORM COMPARISON */}
+      <section className="py-12 md:py-16 px-4 bg-[#F0EBE3] border-t border-[#E8DCC8]/30">
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-5xl font-bold text-[#8B6F47] mb-3">Your callers won&apos;t know the difference.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-3">Your callers won&apos;t know the difference.</h2>
             <p className="text-base md:text-lg text-[#8B7355] mb-8">Natural turn-taking, real-time comprehension, sub-500ms response.</p>
           </ScrollReveal>
           <ScrollReveal>
@@ -373,41 +373,41 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 8. DEMO CTA ── */}
-      <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30 relative overflow-hidden">
+      {/* 8. DEMO CTA - THE DARK SECTION */}
+      <section className="py-16 md:py-24 px-4 relative overflow-hidden" style={{ backgroundColor: '#2A1F14' }}>
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-5xl font-bold text-[#8B6F47] mb-3">Don&apos;t take our word for it.</h2>
-            <p className="text-lg text-[#8B7355] mb-8">Call our AI agent right now and hear the difference.</p>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-white mb-3">Don&apos;t take our word for it.</h2>
+            <p className="text-lg text-[#D4A96A] mb-10">Call our AI agent right now and hear the difference.</p>
           </ScrollReveal>
           <ScrollReveal>
-            <div className="relative inline-block mb-8">
-              <div className="w-52 h-80 sm:w-60 sm:h-96 rounded-[2.5rem] border-[6px] border-[#3a3a3a] bg-gradient-to-b from-[#2a2218] to-[#1a1610] flex flex-col items-center justify-center relative overflow-hidden shadow-2xl shadow-black/20">
-                <div className="absolute top-3 w-20 h-1.5 rounded-full bg-[#2a2a2a]" />
-                <div className="absolute inset-4 top-10 bottom-20 rounded-2xl bg-[#1a150f] flex items-center justify-center overflow-hidden">
+            <div className="relative inline-block mb-10">
+              <div className="w-52 h-80 sm:w-60 sm:h-96 rounded-[2.5rem] border-[6px] border-[#4a3f35] bg-gradient-to-b from-[#1a150f] to-[#0f0c08] flex flex-col items-center justify-center relative overflow-hidden shadow-2xl shadow-black/40">
+                <div className="absolute top-3 w-20 h-1.5 rounded-full bg-[#3a3530]" />
+                <div className="absolute inset-4 top-10 bottom-20 rounded-2xl bg-[#0f0c08] flex items-center justify-center overflow-hidden">
                   <svg viewBox="0 0 200 80" className="w-full h-full px-4" preserveAspectRatio="none">
-                    <path d="M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40" fill="none" stroke="rgba(139,111,71,0.5)" strokeWidth="2" className="animate-wave" />
+                    <path d="M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40" fill="none" stroke="rgba(212,169,106,0.5)" strokeWidth="2" className="animate-wave" />
                   </svg>
                 </div>
                 <div className="absolute top-14 text-center z-10">
-                  <div className="text-xs text-[#8B6F47]/80 font-medium">HelloML AI Agent</div>
+                  <div className="text-xs text-[#D4A96A]/80 font-medium">HelloML AI Agent</div>
                 </div>
                 <div className="absolute bottom-8 z-10">
                   <Link href="/demo">
-                    <Button className="bg-[#28C840] hover:bg-[#32d64e] text-white rounded-full w-12 h-12 shadow-lg shadow-[#28C840]/40 flex items-center justify-center">
+                    <Button className="bg-[#D4A96A] hover:bg-[#e0b97a] text-[#2A1F14] rounded-full w-12 h-12 shadow-lg shadow-[#D4A96A]/30 flex items-center justify-center font-bold">
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg>
                     </Button>
                   </Link>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="absolute w-36 h-36 rounded-full border-2 border-[#8B6F47]/15 animate-pulse-ring" />
-                  <div className="absolute w-52 h-52 rounded-full border border-[#8B6F47]/10 animate-pulse-ring-delayed" />
+                  <div className="absolute w-36 h-36 rounded-full border-2 border-[#D4A96A]/20 animate-pulse-ring" />
+                  <div className="absolute w-52 h-52 rounded-full border border-[#D4A96A]/10 animate-pulse-ring-delayed" />
                 </div>
               </div>
             </div>
             <div>
               <Link href="/demo">
-                <Button size="lg" className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 text-base font-medium shadow-lg group">
+                <Button size="lg" className="bg-[#D4A96A] hover:bg-[#e0b97a] text-[#2A1F14] rounded-full px-8 py-5 text-base font-semibold shadow-lg shadow-[#D4A96A]/20 group">
                   Call Our AI Live <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -416,25 +416,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 9. FEATURES ── */}
-      <section className="py-12 md:py-16 px-4 bg-[#F5EFE6] border-t border-[#E8DCC8]/30">
+      {/* 9. FEATURES */}
+      <section className="py-12 md:py-16 px-4 bg-[#FAF8F3] border-t border-[#E8DCC8]/30">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-2">Everything you need. Nothing you don&apos;t.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-2">Everything you need. Nothing you don&apos;t.</h2>
             <p className="text-base md:text-lg text-[#8B7355]">One agent. Fully loaded.</p>
           </ScrollReveal>
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: <CalendarIcon />, title: 'Books appointments', desc: 'Your agent checks availability and creates bookings directly on your calendar. No back-and-forth.' },
-              { icon: <DocumentIcon />, title: 'Answers from your docs', desc: 'Upload FAQs, policies, or menus. Your agent searches them in real time to answer caller questions.' },
-              { icon: <TranscriptIcon />, title: 'Full transcripts', desc: 'Get a full transcription and summary delivered to your dashboard the moment a call ends.' },
-              { icon: <PhoneIcon />, title: 'Always on, 24/7', desc: 'We provision a dedicated phone number for your business. Your agent picks up around the clock.' },
+              { icon: <CalendarIcon />, title: 'Books appointments', desc: 'Your agent checks availability and creates bookings directly on your calendar. No back-and-forth.', dark: false },
+              { icon: <DocumentIcon />, title: 'Answers from your docs', desc: 'Upload FAQs, policies, or menus. Your agent searches them in real time to answer caller questions.', dark: false },
+              { icon: <TranscriptIcon />, title: 'Full transcripts', desc: 'Get a full transcription and summary delivered to your dashboard the moment a call ends.', dark: false },
+              { icon: <PhoneIcon light />, title: 'Always on, 24/7', desc: 'We provision a dedicated phone number for your business. Your agent picks up around the clock.', dark: true },
             ].map((f, i) => (
               <ScrollReveal key={i}>
-                <div className="group p-6 md:p-8 rounded-2xl bg-white/50 border border-[#E8DCC8]/50 hover:border-[#8B6F47]/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#8B6F47]/10 transition-all duration-300">
-                  <div className="mb-4">{f.icon}</div>
-                  <h3 className="text-lg md:text-xl font-semibold text-[#8B6F47] mb-2">{f.title}</h3>
-                  <p className="text-[#8B7355] text-sm md:text-base">{f.desc}</p>
+                <div className={`group p-5 rounded-[20px] border hover:-translate-y-1 transition-all duration-300 ${
+                  f.dark
+                    ? 'bg-[#2A1F14] border-[#3a2f24] hover:shadow-xl hover:shadow-[#2A1F14]/20'
+                    : 'bg-white/70 border-[#E8DCC8]/50 hover:border-[#8B6F47]/30 hover:shadow-xl hover:shadow-[#8B6F47]/10'
+                }`}>
+                  <div className="mb-3">{f.dark ? <PhoneIcon light /> : f.icon}</div>
+                  <h3 className={`font-serif-display text-lg md:text-xl mb-1 ${f.dark ? 'text-white' : 'text-[#8B6F47]'}`}>{f.title}</h3>
+                  <p className={`text-sm md:text-base ${f.dark ? 'text-[#D4A96A]/80' : 'text-[#8B7355]'}`}>{f.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -442,39 +446,39 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 10. USE CASES ── */}
-      <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30">
+      {/* 10. USE CASES */}
+      <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30 bg-[#F0EBE3]">
         <div className="max-w-3xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-3">Built for people who can&apos;t miss a call.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-3">Built for people who can&apos;t miss a call.</h2>
             <p className="text-base md:text-lg text-[#8B7355] mb-8">Your agent works while you work.</p>
           </ScrollReveal>
           <UseCaseCarousel />
         </div>
       </section>
 
-      {/* ── 11. INTEGRATIONS ── */}
-      <section className="py-10 md:py-14 px-4 bg-[#F5EFE6] border-t border-[#E8DCC8]/30">
+      {/* 11. INTEGRATIONS */}
+      <section className="py-10 md:py-14 px-4 bg-[#F0EBE3] border-t border-[#E8DCC8]/30">
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-3">Works with the tools you <span style={{ fontFamily: 'Borel, cursive' }}>already</span> use.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-3">Works with the tools you <span style={{ fontFamily: 'Borel, cursive' }}>already</span> use.</h2>
             <p className="text-base md:text-lg text-[#8B7355] mb-8">Connects to your calendar, docs, and files automatically.</p>
           </ScrollReveal>
           <IntegrationMarquee />
         </div>
       </section>
 
-      {/* ── 12. PRICING ── */}
-      <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30">
+      {/* 12. PRICING */}
+      <section className="py-12 md:py-16 px-4 border-t border-[#E8DCC8]/30 bg-[#FAF8F3]">
         <div className="max-w-4xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#8B6F47] mb-3">One plan. $5/month. Done.</h2>
+            <h2 className="font-serif-display text-3xl md:text-5xl text-[#8B6F47] mb-3">One plan. $5/month. Done.</h2>
             <p className="text-lg text-[#8B7355] mb-8">Everything included. No surprises.</p>
           </ScrollReveal>
           <ScrollReveal>
-            <div className="max-w-sm mx-auto bg-white/50 backdrop-blur-xl border border-[#E8DCC8]/60 rounded-3xl p-8 shadow-lg shadow-[#8B6F47]/5 hover:shadow-2xl hover:shadow-[#8B6F47]/15 hover:border-[#8B6F47]/20 transition-all duration-500">
+            <div className="max-w-sm mx-auto bg-white/70 backdrop-blur-xl border border-[#E8DCC8]/60 rounded-[20px] p-6 shadow-lg shadow-[#8B6F47]/5 hover:shadow-2xl hover:shadow-[#8B6F47]/15 hover:border-[#8B6F47]/20 transition-all duration-500">
               <div className="flex items-baseline justify-center gap-1 mb-2">
-                <span className="text-5xl md:text-6xl font-bold text-[#8B6F47]">$5</span>
+                <span className="font-serif-display text-5xl md:text-6xl text-[#8B6F47]">$5</span>
                 <span className="text-lg text-[#8B7355]">/mo</span>
               </div>
               <p className="text-sm text-[#A67A5B] mb-6">per agent</p>
@@ -495,16 +499,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 13. FINAL CTA ── */}
+      {/* 13. FINAL CTA */}
       <ScatterConverge
-        className="py-12 md:py-16 bg-[#F5EFE6] border-t border-[#E8DCC8]/30"
+        className="py-12 md:py-16 bg-[#F0EBE3] border-t border-[#E8DCC8]/30"
         words={[
           { text: 'Your', startX: -100, startY: -30, startScale: 1.6, startRotate: -6 },
           { text: 'calls,', startX: 80, startY: 40, startScale: 1.5, startRotate: 4 },
         ]}
       />
-      <section className="pb-12 bg-[#F5EFE6] text-center">
-        <h2 className="text-5xl md:text-7xl font-bold text-[#8B6F47] mb-6">
+      <section className="pb-12 bg-[#F0EBE3] text-center">
+        <h2 className="font-serif-display text-5xl md:text-7xl text-[#8B6F47] mb-6">
           <span style={{ fontFamily: 'Borel, cursive' }}>answered</span>.
         </h2>
         <p className="text-[#8B7355] mb-6">No credit card required</p>
@@ -516,7 +520,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="py-10 px-6 border-t border-[#E8DCC8]/50">
+      <footer className="py-10 px-6 border-t border-[#E8DCC8]/50 bg-[#FAF8F3]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Logo size="small" lightMode />
           <div className="flex items-center gap-6 md:gap-8 text-sm text-[#8B7355]">
