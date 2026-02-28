@@ -20,22 +20,25 @@ function ScatterWord({
   startX,
   startY,
   startScale,
+  startRotate = 0,
   progress,
 }: {
   text: string;
   startX: number;
   startY: number;
   startScale: number;
+  startRotate?: number;
   progress: import('framer-motion').MotionValue<number>;
 }) {
   const x = useTransform(progress, [0, 1], [startX, 0]);
   const y = useTransform(progress, [0, 1], [startY, 0]);
   const scale = useTransform(progress, [0, 1], [startScale, 1]);
-  const opacity = useTransform(progress, [0, 0.2, 1], [0, 1, 1]);
+  const rotate = useTransform(progress, [0, 1], [startRotate, 0]);
+  const opacity = useTransform(progress, [0, 0.15, 1], [0, 1, 1]);
 
   return (
     <motion.span
-      style={{ x, y, scale, opacity }}
+      style={{ x, y, scale, rotate, opacity }}
       className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-[#8B6F47] tracking-tight inline-block"
     >
       {text}
@@ -46,9 +49,11 @@ function ScatterWord({
 function ScatterConverge({
   words,
   className = '',
+  centralElement,
 }: {
-  words: { text: string; startX: number; startY: number; startScale: number }[];
+  words: { text: string; startX: number; startY: number; startScale: number; startRotate?: number }[];
   className?: string;
+  centralElement?: React.ReactNode;
 }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -56,8 +61,20 @@ function ScatterConverge({
     offset: ['start end', '0.6 0.5'],
   });
 
+  // Central element fades out as words converge
+  const centralOpacity = useTransform(scrollYProgress, [0.1, 0.4, 0.8], [0.7, 0.4, 0.1]);
+  const centralScale = useTransform(scrollYProgress, [0, 0.8], [1.1, 0.9]);
+
   return (
     <div ref={ref} className={`relative min-h-[50vh] flex items-center justify-center overflow-hidden ${className}`}>
+      {centralElement && (
+        <motion.div
+          style={{ opacity: centralOpacity, scale: centralScale }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+        >
+          <div className="w-full max-w-md">{centralElement}</div>
+        </motion.div>
+      )}
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 relative z-10">
         {words.map((w, i) => (
           <ScatterWord key={i} text={w.text} startX={w.startX} startY={w.startY} startScale={w.startScale} progress={scrollYProgress} />
@@ -285,14 +302,15 @@ export default function LandingPage() {
         </motion.div>
       </motion.div>
 
-      {/* ── 4. SCATTER CONVERGENCE: "Sounds Like a Human" ── */}
+      {/* ── 4. SCATTER CONVERGENCE: "Sounds Like a Human" with central waveform ── */}
       <ScatterConverge
         className="py-8 md:py-12"
+        centralElement={<VoiceWaveformHero />}
         words={[
-          { text: 'Sounds', startX: -120, startY: -60, startScale: 1.8 },
-          { text: 'Like', startX: 150, startY: -40, startScale: 1.6 },
-          { text: 'a', startX: -80, startY: 50, startScale: 2.0 },
-          { text: 'Human.', startX: 100, startY: 70, startScale: 1.7 },
+          { text: 'Sounds', startX: -240, startY: -100, startScale: 1.8, startRotate: -8 },
+          { text: 'Like', startX: 200, startY: -80, startScale: 1.6, startRotate: 6 },
+          { text: 'a', startX: -160, startY: 90, startScale: 2.2, startRotate: 12 },
+          { text: 'Human.', startX: 180, startY: 120, startScale: 2.0, startRotate: -5 },
         ]}
       />
 
@@ -481,8 +499,8 @@ export default function LandingPage() {
       <ScatterConverge
         className="py-12 md:py-16 bg-[#F5EFE6] border-t border-[#E8DCC8]/30"
         words={[
-          { text: 'Your', startX: -100, startY: -30, startScale: 1.6 },
-          { text: 'calls,', startX: 80, startY: 40, startScale: 1.5 },
+          { text: 'Your', startX: -100, startY: -30, startScale: 1.6, startRotate: -6 },
+          { text: 'calls,', startX: 80, startY: 40, startScale: 1.5, startRotate: 4 },
         ]}
       />
       <section className="pb-12 bg-[#F5EFE6] text-center">
