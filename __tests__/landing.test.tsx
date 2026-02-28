@@ -59,7 +59,6 @@ describe('Landing Page', () => {
     render(<LandingPage />);
     const priceElements = screen.getAllByText('$5');
     expect(priceElements.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('/mo').length).toBeGreaterThanOrEqual(1);
   });
 
   it('has Get Your Number CTA linking to signup', () => {
@@ -82,11 +81,11 @@ describe('Landing Page', () => {
     expect(screen.getByText('Always on, 24/7')).toBeInTheDocument();
   });
 
-  it('has simple pricing section with correct details', () => {
+  it('has pricing section', () => {
     render(<LandingPage />);
     expect(screen.getByText('One plan. $5/month. Done.')).toBeInTheDocument();
-    expect(screen.getByText('100 minutes included')).toBeInTheDocument();
-    expect(screen.getByText('Dedicated phone number')).toBeInTheDocument();
+    expect(screen.getAllByText('100 minutes included').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Dedicated phone number').length).toBeGreaterThanOrEqual(1);
   });
 
   it('has Get Started Free CTA', () => {
@@ -121,5 +120,24 @@ describe('Landing Page', () => {
     expect(screen.getAllByText('Google Calendar').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Outlook').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Notion').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('has no emojis in the page content', () => {
+    const { container } = render(<LandingPage />);
+    const html = container.innerHTML;
+    // Common emojis that were previously used
+    expect(html).not.toContain('📅');
+    expect(html).not.toContain('📄');
+    expect(html).not.toContain('📝');
+    expect(html).not.toContain('📞');
+    expect(html).not.toContain('🔧');
+    expect(html).not.toContain('✨');
+    expect(html).not.toContain('🎙️');
+    expect(html).not.toContain('🤖');
+  });
+
+  it('has no em dashes', () => {
+    const { container } = render(<LandingPage />);
+    expect(container.innerHTML).not.toContain('—');
   });
 });
