@@ -20,23 +20,84 @@ const staggerItem = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-/* ─── Scroll-Scale Convergence Section ─── */
-function ScrollScaleHeader({ leftText, rightText, className = '' }: { leftText: string; rightText: string; className?: string }) {
+/* ─── Scattered Word Convergence — words fly in from different positions toward center ─── */
+function ScatteredConvergence() {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-  const scale = useTransform(scrollYProgress, [0, 1], [2.5, 1]);
-  const leftX = useTransform(scrollYProgress, [0, 1], [-200, 0]);
-  const rightX = useTransform(scrollYProgress, [0, 1], [200, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 1], [0, 1, 1]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+
+  // Each word starts at a scattered position and converges to its final inline spot
+  // "Sounds" — top-left
+  const soundsX = useTransform(scrollYProgress, [0.05, 0.45], [-280, 0]);
+  const soundsY = useTransform(scrollYProgress, [0.05, 0.45], [-120, 0]);
+  const soundsScale = useTransform(scrollYProgress, [0.05, 0.45], [1.8, 1]);
+  const soundsRotate = useTransform(scrollYProgress, [0.05, 0.45], [-8, 0]);
+  const soundsOpacity = useTransform(scrollYProgress, [0.05, 0.15, 0.45], [0, 1, 1]);
+
+  // "like" — top-right
+  const likeX = useTransform(scrollYProgress, [0.08, 0.48], [260, 0]);
+  const likeY = useTransform(scrollYProgress, [0.08, 0.48], [-100, 0]);
+  const likeScale = useTransform(scrollYProgress, [0.08, 0.48], [1.6, 1]);
+  const likeRotate = useTransform(scrollYProgress, [0.08, 0.48], [6, 0]);
+  const likeOpacity = useTransform(scrollYProgress, [0.08, 0.18, 0.48], [0, 1, 1]);
+
+  // "a" — bottom-left
+  const aX = useTransform(scrollYProgress, [0.1, 0.5], [-200, 0]);
+  const aY = useTransform(scrollYProgress, [0.1, 0.5], [90, 0]);
+  const aScale = useTransform(scrollYProgress, [0.1, 0.5], [1.5, 1]);
+  const aRotate = useTransform(scrollYProgress, [0.1, 0.5], [10, 0]);
+  const aOpacity = useTransform(scrollYProgress, [0.1, 0.2, 0.5], [0, 1, 1]);
+
+  // "Human." — bottom-center, biggest
+  const humanX = useTransform(scrollYProgress, [0.12, 0.52], [180, 0]);
+  const humanY = useTransform(scrollYProgress, [0.12, 0.52], [140, 0]);
+  const humanScale = useTransform(scrollYProgress, [0.12, 0.52], [2.2, 1]);
+  const humanRotate = useTransform(scrollYProgress, [0.12, 0.52], [-5, 0]);
+  const humanOpacity = useTransform(scrollYProgress, [0.12, 0.22, 0.52], [0, 1, 1]);
+
+  // Waveform fades as text converges
+  const waveformOpacity = useTransform(scrollYProgress, [0.1, 0.35, 0.52], [0.8, 0.5, 0.15]);
+  const waveformScale = useTransform(scrollYProgress, [0.1, 0.52], [1.1, 0.95]);
 
   return (
-    <div ref={ref} className={`h-[40vh] flex items-center justify-center overflow-hidden ${className}`}>
-      <motion.span style={{ scale, x: leftX, opacity }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B6F47] inline-block">
-        {leftText}
-      </motion.span>
-      <motion.span style={{ scale, x: rightX, opacity }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#8B6F47] inline-block ml-3">
-        {rightText}
-      </motion.span>
+    <div ref={ref} className="relative h-[80vh] md:h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* Central waveform — fades beneath converging text */}
+      <motion.div
+        style={{ opacity: waveformOpacity, scale: waveformScale }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div className="w-full max-w-md">
+          <VoiceWaveformHero />
+        </div>
+      </motion.div>
+
+      {/* Scattered words */}
+      <div className="relative z-10 flex flex-wrap items-baseline justify-center gap-x-3 md:gap-x-5">
+        <motion.span
+          style={{ x: soundsX, y: soundsY, scale: soundsScale, rotate: soundsRotate, opacity: soundsOpacity }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#8B6F47] inline-block"
+        >
+          Sounds
+        </motion.span>
+        <motion.span
+          style={{ x: likeX, y: likeY, scale: likeScale, rotate: likeRotate, opacity: likeOpacity }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#8B7355] inline-block"
+        >
+          like
+        </motion.span>
+        <motion.span
+          style={{ x: aX, y: aY, scale: aScale, rotate: aRotate, opacity: aOpacity }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#8B7355] inline-block"
+        >
+          a
+        </motion.span>
+        <motion.span
+          style={{ x: humanX, y: humanY, scale: humanScale, rotate: humanRotate, opacity: humanOpacity }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#8B6F47] inline-block"
+          data-testid="scattered-human"
+        >
+          Human.
+        </motion.span>
+      </div>
     </div>
   );
 }
@@ -355,11 +416,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ───────── 6. SOUNDS LIKE A HUMAN ───────── */}
-      <section className="py-12 md:py-16 px-4 md:px-6 border-t border-[#E8DCC8]/30 relative overflow-hidden">
+      {/* ───────── 6. SCATTERED CONVERGENCE — "Sounds like a Human." ───────── */}
+      <section className="border-t border-[#E8DCC8]/30 relative overflow-hidden bg-[#F5EFE6]">
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-radial from-[#8B6F47]/5 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/4 right-0 w-[300px] h-[300px] bg-gradient-radial from-[#A67A5B]/8 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="max-w-5xl mx-auto relative z-10 px-4 md:px-6">
+          <ScatteredConvergence />
+        </div>
+      </section>
+
+      {/* ───────── 6b. WAVEFORM COMPARISON ───────── */}
+      <section className="py-12 md:py-16 px-4 md:px-6 border-t border-[#E8DCC8]/30 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
-          <ScrollScaleHeader leftText="Your callers" rightText="won't know the difference." />
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4 text-center">Your callers won&apos;t know the difference.</h2>
           <p className="text-base md:text-lg text-[#8B7355] mb-10 text-center">Built on the latest voice AI models with natural turn-taking, real-time comprehension, and sub-500ms response times.</p>
           <WaveformComparison />
         </div>
