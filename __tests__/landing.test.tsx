@@ -38,6 +38,14 @@ jest.mock('@/components/Logo', () => ({
   Logo: () => <div data-testid="logo">Logo</div>,
 }));
 
+jest.mock('@/components/landing/VoiceWaveformHero', () => ({
+  VoiceWaveformHero: () => <div data-testid="waveform">Waveform</div>,
+}));
+
+jest.mock('@/components/landing/WaveformComparison', () => ({
+  WaveformComparison: () => <div data-testid="waveform-comparison">Comparison</div>,
+}));
+
 import LandingPage from '@/app/page';
 
 describe('Landing Page', () => {
@@ -109,8 +117,8 @@ describe('Landing Page', () => {
 
   it('shows integration logos', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Google Calendar')).toBeInTheDocument();
-    expect(screen.getByText('Outlook')).toBeInTheDocument();
-    expect(screen.getByText('Notion')).toBeInTheDocument();
+    expect(screen.getAllByText('Google Calendar').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Outlook').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Notion').length).toBeGreaterThanOrEqual(1);
   });
 });
