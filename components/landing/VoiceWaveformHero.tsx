@@ -5,8 +5,6 @@ import anime from 'animejs';
 
 export function VoiceWaveformHero() {
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<ReturnType<typeof anime> | null>(null);
-
   useEffect(() => {
     if (!svgRef.current) return;
 
