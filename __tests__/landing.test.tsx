@@ -17,12 +17,8 @@ jest.mock('next/image', () => {
 
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
-    span: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
   },
-  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
-  useTransform: () => 0,
-  useInView: () => true,
 }));
 
 jest.mock('@/components/Logo', () => ({
@@ -43,9 +39,9 @@ describe('Landing Page', () => {
     expect(screen.getByText(/AI that/)).toBeInTheDocument();
   });
 
-  it('displays pricing', () => {
+  it('displays $5/mo pricing', () => {
     render(<LandingPage />);
-    expect(screen.getAllByText(/\$5\/month/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$5\/mo/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('has Get Your Number CTA linking to signup', () => {
@@ -68,10 +64,9 @@ describe('Landing Page', () => {
     expect(screen.getByText('Always on, 24/7')).toBeInTheDocument();
   });
 
-  it('has pricing info', () => {
+  it('has pricing info in hero', () => {
     render(<LandingPage />);
-    expect(screen.getAllByText(/\$5\/month/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
+    expect(screen.getByText(/\$5\/month/)).toBeInTheDocument();
   });
 
   it('has Get Started Free CTA', () => {
@@ -101,17 +96,15 @@ describe('Landing Page', () => {
     expect(screen.getByText(/Built by engineers from/)).toBeInTheDocument();
   });
 
-  it('shows integration logos', () => {
+  it('shows integration logos in dark section', () => {
     render(<LandingPage />);
     expect(screen.getAllByText('Google Calendar').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Outlook').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Notion').length).toBeGreaterThanOrEqual(1);
   });
 
   it('has no emojis in the page content', () => {
     const { container } = render(<LandingPage />);
     const html = container.innerHTML;
-    // Common emojis that were previously used
     expect(html).not.toContain('📅');
     expect(html).not.toContain('📄');
     expect(html).not.toContain('📝');
@@ -135,5 +128,17 @@ describe('Landing Page', () => {
   it('has no em dashes', () => {
     const { container } = render(<LandingPage />);
     expect(container.innerHTML).not.toContain('—');
+  });
+
+  it('uses Borel cursive typography in hero', () => {
+    const { container } = render(<LandingPage />);
+    const serifElements = container.querySelectorAll('[style*="Borel"]');
+    expect(serifElements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('has a dark integrations section', () => {
+    const { container } = render(<LandingPage />);
+    const darkSection = container.querySelector('.bg-\\[\\#111111\\]');
+    expect(darkSection).toBeInTheDocument();
   });
 });

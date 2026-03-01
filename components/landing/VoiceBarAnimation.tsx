@@ -1,139 +1,47 @@
 'use client';
 
-import React from 'react';
+/**
+ * Voice waveform visualizer using smooth animated SVG circles.
+ * Inspired by voice assistant UIs — organic pulsing dots, not a barcode.
+ * Pure CSS animations, GPU-composited via transform: scale().
+ */
 
-const ANIM_NAMES = ['voice-bar-1', 'voice-bar-2', 'voice-bar-3', 'voice-bar-4'] as const;
+function VoiceDots({ count, maxSize, gap, className = '' }: { count: number; maxSize: number; gap: number; className?: string }) {
+  const dots = Array.from({ length: count }, (_, i) => {
+    // Create a natural voice-like pattern: louder in the middle, quieter at edges
+    const center = (count - 1) / 2;
+    const dist = Math.abs(i - center) / center;
+    const baseScale = 0.3 + (1 - dist) * 0.7; // 0.3 at edges, 1.0 at center
+    const animIndex = (i % 4) + 1;
+    const delay = (i * 0.12) % 1.5;
+    const duration = 1.2 + (i % 3) * 0.4;
 
-const BAR_CONFIGS: { anim: string; delay: string; opacity: number }[] = [
-  { anim: 'voice-bar-1', delay: '0s', opacity: 0.5 },
-  { anim: 'voice-bar-2', delay: '0.1s', opacity: 0.7 },
-  { anim: 'voice-bar-3', delay: '0.2s', opacity: 0.4 },
-  { anim: 'voice-bar-1', delay: '0.15s', opacity: 0.8 },
-  { anim: 'voice-bar-4', delay: '0.05s', opacity: 0.6 },
-  { anim: 'voice-bar-2', delay: '0.25s', opacity: 0.3 },
-  { anim: 'voice-bar-3', delay: '0.3s', opacity: 0.7 },
-  { anim: 'voice-bar-1', delay: '0.35s', opacity: 0.5 },
-  { anim: 'voice-bar-4', delay: '0.12s', opacity: 0.8 },
-  { anim: 'voice-bar-2', delay: '0.4s', opacity: 0.4 },
-  { anim: 'voice-bar-3', delay: '0.08s', opacity: 0.6 },
-  { anim: 'voice-bar-1', delay: '0.22s', opacity: 0.7 },
-  { anim: 'voice-bar-4', delay: '0.18s', opacity: 0.3 },
-  { anim: 'voice-bar-2', delay: '0.33s', opacity: 0.5 },
-  { anim: 'voice-bar-3', delay: '0.45s', opacity: 0.8 },
-  { anim: 'voice-bar-1', delay: '0.28s', opacity: 0.6 },
-  { anim: 'voice-bar-4', delay: '0.38s', opacity: 0.4 },
-  { anim: 'voice-bar-2', delay: '0.5s', opacity: 0.7 },
-  { anim: 'voice-bar-3', delay: '0.14s', opacity: 0.5 },
-  { anim: 'voice-bar-1', delay: '0.42s', opacity: 0.3 },
-  { anim: 'voice-bar-4', delay: '0.26s', opacity: 0.8 },
-  { anim: 'voice-bar-2', delay: '0.36s', opacity: 0.6 },
-  { anim: 'voice-bar-3', delay: '0.48s', opacity: 0.4 },
-  { anim: 'voice-bar-1', delay: '0.06s', opacity: 0.7 },
-  { anim: 'voice-bar-4', delay: '0.32s', opacity: 0.5 },
-];
-
-const containerStyle: React.CSSProperties = {
-  contain: 'layout style paint',
-};
-
-function BarGroup({
-  bars,
-  height,
-  maxWidth,
-  barWidth,
-  gap,
-  label,
-}: {
-  bars: typeof BAR_CONFIGS;
-  height: number;
-  maxWidth: number;
-  barWidth: number;
-  gap: number;
-  label: string;
-}) {
-  return (
-    <div
-      data-testid={label}
-      style={{
-        ...containerStyle,
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        height,
-        maxWidth,
-        width: '100%',
-        margin: '0 auto',
-      }}
-    >
+    return (
       <div
+        key={i}
+        className="rounded-full bg-[#8B6F47]"
         style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap,
-          height: '100%',
+          width: `${maxSize}px`,
+          height: `${maxSize}px`,
+          opacity: 0.3 + baseScale * 0.5,
+          animation: `voice-dot-${animIndex} ${duration}s ease-in-out ${delay}s infinite`,
+          willChange: 'transform',
         }}
-      >
-        {bars.map((bar, i) => (
-          <div
-            key={i}
-            style={{
-              width: barWidth,
-              height: '100%',
-              borderRadius: barWidth,
-              backgroundColor: `rgba(139,111,71,${bar.opacity})`,
-              transformOrigin: 'bottom',
-              willChange: 'transform',
-              animation: `${bar.anim} ease-in-out infinite`,
-              animationDelay: bar.delay,
-            }}
-          />
-        ))}
-      </div>
+      />
+    );
+  });
+
+  return (
+    <div className={`flex items-center justify-center ${className}`} style={{ gap: `${gap}px`, contain: 'layout style paint' }}>
+      {dots}
     </div>
   );
 }
 
 export function VoiceBarAnimation() {
-  return (
-    <BarGroup
-      bars={BAR_CONFIGS}
-      height={90}
-      maxWidth={400}
-      barWidth={2.5}
-      gap={5}
-      label="voice-bar-animation"
-    />
-  );
+  return <VoiceDots count={15} maxSize={6} gap={4} className="max-w-[300px] mx-auto py-2" />;
 }
 
-const LARGE_BARS = BAR_CONFIGS.concat([
-  { anim: 'voice-bar-2', delay: '0.02s', opacity: 0.6 },
-  { anim: 'voice-bar-3', delay: '0.19s', opacity: 0.4 },
-  { anim: 'voice-bar-1', delay: '0.44s', opacity: 0.7 },
-  { anim: 'voice-bar-4', delay: '0.09s', opacity: 0.5 },
-  { anim: 'voice-bar-2', delay: '0.29s', opacity: 0.8 },
-  { anim: 'voice-bar-3', delay: '0.41s', opacity: 0.3 },
-  { anim: 'voice-bar-1', delay: '0.16s', opacity: 0.6 },
-  { anim: 'voice-bar-4', delay: '0.37s', opacity: 0.7 },
-  { anim: 'voice-bar-2', delay: '0.23s', opacity: 0.5 },
-  { anim: 'voice-bar-3', delay: '0.11s', opacity: 0.4 },
-  { anim: 'voice-bar-1', delay: '0.46s', opacity: 0.8 },
-  { anim: 'voice-bar-4', delay: '0.21s', opacity: 0.6 },
-  { anim: 'voice-bar-2', delay: '0.34s', opacity: 0.3 },
-  { anim: 'voice-bar-3', delay: '0.07s', opacity: 0.7 },
-  { anim: 'voice-bar-1', delay: '0.39s', opacity: 0.5 },
-]);
-
 export function VoiceBarAnimationLarge() {
-  return (
-    <BarGroup
-      bars={LARGE_BARS}
-      height={120}
-      maxWidth={600}
-      barWidth={3}
-      gap={4}
-      label="voice-bar-animation-large"
-    />
-  );
+  return <VoiceDots count={25} maxSize={8} gap={5} className="max-w-[500px] mx-auto py-4" />;
 }

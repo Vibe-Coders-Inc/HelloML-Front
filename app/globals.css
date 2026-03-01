@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Borel&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -38,11 +40,18 @@ body {
   min-height: 100%;
 }
 
+.font-borel {
+  font-family: 'Borel', cursive !important;
+}
+
+.font-serif-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
 /* ═══════════════════════════════════════════
    CSS SCROLL-DRIVEN REVEAL
    Uses animation-timeline: view() for buttery
    60fps scroll reveals on compositor thread.
-   Falls back to simple opacity for older browsers.
    ═══════════════════════════════════════════ */
 @keyframes scroll-reveal-in {
   from {
@@ -63,7 +72,6 @@ body {
   will-change: transform, opacity;
 }
 
-/* Fallback for browsers without scroll-driven animations */
 @supports not (animation-timeline: view()) {
   .scroll-reveal {
     animation: scroll-reveal-in 0.4s ease-out both;
@@ -72,7 +80,7 @@ body {
   }
 }
 
-/* Dashboard parallax via scroll-driven animation */
+/* Dashboard parallax */
 @keyframes dashboard-drift {
   from { transform: translateY(40px); }
   to { transform: translateY(-40px); }
@@ -92,46 +100,8 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   KEYFRAME ANIMATIONS
-   All use transform/opacity only (compositor).
+   KEYFRAME ANIMATIONS (compositor only)
    ═══════════════════════════════════════════ */
-@keyframes phone-ring {
-  0%, 100% { transform: rotate(0deg); }
-  10%, 30% { transform: rotate(-15deg); }
-  20%, 40% { transform: rotate(15deg); }
-  50% { transform: rotate(0deg); }
-}
-
-@keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes uploadProgress {
-  0%, 100% { opacity: 0.7; transform: scaleX(0.85); }
-  50% { opacity: 1; transform: scaleX(1); }
-}
-
-@keyframes bubble {
-  0%, 100% {
-    transform: translateY(6px) scale(0.8);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-2px) scale(1);
-    opacity: 0.8;
-  }
-}
-
-.animate-upload-progress {
-  animation: uploadProgress 2s ease-in-out infinite;
-  transform-origin: left;
-}
-
-.animate-bubble {
-  animation: bubble 1s ease-in-out infinite;
-}
-
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -140,6 +110,23 @@ body {
 .animate-marquee {
   animation: marquee 25s linear infinite;
   will-change: transform;
+}
+
+/* Floating icons for dark section */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 0.25;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .perspective-mobile {
@@ -153,30 +140,57 @@ body {
 }
 
 /* Voice bar animations - pure CSS, GPU-composited */
-@keyframes voice-bar-1 {
-  0%, 100% { transform: scaleY(0.15); }
-  25% { transform: scaleY(0.8); }
-  50% { transform: scaleY(0.35); }
-  75% { transform: scaleY(0.65); }
+
+
+
+
+@keyframes voice-dot-1 {
+  0%, 100% { transform: scale(0.4); }
+  50% { transform: scale(1.0); }
 }
 
-@keyframes voice-bar-2 {
-  0%, 100% { transform: scaleY(0.25); }
-  30% { transform: scaleY(0.7); }
-  60% { transform: scaleY(0.2); }
-  80% { transform: scaleY(0.55); }
+@keyframes voice-dot-2 {
+  0%, 100% { transform: scale(0.5); }
+  40% { transform: scale(0.9); }
+  70% { transform: scale(0.3); }
 }
 
-@keyframes voice-bar-3 {
-  0%, 100% { transform: scaleY(0.2); }
-  20% { transform: scaleY(0.6); }
-  45% { transform: scaleY(0.9); }
-  70% { transform: scaleY(0.3); }
+@keyframes voice-dot-3 {
+  0%, 100% { transform: scale(0.3); }
+  30% { transform: scale(1.1); }
+  60% { transform: scale(0.5); }
 }
 
-@keyframes voice-bar-4 {
-  0%, 100% { transform: scaleY(0.3); }
-  35% { transform: scaleY(0.85); }
-  55% { transform: scaleY(0.25); }
-  85% { transform: scaleY(0.5); }
+@keyframes voice-dot-4 {
+  0%, 100% { transform: scale(0.6); }
+  45% { transform: scale(0.3); }
+  75% { transform: scale(1.0); }
+}
+
+/* Scroll-reveal: CSS-only scroll-driven animation */
+.scroll-reveal {
+  opacity: 0.15;
+  transform: translateY(30px);
+  animation: scroll-reveal-in linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+
+@keyframes scroll-reveal-in {
+  from {
+    opacity: 0.15;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fallback for browsers without scroll-driven animations */
+@supports not (animation-timeline: view()) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
