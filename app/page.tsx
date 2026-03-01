@@ -19,6 +19,8 @@ import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/
 import { AnimatedWaveform } from '@/components/landing/AnimatedWaveform';
 import { ScrollLinkedText } from '@/components/landing/ScrollLinkedText';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
+import { MissedCallAnimation } from '@/components/landing/MissedCallAnimation';
+import { StepsTimeline } from '@/components/landing/StepsTimeline';
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from 'react';
 
 /* ═══════════════════════════════════════════
@@ -411,53 +413,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 4. PAIN POINT (words converge) + HOW IT WORKS (steps rise) ── */}
-      <section className="py-20 md:py-28 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Pain point — each word slides in from alternating sides */}
-          <div ref={painRef} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-[#8B6F47] mb-4 leading-tight flex flex-wrap items-baseline justify-center gap-x-[0.3em]">
-              <motion.span style={{ x: painEveryX, opacity: painOpacity }} className="will-change-transform">Every</motion.span>
-              <motion.span style={{ x: painMissedX, opacity: painOpacity }} className="will-change-transform">missed</motion.span>
-              <motion.span style={{ x: painCallX, opacity: painOpacity }} className="will-change-transform">call</motion.span>
-              <motion.span style={{ opacity: painOpacity }} className="will-change-transform">is a</motion.span>
-              <motion.span style={{ scale: painLostScale, opacity: painOpacity, fontFamily: 'Borel, cursive' }} className="will-change-transform origin-center">lost</motion.span>
-              <motion.span style={{ x: painCustomerX, opacity: painOpacity }} className="will-change-transform">customer.</motion.span>
-            </h2>
-            <motion.p style={{ opacity: painSubOpacity, y: painSubY }} className="text-base md:text-lg text-[#8B7355] max-w-lg mx-auto will-change-transform">
-              You are on a job site. Your phone rings. You can not answer.
-              The customer calls the next business on Google.
-            </motion.p>
+      {/* ── 4. PAIN POINT (visual animation) + HOW IT WORKS (timeline) ── */}
+      <section className="py-16 md:py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Pain point — animated phone visualization */}
+          <div ref={painRef} className="mb-20">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              {/* Left: animation */}
+              <MissedCallAnimation />
+              {/* Right: minimal text */}
+              <div>
+                <motion.h2
+                  style={{ opacity: painOpacity, x: painMissedX }}
+                  className="text-3xl md:text-5xl font-bold text-[#8B6F47] mb-4 leading-tight will-change-transform"
+                >
+                  Every missed call
+                  <br />
+                  is a <span style={{ fontFamily: 'Borel, cursive' }}>lost</span> customer.
+                </motion.h2>
+                <motion.p style={{ opacity: painSubOpacity, y: painSubY }} className="text-base text-[#8B7355] will-change-transform">
+                  Your phone rings while you are on a job.
+                  <br />They call the next business on Google.
+                </motion.p>
+              </div>
+            </div>
           </div>
 
-          {/* Steps — rise from bottom sequentially tied to scroll */}
-          <div ref={stepsRef}>
-            <motion.div style={{ opacity: step1Op }} className="text-center mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold text-[#8B6F47] mb-2">
+          {/* Steps — animated timeline with drawing line */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="text-center md:text-left">
+              <motion.h3
+                style={{ opacity: step1Op }}
+                className="text-2xl md:text-4xl font-bold text-[#8B6F47] mb-2"
+              >
                 Set up in <span style={{ fontFamily: 'Borel, cursive' }}>two</span> minutes.
-              </h3>
-              <p className="text-sm text-[#8B7355]">Seriously. Three steps.</p>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-3 gap-6 md:gap-8">
-              {[
-                { icon: <DocumentIcon />, title: 'Tell us about your business', desc: 'Answer a few questions. Your hours, services, and how to book.', y: step1Y, op: step1Op },
-                { icon: <CalendarIcon />, title: 'Connect your calendar', desc: 'Google Calendar or Outlook. Bookings happen automatically.', y: step2Y, op: step2Op },
-                { icon: <PhoneIcon />, title: 'Start answering calls', desc: 'Get a local number. Your AI agent picks up 24/7.', y: step3Y, op: step3Op },
-              ].map((step, i) => (
-                <motion.div
-                  key={i}
-                  style={{ y: step.y, opacity: step.op }}
-                  className="flex flex-col items-center text-center will-change-transform"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-white border border-[#E8DCC8]/40 flex items-center justify-center mb-3 shadow-sm text-[#8B6F47]">
-                    {step.icon}
-                  </div>
-                  <div className="text-[10px] font-bold text-[#A67A5B]/30 mb-1.5 uppercase tracking-widest">{i + 1}</div>
-                  <h4 className="text-base font-semibold text-[#8B6F47] mb-1">{step.title}</h4>
-                  <p className="text-sm text-[#8B7355] max-w-[240px]">{step.desc}</p>
-                </motion.div>
-              ))}
+              </motion.h3>
+              <motion.p style={{ opacity: step1Op }} className="text-sm text-[#8B7355]">No technical skills needed.</motion.p>
+            </div>
+            <div ref={stepsRef}>
+              <StepsTimeline />
             </div>
           </div>
         </div>

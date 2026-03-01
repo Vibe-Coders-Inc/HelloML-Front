@@ -22,6 +22,7 @@ jest.mock('framer-motion', () => ({
     p: ({ children, style, ...props }: any) => <p {...props}>{children}</p>,
     h1: ({ children, style, ...props }: any) => <h1 {...props}>{children}</h1>,
     h2: ({ children, style, ...props }: any) => <h2 {...props}>{children}</h2>,
+    h3: ({ children, style, ...props }: any) => <h3 {...props}>{children}</h3>,
     section: ({ children, style, ...props }: any) => <section {...props}>{children}</section>,
     svg: ({ children, style, ...props }: any) => <svg {...props}>{children}</svg>,
   },
@@ -52,6 +53,14 @@ jest.mock('@/components/landing/ScrollLinkedText', () => ({
 
 jest.mock('@/components/landing/NoiseOverlay', () => ({
   NoiseOverlay: () => <div data-testid="noise-overlay" />,
+}));
+
+jest.mock('@/components/landing/MissedCallAnimation', () => ({
+  MissedCallAnimation: () => <div data-testid="missed-call-animation" />,
+}));
+
+jest.mock('@/components/landing/StepsTimeline', () => ({
+  StepsTimeline: () => <div data-testid="steps-timeline" />,
 }));
 
 import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/VoiceBarAnimation';
@@ -147,8 +156,7 @@ describe('Landing Page', () => {
 
   it('has pain point section', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Every')).toBeInTheDocument();
-    expect(screen.getByText('customer.')).toBeInTheDocument();
+    expect(screen.getByText(/Every missed call/)).toBeInTheDocument();
   });
 
   it('has dark integrations section', () => {
