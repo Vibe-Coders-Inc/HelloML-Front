@@ -184,4 +184,7 @@ body {
   }
 }
 
-/* Voice waveform now uses canvas animation — no CSS keyframes needed */
+@keyframes voiceBar {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
