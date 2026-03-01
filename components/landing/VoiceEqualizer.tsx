@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Flowing text ribbon with voice icon — wisprflow hero style.
- * Text from a phone conversation flows along a curved SVG path,
- * with a voice bars icon centered. The text scrolls continuously.
+ * Dark band with conversation text flowing along a curved path,
+ * voice bars icon centered where the ribbon dips.
  */
 
-const TRANSCRIPT = "Hi, I'd like to schedule an appointment for Thursday afternoon if possible. Let me check the calendar for you. It looks like we have a 2:30 opening. Would that work? That's perfect, thank you so much. Great, you're all set. We'll send a confirmation to your email. ";
+const TRANSCRIPT = "Hi, I'd like to schedule an appointment for Thursday afternoon if possible. Let me check the calendar for you. It looks like we have a 2:30 opening. Would that work? That's perfect, thank you so much. Great, you're all set. We'll send a confirmation to your email. Is there anything else I can help you with today? No that's everything. Have a wonderful day. ";
 
 export function VoiceEqualizer({ className = '' }: { className?: string }) {
   const offsetRef = useRef(0);
@@ -17,11 +17,12 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
 
   useEffect(() => {
     let running = true;
-    const doubled = TRANSCRIPT + TRANSCRIPT; // seamless loop
 
     function animate() {
       if (!running) return;
-      offsetRef.current -= 0.5; // scroll speed
+      offsetRef.current -= 0.6;
+      // Reset to prevent number overflow
+      if (offsetRef.current < -5000) offsetRef.current += 2500;
       if (textRef.current) {
         const tp = textRef.current.querySelector('textPath');
         if (tp) tp.setAttribute('startOffset', `${offsetRef.current}px`);
@@ -30,69 +31,59 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
     }
     animRef.current = requestAnimationFrame(animate);
 
-    // We store the doubled text for the render
-    if (textRef.current) {
-      const tp = textRef.current.querySelector('textPath');
-      if (tp) tp.textContent = doubled;
-    }
-
     return () => { running = false; cancelAnimationFrame(animRef.current); };
   }, []);
 
+  const tripled = TRANSCRIPT + TRANSCRIPT + TRANSCRIPT;
+
   return (
-    <div className={`relative w-full overflow-hidden ${className}`} style={{ height: 220 }} aria-hidden="true">
+    <div className={`relative w-full overflow-hidden ${className}`} style={{ height: 180 }} aria-hidden="true">
       <svg
-        viewBox="0 0 1200 220"
-        preserveAspectRatio="none"
+        viewBox="0 0 1200 180"
+        preserveAspectRatio="xMidYMid meet"
         className="w-full h-full"
-        style={{ minWidth: '100%' }}
       >
         <defs>
-          {/* S-curve path flowing from left to right with a dip through center */}
+          {/* Flowing S-curve: enters bottom-left, sweeps up-right, dips at center, exits top-right */}
           <path
             id="textRibbon"
-            d="M -200,40 C 100,40 200,180 400,180 C 550,180 550,110 600,110 C 650,110 650,180 800,180 C 1000,180 1100,40 1400,40"
-            fill="none"
-          />
-          {/* Thicker band path for the dark ribbon */}
-          <path
-            id="ribbonBand"
-            d="M -200,40 C 100,40 200,180 400,180 C 550,180 550,110 600,110 C 650,110 650,180 800,180 C 1000,180 1100,40 1400,40"
+            d="M -300,160 C 0,160 150,30 350,30 C 480,30 520,90 600,90 C 680,90 720,30 850,30 C 1050,30 1200,160 1500,160"
             fill="none"
           />
         </defs>
 
         {/* The dark ribbon band */}
-        <use
-          href="#ribbonBand"
+        <path
+          d="M -300,160 C 0,160 150,30 350,30 C 480,30 520,90 600,90 C 680,90 720,30 850,30 C 1050,30 1200,160 1500,160"
           stroke="#3D3425"
-          strokeWidth="42"
+          strokeWidth="44"
           strokeLinecap="round"
           fill="none"
-          opacity="0.9"
+          opacity="0.92"
         />
 
         {/* Scrolling text along the path */}
         <text
           ref={textRef}
           fill="#FAF8F3"
-          fontSize="15"
+          fontSize="14"
           fontFamily="system-ui, -apple-system, sans-serif"
-          letterSpacing="0.02em"
+          letterSpacing="0.03em"
+          fontWeight="400"
         >
           <textPath href="#textRibbon" startOffset="0">
-            {TRANSCRIPT + TRANSCRIPT}
+            {tripled}
           </textPath>
         </text>
       </svg>
 
-      {/* Voice icon in the center */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[15%] z-10">
-        <div className="bg-[#FAF8F3] border-2 border-[#3D3425] rounded-2xl px-4 py-3 flex items-end gap-[3px]" style={{ height: 52 }}>
-          {Array.from({ length: 16 }, (_, i) => {
-            const center = 7.5;
+      {/* Voice bars icon at center of the ribbon dip */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="bg-[#FAF8F3] border-2 border-[#3D3425] rounded-2xl px-4 py-3 flex items-end gap-[3px]" style={{ height: 50, transformOrigin: 'center' }}>
+          {Array.from({ length: 14 }, (_, i) => {
+            const center = 6.5;
             const dist = Math.abs(i - center) / center;
-            const h = Math.round(28 - dist * 20);
+            const h = Math.round(24 - dist * 16);
             return (
               <div
                 key={i}
@@ -100,6 +91,7 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
                 style={{
                   width: 2.5,
                   height: h,
+                  transformOrigin: 'bottom',
                   animation: `voiceBar ${0.4 + (i % 3) * 0.15}s ${i * 0.03}s ease-in-out infinite alternate`,
                 }}
               />
@@ -107,7 +99,6 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
           })}
         </div>
       </div>
-
     </div>
   );
 }

@@ -96,12 +96,12 @@ export default function LandingPage() {
 
       {/* ═══ 1. HERO ═══ */}
       <Slide className="bg-[#FAF8F3]">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center pt-8">
           <motion.h1
             initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 1, ease }}
-            className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-2 leading-[1.05]"
+            className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-0 leading-[1.05]"
           >
             <span className="text-[#8B6F47]/40">AI that </span>
             <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
@@ -111,11 +111,11 @@ export default function LandingPage() {
         </div>
 
         {/* Full-width flowing text ribbon */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }} className="w-full -my-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }} className="w-full">
           <VoiceEqualizer />
         </motion.div>
 
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center -mt-6">
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg sm:text-xl text-[#8B7355] mb-8 max-w-xl mx-auto">
             Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">$5</span>/mo.
           </motion.p>
