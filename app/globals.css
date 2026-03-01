@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Borel&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -154,16 +152,31 @@ body {
   }
 }
 
-.font-serif-display {
-  font-family: 'DM Serif Display', serif;
+/* Voice bar animations - pure CSS, GPU-composited */
+@keyframes voice-bar-1 {
+  0%, 100% { transform: scaleY(0.15); }
+  25% { transform: scaleY(0.8); }
+  50% { transform: scaleY(0.35); }
+  75% { transform: scaleY(0.65); }
 }
 
-@keyframes wave {
-  0% { d: path('M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40'); }
-  50% { d: path('M0,40 Q25,55 50,40 Q75,25 100,40 Q125,55 150,40 Q175,25 200,40'); }
-  100% { d: path('M0,40 Q25,20 50,40 Q75,60 100,40 Q125,20 150,40 Q175,60 200,40'); }
+@keyframes voice-bar-2 {
+  0%, 100% { transform: scaleY(0.25); }
+  30% { transform: scaleY(0.7); }
+  60% { transform: scaleY(0.2); }
+  80% { transform: scaleY(0.55); }
 }
 
-.animate-wave {
-  animation: wave 3s ease-in-out infinite;
+@keyframes voice-bar-3 {
+  0%, 100% { transform: scaleY(0.2); }
+  20% { transform: scaleY(0.6); }
+  45% { transform: scaleY(0.9); }
+  70% { transform: scaleY(0.3); }
+}
+
+@keyframes voice-bar-4 {
+  0%, 100% { transform: scaleY(0.3); }
+  35% { transform: scaleY(0.85); }
+  55% { transform: scaleY(0.25); }
+  85% { transform: scaleY(0.5); }
 }
