@@ -38,32 +38,14 @@ jest.mock('@/components/Logo', () => ({
   Logo: () => <div data-testid="logo">Logo</div>,
 }));
 
-jest.mock('@/components/landing/VoiceBarAnimation', () => ({
-  VoiceBarAnimation: () => <div data-testid="voice-bar-animation" />,
-  VoiceBarAnimationLarge: () => <div data-testid="voice-bar-animation-large" />,
-}));
-
-jest.mock('@/components/landing/AnimatedWaveform', () => ({
-  AnimatedWaveform: () => <div data-testid="animated-waveform" />,
-}));
-
-jest.mock('@/components/landing/ScrollLinkedText', () => ({
-  ScrollLinkedText: ({ text }: { text: string }) => <p data-testid="scroll-linked-text">{text}</p>,
+jest.mock('@/components/landing/VoiceEqualizer', () => ({
+  VoiceEqualizer: () => <div data-testid="voice-equalizer" />,
 }));
 
 jest.mock('@/components/landing/NoiseOverlay', () => ({
   NoiseOverlay: () => <div data-testid="noise-overlay" />,
 }));
 
-jest.mock('@/components/landing/MissedCallAnimation', () => ({
-  MissedCallAnimation: () => <div data-testid="missed-call-animation" />,
-}));
-
-jest.mock('@/components/landing/StepsTimeline', () => ({
-  StepsTimeline: () => <div data-testid="steps-timeline" />,
-}));
-
-import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/VoiceBarAnimation';
 import LandingPage from '@/app/page';
 
 describe('Landing Page', () => {
@@ -80,13 +62,13 @@ describe('Landing Page', () => {
 
   it('has primary CTA linking to demo', () => {
     render(<LandingPage />);
-    const cta = screen.getByText('Hear It Answer a Call');
+    const cta = screen.getByText('Hear It Live');
     expect(cta.closest('a')).toHaveAttribute('href', '/demo');
   });
 
   it('has secondary CTA linking to signup', () => {
     render(<LandingPage />);
-    const btn = screen.getByText('Start Free Trial');
+    const btn = screen.getByText('Start Free');
     expect(btn.closest('a')).toHaveAttribute('href', '/auth?mode=signup');
   });
 
@@ -142,26 +124,40 @@ describe('Landing Page', () => {
     expect(html).not.toContain('✨');
   });
 
-  it('renders VoiceBarAnimation components', () => {
-    const { getByTestId } = render(<VoiceBarAnimation />);
-    expect(getByTestId('voice-bar-animation')).toBeInTheDocument();
-    const { getByTestId: getLarge } = render(<VoiceBarAnimationLarge />);
-    expect(getLarge('voice-bar-animation-large')).toBeInTheDocument();
-  });
-
   it('has no em dashes', () => {
     const { container } = render(<LandingPage />);
     expect(container.innerHTML).not.toContain('—');
   });
 
-  it('has pain point section', () => {
+  it('has pain point story section', () => {
     render(<LandingPage />);
-    expect(screen.getByText(/Every missed call/)).toBeInTheDocument();
+    expect(screen.getByText('Your phone rings.')).toBeInTheDocument();
+    expect(screen.getByText("You're on a job.")).toBeInTheDocument();
+    expect(screen.getByText('They hang up.')).toBeInTheDocument();
+  });
+
+  it('has bold statement section', () => {
+    render(<LandingPage />);
+    expect(screen.getByText('Talks')).toBeInTheDocument();
+    expect(screen.getByText('human.')).toBeInTheDocument();
+    expect(screen.getByText('machine.')).toBeInTheDocument();
   });
 
   it('has dark integrations section', () => {
     const { container } = render(<LandingPage />);
     const darkSection = container.querySelector('[class*="bg-[#1a1a1a]"]');
     expect(darkSection).toBeInTheDocument();
+  });
+
+  it('has how it works section', () => {
+    render(<LandingPage />);
+    expect(screen.getByText('Tell us about your business')).toBeInTheDocument();
+    expect(screen.getByText('Connect your calendar')).toBeInTheDocument();
+    expect(screen.getByText('Your phone starts answering')).toBeInTheDocument();
+  });
+
+  it('targets small businesses in hero copy', () => {
+    render(<LandingPage />);
+    expect(screen.getByText(/contractors, clinics/)).toBeInTheDocument();
   });
 });
