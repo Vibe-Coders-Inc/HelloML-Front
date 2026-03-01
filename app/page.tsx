@@ -16,6 +16,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/VoiceBarAnimation';
+import { AnimatedWaveform } from '@/components/landing/AnimatedWaveform';
+import { ScrollLinkedText } from '@/components/landing/ScrollLinkedText';
+import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from 'react';
 
 /* ═══════════════════════════════════════════
@@ -174,19 +177,24 @@ export default function LandingPage() {
           className="max-w-4xl mx-auto text-center px-6"
         >
           {/* Wisprflow-style opacity mixing: "AI that" at 40% opacity, "answers" full */}
-          <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-6 leading-[1.05]">
+          <motion.h1
+            initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-6 leading-[1.05]"
+          >
             <span className="text-[#8B6F47]/40">AI that </span>
             <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
             <br className="hidden sm:block" />
             <span className="text-[#8B6F47]"> your phone.</span>
-          </h1>
+          </motion.h1>
 
-          <TextReveal
+          <ScrollLinkedText
             text="Never miss a call again. Book appointments, answer questions, and sound human. $5/month."
             className="text-lg sm:text-xl md:text-2xl text-[#8B7355] mb-8 max-w-2xl mx-auto"
           />
 
-          <VoiceBarAnimationLarge />
+          <AnimatedWaveform className="mx-auto mb-2" />
 
           <div className="flex flex-col sm:flex-row items-center gap-3 justify-center mt-8">
             <MagneticButton>
@@ -224,7 +232,7 @@ export default function LandingPage() {
 
       {/* ── 3. DASHBOARD (parallax) ── */}
       <motion.div ref={dashRef} style={{ y: dashY }} className="w-full max-w-5xl mx-auto px-4 md:px-6 mt-2 mb-16">
-        <FadeIn>
+        <FadeIn className="will-change-transform">
           <div className="relative perspective-mobile md:perspective-desktop rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10">
             <div className="bg-[#F5EFE6] px-2 md:px-4 py-1 md:py-3 flex items-center gap-1 md:gap-2 border-b border-[#E8DCC8]/60">
               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
@@ -243,6 +251,107 @@ export default function LandingPage() {
           </div>
         </FadeIn>
       </motion.div>
+
+      {/* ── BOLD STATEMENT (scattered typography on scroll) ── */}
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          {/* Row 1: "Talks" [orb] "like a" */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-10 mb-2 md:mb-4">
+            <motion.span
+              initial={{ opacity: 0, x: -100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+            >
+              Talks
+            </motion.span>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="w-20 h-20 sm:w-28 sm:h-28 md:w-40 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden shrink-0"
+            >
+              <div className="w-full h-full relative" style={{
+                background: 'linear-gradient(135deg, #1a1520 0%, #3a2560 30%, #8B6F47 60%, #D4A96A 80%, #E8DCC8 100%)',
+              }}>
+                <motion.div
+                  animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute inset-0"
+                  style={{ background: 'radial-gradient(circle at 40% 60%, rgba(139,111,71,0.6), transparent 70%)' }}
+                />
+              </div>
+            </motion.div>
+
+            <motion.span
+              initial={{ opacity: 0, x: 80 }}
+              whileInView={{ opacity: 0.35, x: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none"
+              style={{ fontFamily: 'Borel, cursive' }}
+            >
+              like a
+            </motion.span>
+          </div>
+
+          {/* Row 2: "human." */}
+          <div className="flex justify-center md:justify-start md:pl-[15%] mb-2 md:mb-4">
+            <motion.span
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+            >
+              human.
+            </motion.span>
+          </div>
+
+          {/* Row 3: "Works" "like a" */}
+          <div className="flex items-baseline justify-center md:justify-end md:pr-[5%] gap-4 sm:gap-6 md:gap-10 mb-2 md:mb-4">
+            <motion.span
+              initial={{ opacity: 0, x: 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47]/25 leading-none tracking-tight"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+            >
+              Works
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0, y: -30 }}
+              whileInView={{ opacity: 0.35, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none"
+              style={{ fontFamily: 'Borel, cursive' }}
+            >
+              like a
+            </motion.span>
+          </div>
+
+          {/* Row 4: "machine." */}
+          <div className="flex justify-center md:justify-end md:pr-[15%]">
+            <motion.span
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+            >
+              machine.
+            </motion.span>
+          </div>
+        </div>
+      </section>
 
       {/* ── 4. PAIN POINT + HOW IT WORKS ── */}
       <section className="py-20 md:py-28 px-4">
@@ -345,6 +454,8 @@ export default function LandingPage() {
 
       {/* ── 6. DARK SECTION (integrations + social proof) ── */}
       <section className="py-24 md:py-32 px-4 bg-[#1a1a1a] relative overflow-hidden">
+        {/* SVG noise texture overlay (Retell-style) */}
+        <NoiseOverlay opacity={0.06} />
         {/* Floating icons */}
         <div className="absolute inset-0 pointer-events-none">
           {integrations.map((logo, i) => (

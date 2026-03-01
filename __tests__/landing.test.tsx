@@ -20,6 +20,8 @@ jest.mock('framer-motion', () => ({
     div: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
     span: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
     p: ({ children, style, ...props }: any) => <p {...props}>{children}</p>,
+    h1: ({ children, style, ...props }: any) => <h1 {...props}>{children}</h1>,
+    section: ({ children, style, ...props }: any) => <section {...props}>{children}</section>,
   },
   useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
   useTransform: () => 0,
@@ -36,6 +38,18 @@ jest.mock('@/components/Logo', () => ({
 jest.mock('@/components/landing/VoiceBarAnimation', () => ({
   VoiceBarAnimation: () => <div data-testid="voice-bar-animation" />,
   VoiceBarAnimationLarge: () => <div data-testid="voice-bar-animation-large" />,
+}));
+
+jest.mock('@/components/landing/AnimatedWaveform', () => ({
+  AnimatedWaveform: () => <div data-testid="animated-waveform" />,
+}));
+
+jest.mock('@/components/landing/ScrollLinkedText', () => ({
+  ScrollLinkedText: ({ text }: { text: string }) => <p data-testid="scroll-linked-text">{text}</p>,
+}));
+
+jest.mock('@/components/landing/NoiseOverlay', () => ({
+  NoiseOverlay: () => <div data-testid="noise-overlay" />,
 }));
 
 import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/VoiceBarAnimation';
