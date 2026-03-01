@@ -21,7 +21,7 @@ function Slide({ children, className = '' }: { children: React.ReactNode; classN
   return (
     <section
       className={`min-h-screen flex items-center justify-center px-6 overflow-hidden relative ${className}`}
-      style={{ scrollSnapAlign: 'start' }}
+      
     >
       {children}
     </section>
@@ -65,12 +65,7 @@ const integrations = [
 
 /* ═══════════════════════════════════════════ */
 export default function LandingPage() {
-  useEffect(() => {
-    const html = document.documentElement;
-    html.style.scrollSnapType = 'y mandatory';
-    html.style.scrollBehavior = 'smooth';
-    return () => { html.style.scrollSnapType = ''; html.style.scrollBehavior = ''; };
-  }, []);
+  // No scroll-snap — causes flicker with whileInView animations
 
   return (
     <div className="bg-[#FAF8F3]">
@@ -362,7 +357,7 @@ export default function LandingPage() {
       {/* ═══ 7. DARK SECTION — clean, no white rectangle ═══ */}
       <section
         className="min-h-screen flex items-center justify-center px-6 bg-[#1a1a1a] relative overflow-hidden"
-        style={{ scrollSnapAlign: 'start' }}
+        
       >
         <NoiseOverlay opacity={0.06} />
 
@@ -485,7 +480,7 @@ export default function LandingPage() {
       </Slide>
 
       {/* ── FOOTER ── */}
-      <footer className="py-10 px-6 border-t border-[#E8DCC8]/30 bg-[#F0EBE1]" style={{ scrollSnapAlign: 'end' }}>
+      <footer className="py-10 px-6 border-t border-[#E8DCC8]/30 bg-[#F0EBE1]" >
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Logo size="small" lightMode />
           <div className="flex items-center gap-6 text-sm text-[#8B7355]">
