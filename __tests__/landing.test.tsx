@@ -74,21 +74,21 @@ describe('Landing Page', () => {
 
   it('has secondary CTA linking to signup', () => {
     render(<LandingPage />);
-    const btn = screen.getByText('Start Free');
-    expect(btn.closest('a')).toHaveAttribute('href', '/auth?mode=signup');
+    const btns = screen.getAllByText('Start Free');
+    expect(btns[0].closest('a')).toHaveAttribute('href', '/auth?mode=signup');
   });
 
   it('displays feature sections', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Books appointments')).toBeInTheDocument();
+    expect(screen.getByText('Books appointments automatically')).toBeInTheDocument();
     expect(screen.getByText('Answers from your docs')).toBeInTheDocument();
     expect(screen.getByText('Full transcripts')).toBeInTheDocument();
-    expect(screen.getByText('Always on, 24/7')).toBeInTheDocument();
+    expect(screen.getByText('Always on')).toBeInTheDocument();
   });
 
   it('has pricing info', () => {
     render(<LandingPage />);
-    expect(screen.getByText(/\/mo per agent/)).toBeInTheDocument();
+    expect(screen.getAllByText(/\/mo/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
   });
 
@@ -135,11 +135,10 @@ describe('Landing Page', () => {
     expect(container.innerHTML).not.toContain('—');
   });
 
-  it('has pain point story section', () => {
+  it('has problem section with stat', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Your phone rings.')).toBeInTheDocument();
-    expect(screen.getByText("You're on a job.")).toBeInTheDocument();
-    expect(screen.getByText('They hang up.')).toBeInTheDocument();
+    expect(screen.getByText(/You miss it/)).toBeInTheDocument();
+    expect(screen.getByText(/won't leave a voicemail/)).toBeInTheDocument();
   });
 
   it('has bold statement section', () => {
@@ -159,11 +158,21 @@ describe('Landing Page', () => {
     render(<LandingPage />);
     expect(screen.getByText('Tell us about your business')).toBeInTheDocument();
     expect(screen.getByText('Connect your calendar')).toBeInTheDocument();
-    expect(screen.getByText('Your phone starts answering')).toBeInTheDocument();
+    expect(screen.getByText('Calls start answering')).toBeInTheDocument();
   });
 
   it('targets small businesses in hero copy', () => {
     render(<LandingPage />);
     expect(screen.getByText(/contractors, clinics/)).toBeInTheDocument();
+  });
+
+  it('has hero call card', () => {
+    render(<LandingPage />);
+    expect(screen.getByTestId('hero-call-card')).toBeInTheDocument();
+  });
+
+  it('has dashboard section with video', () => {
+    render(<LandingPage />);
+    expect(screen.getByText('Every call. Every transcript. Every booking.')).toBeInTheDocument();
   });
 });
