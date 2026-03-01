@@ -188,3 +188,11 @@ body {
   0% { transform: scaleY(0.4); }
   100% { transform: scaleY(1); }
 }
+
+@keyframes orbMorph {
+  0%   { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45%; }
+  25%  { border-radius: 55% 45% 40% 60% / 45% 60% 40% 55%; }
+  50%  { border-radius: 45% 55% 60% 40% / 60% 45% 55% 40%; }
+  75%  { border-radius: 60% 40% 45% 55% / 40% 55% 45% 60%; }
+  100% { border-radius: 40% 60% 55% 45% / 55% 40% 60% 45%; }
+}
