@@ -10,126 +10,118 @@ interface VoiceOrbProps {
   onClick?: () => void;
 }
 
+/**
+ * Premium voice orb — organic pulsing blob with layered gradient rings.
+ * Reacts to audio level and AI speaking state.
+ * Inspired by LottieFiles "Med Purple Active" orb style.
+ */
 export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbProps) {
   const isActive = state === 'active';
   const isConnecting = state === 'connecting';
+  const isEnded = state === 'ended';
 
-  // Scale factor based on audio level for active state
-  const pulse = isActive ? 1 + audioLevel * 0.35 : 1;
+  // Audio-reactive scale
+  const pulse = isActive ? 1 + audioLevel * 0.3 : 1;
+
+  // Colors based on state
+  const primaryColor = aiSpeaking ? '#8B5CF6' : '#8B6F47';
+  const glowColor = aiSpeaking ? 'rgba(139,92,246,' : 'rgba(139,111,71,';
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
-      {/* Outer ambient glow rings — only visible when active */}
-      <AnimatePresence>
-        {isActive && (
-          <>
-            {/* Ring 3 — outermost */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: aiSpeaking ? [0.08, 0.15, 0.08] : [0.05, 0.1, 0.05],
-                scale: pulse * 1.5,
-              }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: aiSpeaking ? 1.2 : 2.5, repeat: Infinity, ease: 'easeInOut' },
-                scale: { duration: 0.15, ease: 'easeOut' },
-              }}
-              className="absolute rounded-full"
-              style={{
-                width: 240,
-                height: 240,
-                background: aiSpeaking
-                  ? 'radial-gradient(circle, rgba(139,92,246,0.3) 0%, rgba(139,92,246,0) 70%)'
-                  : 'radial-gradient(circle, rgba(139,111,71,0.25) 0%, rgba(139,111,71,0) 70%)',
-              }}
-            />
-            {/* Ring 2 — middle */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{
-                opacity: aiSpeaking ? [0.12, 0.25, 0.12] : [0.08, 0.18, 0.08],
-                scale: pulse * 1.25,
-              }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{
-                opacity: { duration: aiSpeaking ? 1.0 : 2.0, repeat: Infinity, ease: 'easeInOut', delay: 0.15 },
-                scale: { duration: 0.15, ease: 'easeOut' },
-              }}
-              className="absolute rounded-full"
-              style={{
-                width: 200,
-                height: 200,
-                background: aiSpeaking
-                  ? 'radial-gradient(circle, rgba(167,139,250,0.35) 0%, rgba(139,92,246,0) 70%)'
-                  : 'radial-gradient(circle, rgba(201,168,124,0.3) 0%, rgba(139,111,71,0) 70%)',
-              }}
-            />
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Ring 1 — inner glow (always visible, subtler when idle) */}
+    <div className="relative flex items-center justify-center" style={{ width: 300, height: 300 }}>
+      {/* Outermost gradient ring — soft halo */}
       <motion.div
-        animate={{
-          scale: isActive
-            ? pulse * 1.08
-            : isConnecting
-              ? [1, 1.08, 1]
-              : [1, 1.04, 1],
-          opacity: isActive
-            ? 0.4 + audioLevel * 0.3
-            : isConnecting
-              ? [0.15, 0.3, 0.15]
-              : 0.2,
-        }}
-        transition={
-          isActive
-            ? { scale: { duration: 0.15, ease: 'easeOut' }, opacity: { duration: 0.15, ease: 'easeOut' } }
-            : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
-        }
         className="absolute rounded-full"
+        animate={{
+          scale: isActive ? pulse * 1.6 : isConnecting ? [1.3, 1.45, 1.3] : [1.2, 1.3, 1.2],
+          opacity: isActive ? 0.12 + audioLevel * 0.15 : isConnecting ? [0.06, 0.12, 0.06] : 0.08,
+        }}
+        transition={isActive
+          ? { scale: { duration: 0.12, ease: 'easeOut' }, opacity: { duration: 0.12 } }
+          : { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+        }
         style={{
-          width: 160,
-          height: 160,
-          background: isActive && aiSpeaking
-            ? 'radial-gradient(circle, rgba(167,139,250,0.5) 0%, rgba(139,92,246,0.15) 50%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(201,168,124,0.5) 0%, rgba(166,122,91,0.15) 50%, transparent 70%)',
+          width: 200,
+          height: 200,
+          background: `conic-gradient(from 0deg, ${glowColor}0.2), ${glowColor}0.05), ${glowColor}0.15), ${glowColor}0.05))`,
+          filter: 'blur(20px)',
         }}
       />
 
-      {/* Core circle */}
+      {/* Ring 2 — visible gradient ring */}
+      <AnimatePresence>
+        {(isActive || isConnecting || state === 'idle') && (
+          <motion.div
+            className="absolute rounded-full"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{
+              scale: isActive ? pulse * 1.35 : isConnecting ? [1.15, 1.25, 1.15] : [1.05, 1.15, 1.05],
+              opacity: isActive ? 0.2 + audioLevel * 0.2 : [0.08, 0.16, 0.08],
+              rotate: isActive ? [0, 360] : [0, 180],
+            }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={isActive
+              ? { scale: { duration: 0.12 }, rotate: { duration: 8, repeat: Infinity, ease: 'linear' } }
+              : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+            }
+            style={{
+              width: 180,
+              height: 180,
+              borderRadius: '50%',
+              border: `2px solid ${glowColor}${isActive ? '0.25' : '0.12'})`,
+              background: `conic-gradient(from 45deg, ${glowColor}0.15), transparent, ${glowColor}0.08), transparent)`,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Ring 1 — inner glow ring */}
       <motion.div
-        animate={{
-          scale: isActive ? pulse : isConnecting ? [1, 1.03, 1] : 1,
-          boxShadow: isActive
-            ? aiSpeaking
-              ? `0 0 ${30 + audioLevel * 40}px rgba(139,92,246,${0.2 + audioLevel * 0.25})`
-              : `0 0 ${20 + audioLevel * 35}px rgba(166,122,91,${0.15 + audioLevel * 0.2})`
-            : '0 0 20px rgba(166,122,91,0.1)',
-        }}
-        transition={
-          isActive
-            ? { duration: 0.12, ease: 'easeOut' }
-            : isConnecting
-              ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
-              : { duration: 0.3 }
-        }
         className="absolute rounded-full"
+        animate={{
+          scale: isActive ? pulse * 1.15 : isConnecting ? [1.02, 1.1, 1.02] : [1, 1.06, 1],
+          opacity: isActive ? 0.25 + audioLevel * 0.3 : [0.1, 0.2, 0.1],
+        }}
+        transition={isActive
+          ? { duration: 0.12, ease: 'easeOut' }
+          : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
+        }
+        style={{
+          width: 150,
+          height: 150,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${glowColor}0.3) 0%, ${glowColor}0.08) 60%, transparent 80%)`,
+          border: `1.5px solid ${glowColor}0.15)`,
+        }}
+      />
+
+      {/* Core orb — solid center with gradient */}
+      <motion.div
+        className="absolute rounded-full"
+        animate={{
+          scale: isActive ? pulse : isConnecting ? [1, 1.04, 1] : 1,
+          boxShadow: isActive
+            ? `0 0 ${25 + audioLevel * 40}px ${glowColor}${0.15 + audioLevel * 0.2}), inset 0 0 30px ${glowColor}0.1)`
+            : `0 0 20px ${glowColor}0.08), inset 0 0 20px ${glowColor}0.05)`,
+        }}
+        transition={isActive
+          ? { duration: 0.12, ease: 'easeOut' }
+          : isConnecting
+            ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
+            : { duration: 0.3 }
+        }
         style={{
           width: 120,
           height: 120,
           background: isActive && aiSpeaking
-            ? 'linear-gradient(135deg, rgba(167,139,250,0.15) 0%, rgba(139,92,246,0.08) 100%)'
-            : 'linear-gradient(135deg, rgba(201,168,124,0.18) 0%, rgba(166,122,91,0.08) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: isActive && aiSpeaking
-            ? '1px solid rgba(167,139,250,0.15)'
-            : '1px solid rgba(201,168,124,0.15)',
+            ? 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(139,92,246,0.1) 50%, rgba(167,139,250,0.15) 100%)'
+            : 'linear-gradient(135deg, rgba(201,168,124,0.22) 0%, rgba(166,122,91,0.1) 50%, rgba(201,168,124,0.18) 100%)',
+          backdropFilter: 'blur(30px)',
+          border: `1px solid ${glowColor}0.12)`,
         }}
       />
 
-      {/* Clickable center */}
+      {/* Clickable center content */}
       <motion.button
         className="relative z-10 rounded-full flex items-center justify-center cursor-pointer"
         style={{ width: 120, height: 120 }}
@@ -152,31 +144,35 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
         )}
         {isActive && (
           <motion.div
-            className="flex items-center gap-[3px]"
+            className="flex items-end gap-[3px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            style={{ height: 32 }}
           >
-            {/* Audio bars visualizer */}
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.div
-                key={i}
-                className="w-[3px] rounded-full"
-                style={{
-                  backgroundColor: aiSpeaking ? 'rgba(139,92,246,0.7)' : 'rgba(139,111,71,0.6)',
-                }}
-                animate={{
-                  height: isActive
-                    ? [8, 8 + (audioLevel * 28 * (i === 2 ? 1 : i === 1 || i === 3 ? 0.75 : 0.5)), 8]
-                    : 8,
-                }}
-                transition={{
-                  duration: 0.15,
-                  ease: 'easeOut',
-                  delay: i * 0.03,
-                }}
-              />
-            ))}
+            {/* Audio bars — dome shape like wisprflow voice icon */}
+            {Array.from({ length: 7 }, (_, i) => {
+              const center = 3;
+              const dist = Math.abs(i - center) / center;
+              const maxH = 28 - dist * 14;
+              const barH = 6 + audioLevel * (maxH - 6);
+              return (
+                <motion.div
+                  key={i}
+                  className="rounded-full"
+                  style={{
+                    width: 3,
+                    backgroundColor: aiSpeaking ? 'rgba(167,139,250,0.8)' : 'rgba(139,111,71,0.7)',
+                    transformOrigin: 'bottom',
+                  }}
+                  animate={{ height: barH }}
+                  transition={{ duration: 0.1, ease: 'easeOut' }}
+                />
+              );
+            })}
           </motion.div>
+        )}
+        {isEnded && (
+          <div className="text-[#6B553A]/60 text-sm font-medium">Done</div>
         )}
       </motion.button>
     </div>
