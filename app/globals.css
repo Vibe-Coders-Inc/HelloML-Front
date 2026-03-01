@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Borel&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -39,10 +38,63 @@ body {
   min-height: 100%;
 }
 
-.font-borel {
-  font-family: 'Borel', cursive !important;
+/* ═══════════════════════════════════════════
+   CSS SCROLL-DRIVEN REVEAL
+   Uses animation-timeline: view() for buttery
+   60fps scroll reveals on compositor thread.
+   Falls back to simple opacity for older browsers.
+   ═══════════════════════════════════════════ */
+@keyframes scroll-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+.scroll-reveal {
+  animation: scroll-reveal-in ease-out both;
+  animation-duration: 400ms;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+  will-change: transform, opacity;
+}
+
+/* Fallback for browsers without scroll-driven animations */
+@supports not (animation-timeline: view()) {
+  .scroll-reveal {
+    animation: scroll-reveal-in 0.4s ease-out both;
+    animation-timeline: auto;
+    animation-range: initial;
+  }
+}
+
+/* Dashboard parallax via scroll-driven animation */
+@keyframes dashboard-drift {
+  from { transform: translateY(40px); }
+  to { transform: translateY(-40px); }
+}
+
+.dashboard-parallax {
+  animation: dashboard-drift linear both;
+  animation-timeline: view();
+  animation-range: entry 0% exit 100%;
+  will-change: transform;
+}
+
+@supports not (animation-timeline: view()) {
+  .dashboard-parallax {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   All use transform/opacity only (compositor).
+   ═══════════════════════════════════════════ */
 @keyframes phone-ring {
   0%, 100% { transform: rotate(0deg); }
   10%, 30% { transform: rotate(-15deg); }
@@ -87,69 +139,7 @@ body {
 
 .animate-marquee {
   animation: marquee 25s linear infinite;
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.15); opacity: 0.1; }
-  100% { transform: scale(1); opacity: 0.3; }
-}
-
-@keyframes pulse-ring-delayed {
-  0% { transform: scale(1); opacity: 0.2; }
-  50% { transform: scale(1.1); opacity: 0.05; }
-  100% { transform: scale(1); opacity: 0.2; }
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 2s ease-in-out infinite;
-}
-
-.animate-pulse-ring-delayed {
-  animation: pulse-ring-delayed 2s ease-in-out infinite 0.5s;
-}
-
-@keyframes pulse-call {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(40, 200, 64, 0); }
-}
-
-.animate-pulse-call {
-  animation: pulse-call 2s ease-in-out infinite;
-}
-
-@keyframes section-fade-in {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.section-fade-in {
-  animation: section-fade-in 0.6s ease-out both;
-}
-
-.feature-card-glow::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, transparent 40%, rgba(139,111,71,0.1) 50%, transparent 60%);
-  background-size: 300% 300%;
-  opacity: 0;
-  transition: opacity 0.5s;
-  z-index: -1;
-}
-.feature-card-glow:hover::before {
-  opacity: 1;
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-@keyframes phone-waveform {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.phone-waveform-anim {
-  animation: phone-waveform 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .perspective-mobile {
@@ -160,4 +150,33 @@ body {
   .perspective-desktop {
     transform: perspective(75em) rotateX(18deg);
   }
+}
+
+/* Voice bar animations - pure CSS, GPU-composited */
+@keyframes voice-bar-1 {
+  0%, 100% { transform: scaleY(0.15); }
+  25% { transform: scaleY(0.8); }
+  50% { transform: scaleY(0.35); }
+  75% { transform: scaleY(0.65); }
+}
+
+@keyframes voice-bar-2 {
+  0%, 100% { transform: scaleY(0.25); }
+  30% { transform: scaleY(0.7); }
+  60% { transform: scaleY(0.2); }
+  80% { transform: scaleY(0.55); }
+}
+
+@keyframes voice-bar-3 {
+  0%, 100% { transform: scaleY(0.2); }
+  20% { transform: scaleY(0.6); }
+  45% { transform: scaleY(0.9); }
+  70% { transform: scaleY(0.3); }
+}
+
+@keyframes voice-bar-4 {
+  0%, 100% { transform: scaleY(0.3); }
+  35% { transform: scaleY(0.85); }
+  55% { transform: scaleY(0.25); }
+  85% { transform: scaleY(0.5); }
 }

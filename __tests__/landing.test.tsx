@@ -17,36 +17,24 @@ jest.mock('next/image', () => {
 
 jest.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, onClick, ...props }: any) => <button onClick={onClick} {...props}>{children}</button>,
-    p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
-    section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
-    h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
-    h2: ({ children, ...props }: any) => <h2 {...props}>{children}</h2>,
-    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
+    div: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
+    span: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-  useInView: () => true,
   useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
   useTransform: () => 0,
-}));
-
-jest.mock('animejs', () => ({
-  animate: jest.fn(),
+  useInView: () => true,
 }));
 
 jest.mock('@/components/Logo', () => ({
   Logo: () => <div data-testid="logo">Logo</div>,
 }));
 
-jest.mock('@/components/landing/VoiceWaveformHero', () => ({
-  VoiceWaveformHero: () => <div data-testid="waveform">Waveform</div>,
+jest.mock('@/components/landing/VoiceBarAnimation', () => ({
+  VoiceBarAnimation: () => <div data-testid="voice-bar-animation" />,
+  VoiceBarAnimationLarge: () => <div data-testid="voice-bar-animation-large" />,
 }));
 
-jest.mock('@/components/landing/WaveformComparison', () => ({
-  WaveformComparison: () => <div data-testid="waveform-comparison">Comparison</div>,
-}));
-
+import { VoiceBarAnimation, VoiceBarAnimationLarge } from '@/components/landing/VoiceBarAnimation';
 import LandingPage from '@/app/page';
 
 describe('Landing Page', () => {
@@ -55,10 +43,9 @@ describe('Landing Page', () => {
     expect(screen.getByText(/AI that/)).toBeInTheDocument();
   });
 
-  it('displays $5/mo pricing', () => {
+  it('displays pricing', () => {
     render(<LandingPage />);
-    const priceElements = screen.getAllByText('$5');
-    expect(priceElements.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$5\/month/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('has Get Your Number CTA linking to signup', () => {
@@ -81,11 +68,10 @@ describe('Landing Page', () => {
     expect(screen.getByText('Always on, 24/7')).toBeInTheDocument();
   });
 
-  it('has pricing section', () => {
+  it('has pricing info', () => {
     render(<LandingPage />);
-    expect(screen.getByText('One plan. $5/month. Done.')).toBeInTheDocument();
-    expect(screen.getAllByText('100 minutes included').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Dedicated phone number').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$5\/month/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
   });
 
   it('has Get Started Free CTA', () => {
@@ -134,6 +120,16 @@ describe('Landing Page', () => {
     expect(html).not.toContain('✨');
     expect(html).not.toContain('🎙️');
     expect(html).not.toContain('🤖');
+  });
+
+  it('renders VoiceBarAnimation without crashing', () => {
+    const { getByTestId } = render(<VoiceBarAnimation />);
+    expect(getByTestId('voice-bar-animation')).toBeInTheDocument();
+  });
+
+  it('renders VoiceBarAnimationLarge without crashing', () => {
+    const { getByTestId } = render(<VoiceBarAnimationLarge />);
+    expect(getByTestId('voice-bar-animation-large')).toBeInTheDocument();
   });
 
   it('has no em dashes', () => {

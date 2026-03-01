@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Borel } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -18,11 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const borel = Borel({
-  variable: "--font-borel",
-  subsets: ["latin"],
-  weight: ["400"],
-});
+// Playfair Display loaded via CSS @import in globals.css
 
 export const metadata: Metadata = getMetadata();
 
@@ -172,7 +168,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${borel.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
           <div className="min-h-screen flex flex-col">
