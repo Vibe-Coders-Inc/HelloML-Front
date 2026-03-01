@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Premium flowing voice waveform — wisprflow-inspired.
- * Full-width organic wave with bold strokes and soft gradient fills.
- * Canvas-based, GPU-composited, 60fps.
+ * Full-width sweeping organic wave, bold and prominent.
+ * Canvas-based, 60fps.
  */
 
 export function VoiceEqualizer({ className = '' }: { className?: string }) {
@@ -17,136 +17,129 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const W = 600;
-    const H = 120;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = `${W}px`;
-    canvas.style.height = `${H}px`;
-    ctx.scale(dpr, dpr);
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      const W = rect?.width || 800;
+      const H = 140;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
-    const centerY = H / 2;
     let t = 0;
     let animId: number;
 
     function draw() {
-      if (!ctx) return;
-      t += 0.012;
+      if (!ctx || !canvas) return;
+      const W = canvas.width / (window.devicePixelRatio || 1);
+      const H = canvas.height / (window.devicePixelRatio || 1);
+      const centerY = H / 2;
+      t += 0.008;
       ctx.clearRect(0, 0, W, H);
 
-      // Layer 1: Soft filled wave (background glow)
-      drawWave(ctx, W, H, centerY, t, {
-        amp: 30, freq: 0.008, phase: 0, speed: 1,
-        lineWidth: 0, fillAlpha: 0.08,
+      // Primary bold wave with filled body
+      drawFilledWave(ctx, W, centerY, t, {
+        amp: 35, freq: 6, phase: 0, speed: 1,
+        color: [139, 111, 71], strokeWidth: 3, fillOpacity: 0.12,
       });
 
-      // Layer 2: Medium wave
-      drawWave(ctx, W, H, centerY, t, {
-        amp: 22, freq: 0.011, phase: 1.8, speed: 0.7,
-        lineWidth: 2, strokeAlpha: 0.25, fillAlpha: 0.05,
+      // Secondary wave — offset, thinner
+      drawFilledWave(ctx, W, centerY, t, {
+        amp: 22, freq: 5, phase: 2.2, speed: -0.7,
+        color: [166, 122, 91], strokeWidth: 1.8, fillOpacity: 0.06,
       });
 
-      // Layer 3: Primary bold wave
-      drawWave(ctx, W, H, centerY, t, {
-        amp: 26, freq: 0.009, phase: 0.5, speed: 1.2,
-        lineWidth: 3.5, strokeAlpha: 0.6, fillAlpha: 0.1,
-      });
-
-      // Layer 4: Thin accent
-      drawWave(ctx, W, H, centerY, t, {
-        amp: 15, freq: 0.014, phase: 3.2, speed: -0.9,
-        lineWidth: 1.2, strokeAlpha: 0.18, fillAlpha: 0,
+      // Tertiary accent
+      drawFilledWave(ctx, W, centerY, t, {
+        amp: 15, freq: 8, phase: 4.5, speed: 1.3,
+        color: [139, 111, 71], strokeWidth: 1, fillOpacity: 0.04,
       });
 
       animId = requestAnimationFrame(draw);
     }
 
     animId = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
   }, []);
 
   return (
-    <div className={`flex items-center justify-center w-full max-w-2xl mx-auto ${className}`} aria-hidden="true">
-      <canvas
-        ref={canvasRef}
-        style={{ width: '100%', maxWidth: 600, height: 120 }}
-      />
+    <div className={`w-full ${className}`} aria-hidden="true">
+      <canvas ref={canvasRef} className="w-full" style={{ height: 140 }} />
     </div>
   );
 }
 
-interface WaveOpts {
+interface WaveConfig {
   amp: number;
-  freq: number;
+  freq: number;     // number of full cycles across width
   phase: number;
   speed: number;
-  lineWidth: number;
-  strokeAlpha?: number;
-  fillAlpha: number;
+  color: [number, number, number];
+  strokeWidth: number;
+  fillOpacity: number;
 }
 
-function drawWave(
+function drawFilledWave(
   ctx: CanvasRenderingContext2D,
-  W: number, H: number, centerY: number,
-  t: number, opts: WaveOpts
+  W: number, centerY: number, t: number,
+  cfg: WaveConfig
 ) {
-  const { amp, freq, phase, speed, lineWidth, strokeAlpha = 0, fillAlpha } = opts;
+  const { amp, freq, phase, speed, color, strokeWidth, fillOpacity } = cfg;
+  const [r, g, b] = color;
 
-  // Build top path
-  const points: [number, number][] = [];
+  // Build wave points
+  const pts: [number, number][] = [];
   for (let x = 0; x <= W; x += 2) {
     const nx = x / W;
-    // Bell envelope — tapers at edges
-    const env = Math.pow(Math.sin(nx * Math.PI), 1.3);
-    const y1 = Math.sin(x * freq + t * speed * 50 + phase) * amp;
-    const y2 = Math.sin(x * freq * 2.3 + t * speed * 30 + phase + 2.1) * amp * 0.25;
-    const y3 = Math.sin(x * freq * 0.5 + t * speed * 20 + phase + 4.0) * amp * 0.15;
-    points.push([x, centerY + (y1 + y2 + y3) * env]);
+    // Soft envelope — strongest in center
+    const env = Math.pow(Math.sin(nx * Math.PI), 1.2);
+    // Main sine + harmonics for organic feel
+    const angle = nx * Math.PI * 2 * freq + t * speed * 50 + phase;
+    const y = (
+      Math.sin(angle) +
+      0.3 * Math.sin(angle * 2.1 + 1.3) +
+      0.15 * Math.sin(angle * 0.5 + 2.8)
+    ) * amp * env;
+    pts.push([x, centerY + y]);
   }
 
+  // Filled body — wave to center
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+  ctx.lineTo(W, centerY);
+  ctx.lineTo(0, centerY);
+  ctx.closePath();
+  ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${fillOpacity})`;
+  ctx.fill();
+
+  // Mirror below
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => {
+    const my = centerY - (y - centerY) * 0.5;
+    i === 0 ? ctx.moveTo(x, my) : ctx.lineTo(x, my);
+  });
+  ctx.lineTo(W, centerY);
+  ctx.lineTo(0, centerY);
+  ctx.closePath();
+  ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${fillOpacity * 0.5})`;
+  ctx.fill();
+
   // Stroke
-  if (lineWidth > 0 && strokeAlpha > 0) {
+  if (strokeWidth > 0) {
     ctx.beginPath();
-    points.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
-    const grad = ctx.createLinearGradient(0, centerY - amp, 0, centerY + amp);
-    grad.addColorStop(0, `rgba(139, 111, 71, ${strokeAlpha})`);
-    grad.addColorStop(0.5, `rgba(166, 122, 91, ${strokeAlpha * 0.8})`);
-    grad.addColorStop(1, `rgba(139, 111, 71, ${strokeAlpha * 0.5})`);
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = lineWidth;
+    pts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.5)`;
+    ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
-  }
-
-  // Fill (mirrored below center for body)
-  if (fillAlpha > 0) {
-    ctx.beginPath();
-    points.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
-    // Close along centerline
-    ctx.lineTo(W, centerY);
-    ctx.lineTo(0, centerY);
-    ctx.closePath();
-    const fGrad = ctx.createLinearGradient(0, centerY - amp, 0, centerY);
-    fGrad.addColorStop(0, `rgba(139, 111, 71, ${fillAlpha})`);
-    fGrad.addColorStop(1, `rgba(139, 111, 71, 0)`);
-    ctx.fillStyle = fGrad;
-    ctx.fill();
-
-    // Mirror fill below
-    ctx.beginPath();
-    points.forEach(([x, y], i) => {
-      const mirrorY = centerY - (y - centerY) * 0.6;
-      i === 0 ? ctx.moveTo(x, mirrorY) : ctx.lineTo(x, mirrorY);
-    });
-    ctx.lineTo(W, centerY);
-    ctx.lineTo(0, centerY);
-    ctx.closePath();
-    const fGrad2 = ctx.createLinearGradient(0, centerY, 0, centerY + amp);
-    fGrad2.addColorStop(0, `rgba(139, 111, 71, 0)`);
-    fGrad2.addColorStop(1, `rgba(139, 111, 71, ${fillAlpha * 0.6})`);
-    ctx.fillStyle = fGrad2;
-    ctx.fill();
   }
 }

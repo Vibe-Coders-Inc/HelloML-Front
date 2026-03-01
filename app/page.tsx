@@ -109,7 +109,7 @@ export default function LandingPage() {
             <span className="text-[#8B6F47]"> your phone.</span>
           </motion.h1>
 
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-6">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-6 -mx-8 sm:-mx-16 md:-mx-24">
             <VoiceEqualizer />
           </motion.div>
 
