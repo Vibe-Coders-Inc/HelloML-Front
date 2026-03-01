@@ -88,13 +88,13 @@ describe('Landing Page', () => {
 
   it('has pricing info', () => {
     render(<LandingPage />);
-    expect(screen.getAllByText(/\/mo/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
+    expect(screen.getByText(/per agent/)).toBeInTheDocument();
+    expect(screen.getByText(/100 minutes of calls included/)).toBeInTheDocument();
   });
 
   it('has Get Started Free CTA', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Get Started Free')).toBeInTheDocument();
+    expect(screen.getAllByText('Start Free').length).toBeGreaterThanOrEqual(1);
   });
 
   it('has footer with navigation links', () => {
@@ -137,8 +137,8 @@ describe('Landing Page', () => {
 
   it('has problem section with stat', () => {
     render(<LandingPage />);
-    expect(screen.getByText(/You miss it/)).toBeInTheDocument();
     expect(screen.getByText(/won't leave a voicemail/)).toBeInTheDocument();
+    expect(screen.getByText(/lost revenue/)).toBeInTheDocument();
   });
 
   it('has bold statement section', () => {

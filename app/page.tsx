@@ -2,34 +2,19 @@
 
 import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion, useInView, animate, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, animate } from 'framer-motion';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
+import Image from 'next/image';
 import { HeroCallCard } from '@/components/landing/HeroCallCard';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
 
 /* ═══════════════════════════════════════════
-   HELLOML LANDING PAGE — v3
-   Scroll-snap, full-screen sections, rich visuals
-   Videos rendered via Remotion for section graphics
+   HELLOML LANDING PAGE — v4
+   Fixes: bigger hero card, removed bad videos,
+   fixed dashboard, redesigned pricing
    ═══════════════════════════════════════════ */
-
-/* ── Looping video background component ── */
-function VideoLoop({ src, className = '', style = {} }: { src: string; className?: string; style?: React.CSSProperties }) {
-  return (
-    <video
-      autoPlay
-      muted
-      loop
-      playsInline
-      className={className}
-      style={{ ...style }}
-    >
-      <source src={src} type="video/mp4" />
-    </video>
-  );
-}
 
 /* ── Snap section wrapper ── */
 function Slide({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -64,19 +49,19 @@ function CountUp({ target, suffix = '', prefix = '' }: { target: number; suffix?
   return <span ref={ref}>{prefix}{display}{suffix}</span>;
 }
 
-/* ── Integrations ── */
-const integrations = [
-  { name: 'Google Calendar', src: 'https://img.icons8.com/color/96/google-calendar--v1.png' },
-  { name: 'Outlook', src: 'https://img.icons8.com/color/96/microsoft-outlook-2019--v2.png' },
-  { name: 'Google Drive', src: 'https://img.icons8.com/color/96/google-drive--v1.png' },
-];
-
 /* ── Animation presets ── */
 const ease = [0.22, 1, 0.36, 1] as const;
 const fadeUp = { initial: { opacity: 0, y: 40 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.3 as const }, transition: { duration: 0.7, ease } };
 const fadeLeft = { initial: { opacity: 0, x: -60 }, whileInView: { opacity: 1, x: 0 }, viewport: { once: true }, transition: { duration: 0.7, ease } };
 const fadeRight = { initial: { opacity: 0, x: 60 }, whileInView: { opacity: 1, x: 0 }, viewport: { once: true }, transition: { duration: 0.7, ease } };
 const scaleIn = { initial: { opacity: 0, scale: 0.88 }, whileInView: { opacity: 1, scale: 1 }, viewport: { once: true, amount: 0.3 as const }, transition: { duration: 0.8, ease } };
+
+/* ── Integrations ── */
+const integrations = [
+  { name: 'Google Calendar', src: 'https://img.icons8.com/color/96/google-calendar--v1.png' },
+  { name: 'Outlook', src: 'https://img.icons8.com/color/96/microsoft-outlook-2019--v2.png' },
+  { name: 'Google Drive', src: 'https://img.icons8.com/color/96/google-drive--v1.png' },
+];
 
 /* ═══════════════════════════════════════════ */
 export default function LandingPage() {
@@ -149,12 +134,7 @@ export default function LandingPage() {
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-xs text-[#A67A5B]/50">No credit card required</motion.p>
 
             {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="mt-8 pt-5 border-t border-[#E8DCC8]/30"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-8 pt-5 border-t border-[#E8DCC8]/30">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#A67A5B]/50 font-medium mb-3">Built by engineers from</p>
               <div className="flex items-center justify-center lg:justify-start gap-8">
                 <svg className="h-5 w-auto opacity-25" viewBox="0 0 170 170" fill="#8B6F47"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.28 2.13-9.54 3.24-12.8 3.35-4.92.21-9.84-1.96-14.75-6.52-3.13-2.73-7.04-7.41-11.75-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.2-5.21-20.07-5.21-29.59 0-10.95 2.36-20.4 7.09-28.32a41.66 41.66 0 0 1 14.84-15.07 39.82 39.82 0 0 1 20.07-5.65c3.92 0 9.06 1.21 15.43 3.59 6.35 2.39 10.42 3.6 12.22 3.6 1.35 0 5.92-1.42 13.67-4.24 7.32-2.62 13.5-3.7 18.56-3.27 13.71 1.11 24.02 6.52 30.86 16.27-12.27 7.44-18.33 17.86-18.2 31.22.12 10.41 3.89 19.07 11.28 25.94 3.35 3.18 7.1 5.64 11.25 7.39-.9 2.62-1.85 5.13-2.87 7.54zM119.04 7.01c0 8.16-2.98 15.78-8.92 22.82-7.17 8.4-15.85 13.25-25.25 12.49a25.4 25.4 0 0 1-.19-3.09c0-7.84 3.41-16.22 9.47-23.08 3.02-3.47 6.87-6.35 11.55-8.64 4.66-2.26 9.07-3.51 13.23-3.73.12 1.08.17 2.16.17 3.23h-.06z"/></svg>
@@ -168,19 +148,15 @@ export default function LandingPage() {
             </motion.div>
           </div>
 
-          {/* Right — Call card + waveform visual */}
+          {/* Right — BIGGER Call card */}
           <motion.div
             initial={{ opacity: 0, x: 60, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 1, delay: 0.3, ease }}
             className="relative flex items-center justify-center"
           >
-            {/* Animated waveform behind the card */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
-              <VideoLoop src="/ai-waveform.mp4" className="w-full max-w-[600px] rounded-3xl" />
-            </div>
-            {/* Floating glow */}
-            <div className="absolute w-80 h-80 bg-[#8B6F47]/10 rounded-full blur-[80px] animate-pulse" />
+            {/* Soft glow behind card */}
+            <div className="absolute w-96 h-96 bg-[#8B6F47]/8 rounded-full blur-[100px]" />
             <div className="relative z-10">
               <HeroCallCard />
             </div>
@@ -188,74 +164,50 @@ export default function LandingPage() {
         </div>
       </Slide>
 
-      {/* ═══ 2. THE PROBLEM — visual + stat ═══ */}
+      {/* ═══ 2. THE PROBLEM — big stat, no small phone ═══ */}
       <Slide className="bg-[#F5F0E8]">
-        <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Left — Phone animation */}
-          <motion.div {...scaleIn} className="flex items-center justify-center">
-            <div className="relative">
-              <VideoLoop
-                src="/phone-ringing.mp4"
-                className="w-64 h-64 md:w-80 md:h-80 rounded-3xl"
-                style={{ objectFit: 'contain' }}
-              />
-              {/* Pulsing ring effect around video */}
-              <div className="absolute inset-0 rounded-3xl border-2 border-[#8B6F47]/20 animate-ping" style={{ animationDuration: '2s' }} />
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease }}
+          >
+            {/* Giant stat */}
+            <div className="mb-8">
+              <span className="text-[120px] sm:text-[160px] md:text-[200px] font-bold text-[#8B6F47] leading-none tracking-tighter block">
+                <CountUp target={80} suffix="%" />
+              </span>
             </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
+              of callers won&apos;t leave a voicemail.
+            </h2>
+            <p className="text-lg md:text-xl text-[#8B7355] max-w-xl mx-auto">
+              They call your competitor instead. Every missed call is lost revenue.
+            </p>
           </motion.div>
-
-          {/* Right — Copy */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease }}
-            >
-              <h2 className="text-5xl md:text-7xl font-bold text-[#8B6F47] leading-tight mb-6">
-                They call.<br />
-                You miss it.<br />
-                <span className="text-[#8B6F47]/30">They&apos;re gone.</span>
-              </h2>
-              <div className="flex items-baseline gap-4 mb-4">
-                <span className="text-7xl md:text-9xl font-bold text-[#8B6F47]">
-                  <CountUp target={80} suffix="%" />
-                </span>
-                <span className="text-lg md:text-xl text-[#8B7355] max-w-xs">
-                  of callers won&apos;t leave a voicemail. They call your competitor instead.
-                </span>
-              </div>
-            </motion.div>
-          </div>
         </div>
       </Slide>
 
-      {/* ═══ 3. BOLD STATEMENT + floating cards ═══ */}
+      {/* ═══ 3. BOLD STATEMENT — clean, no weird background ═══ */}
       <Slide className="bg-[#FAF8F3]">
-        <div className="max-w-6xl mx-auto w-full relative">
-          {/* Floating cards video as background */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.08] pointer-events-none">
-            <VideoLoop src="/floating-cards.mp4" className="w-full h-full object-cover rounded-3xl" />
-          </div>
-
-          <div className="relative z-10">
-            <div className="flex flex-col items-center gap-2 md:gap-4">
-              <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-                <motion.span {...fadeLeft} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
-                <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
-              </div>
-              <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
-              <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-                <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
-                <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={{ once: true }} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
-              </div>
-              <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="flex flex-col items-center gap-2 md:gap-4">
+            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
+              <motion.span {...fadeLeft} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
+            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
+            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
+              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={{ once: true }} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+            </div>
+            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
           </div>
         </div>
       </Slide>
 
-      {/* ═══ 4. DASHBOARD — Video demo ═══ */}
+      {/* ═══ 4. DASHBOARD — static image with browser chrome ═══ */}
       <Slide className="bg-[#F5F0E8]">
         <div className="max-w-5xl mx-auto w-full">
           <motion.h2 {...fadeUp} className="text-3xl md:text-5xl font-bold text-[#8B6F47] text-center mb-4">
@@ -264,25 +216,20 @@ export default function LandingPage() {
           <motion.p {...fadeUp} transition={{ delay: 0.1, duration: 0.6, ease }} className="text-center text-[#8B7355] mb-8 text-base md:text-lg max-w-2xl mx-auto">
             A real-time dashboard that shows every conversation, booking, and insight.
           </motion.p>
-          <motion.div {...scaleIn} className="relative rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/15 bg-[#1a1a1a]">
+          <motion.div {...scaleIn} className="relative rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10 bg-white">
             {/* Browser chrome */}
-            <div className="bg-[#2a2a2a] px-4 py-3 flex items-center gap-2 border-b border-white/5">
-              <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
-              <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-              <div className="w-3 h-3 rounded-full bg-[#28C840]" />
-              <div className="flex-1 mx-12"><div className="bg-white/5 rounded-md py-1.5 px-4 text-center"><span className="text-[10px] text-white/30 font-medium">helloml.app/dashboard</span></div></div>
+            <div className="bg-[#F5EFE6] px-3 md:px-4 py-2 md:py-3 flex items-center gap-2 border-b border-[#E8DCC8]/60">
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]" />
+              <div className="flex-1 mx-4 md:mx-12"><div className="bg-white/60 rounded py-1 px-3 text-center"><span className="text-[8px] md:text-[10px] text-[#8B7355]/50 font-medium">helloml.app/dashboard</span></div></div>
             </div>
-            {/* Dashboard video */}
-            <VideoLoop
-              src="/dashboard-demo.mp4"
-              className="w-full h-auto block"
-              style={{ aspectRatio: '16/9' }}
-            />
+            <Image src="/dashboard-preview.png" alt="HelloML dashboard showing call logs, transcripts, and bookings" width={1600} height={1000} className="w-full h-auto block" priority />
           </motion.div>
         </div>
       </Slide>
 
-      {/* ═══ 5. HOW IT WORKS — with steps video ═══ */}
+      {/* ═══ 5. HOW IT WORKS — cards only, no duplicate video ═══ */}
       <Slide className="bg-[#FAF8F3]">
         <div className="max-w-5xl mx-auto w-full">
           <motion.div {...fadeUp} className="text-center mb-12">
@@ -292,16 +239,7 @@ export default function LandingPage() {
             <p className="text-base md:text-lg text-[#8B7355]">No technical skills needed.</p>
           </motion.div>
 
-          {/* Steps animation video */}
-          <motion.div {...scaleIn} className="flex justify-center mb-12">
-            <VideoLoop
-              src="/steps-animation.mp4"
-              className="w-full max-w-2xl rounded-2xl"
-              style={{ aspectRatio: '2/1' }}
-            />
-          </motion.div>
-
-          {/* Step cards */}
+          {/* Step cards with large numbers */}
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {[
               { step: '01', icon: <DocumentIcon />, title: 'Tell us about your business', desc: 'What you do, your hours, your services. Takes 30 seconds.' },
@@ -326,14 +264,13 @@ export default function LandingPage() {
         </div>
       </Slide>
 
-      {/* ═══ 6. FEATURES — with visuals ═══ */}
+      {/* ═══ 6. FEATURES — bento grid (Noah liked this) ═══ */}
       <Slide className="bg-[#F0EBE1]">
         <div className="max-w-5xl mx-auto w-full">
           <motion.h2 {...fadeUp} className="text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-12">
             Everything you need.{' '}<span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]/50">Nothing you don&apos;t.</span>
           </motion.h2>
 
-          {/* Bento grid with mixed sizes */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {/* Large card — booking */}
             <motion.div
@@ -348,9 +285,8 @@ export default function LandingPage() {
                 <h3 className="text-xl md:text-2xl font-bold text-[#8B6F47] mb-2">Books appointments automatically</h3>
                 <p className="text-[#8B7355] text-sm md:text-base leading-relaxed max-w-md">Checks your real-time availability and books directly on your calendar. No double-bookings, no phone tag.</p>
               </div>
-              {/* Decorative calendar visual */}
               <div className="absolute -right-8 -bottom-8 w-48 h-48 md:w-64 md:h-64 opacity-[0.06] group-hover:opacity-[0.1] transition-opacity">
-                <svg viewBox="0 0 200 200" fill="#8B6F47"><rect x="20" y="40" width="160" height="140" rx="12"/><rect x="20" y="20" width="160" height="30" rx="12"/>{[0,1,2,3,4].map(r => [0,1,2,3,4,5,6].map(c => <rect key={`${r}-${c}`} x={30+c*22} y={60+r*24} width="16" height="16" rx="3" fill="white" opacity="0.3"/>))}</svg>
+                <svg viewBox="0 0 200 200" fill="#8B6F47"><rect x="20" y="40" width="160" height="140" rx="12"/><rect x="20" y="20" width="160" height="30" rx="12"/></svg>
               </div>
             </motion.div>
 
@@ -360,7 +296,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1, duration: 0.6, ease }}
-              className="p-6 rounded-2xl bg-[#8B6F47] text-white border border-[#8B6F47] relative overflow-hidden group"
+              className="p-6 rounded-2xl bg-[#8B6F47] text-white border border-[#8B6F47] relative overflow-hidden"
             >
               <div className="absolute top-4 right-4 text-6xl font-bold text-white/10">24/7</div>
               <div className="relative z-10">
@@ -381,7 +317,6 @@ export default function LandingPage() {
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#8B6F47]/10 text-[#8B6F47] mb-4"><TranscriptIcon /></div>
               <h3 className="text-lg md:text-xl font-bold text-[#8B6F47] mb-2">Full transcripts</h3>
               <p className="text-[#8B7355] text-sm leading-relaxed">Every call transcribed, summarized, and searchable.</p>
-              {/* Decorative lines */}
               <div className="mt-4 space-y-2 opacity-30">
                 <div className="h-2 bg-[#8B6F47]/20 rounded w-full" />
                 <div className="h-2 bg-[#8B6F47]/15 rounded w-4/5" />
@@ -389,7 +324,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Large card — docs + voice waveform */}
+            {/* Large card — docs */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -403,11 +338,20 @@ export default function LandingPage() {
                   <h3 className="text-xl md:text-2xl font-bold text-[#8B6F47] mb-2">Answers from your docs</h3>
                   <p className="text-[#8B7355] text-sm md:text-base leading-relaxed">Upload FAQs, menus, or service lists. Your agent answers questions in real time with accurate information.</p>
                 </div>
-                <div className="flex items-center justify-center">
-                  <VideoLoop
-                    src="/ai-waveform.mp4"
-                    className="w-full max-w-[280px] rounded-xl opacity-60"
-                  />
+                {/* Decorative document stack */}
+                <div className="hidden md:flex items-center justify-center">
+                  <div className="relative w-48 h-36">
+                    <div className="absolute top-0 left-4 w-40 h-28 bg-[#8B6F47]/5 rounded-lg border border-[#8B6F47]/10 rotate-[-3deg]" />
+                    <div className="absolute top-2 left-2 w-40 h-28 bg-[#8B6F47]/8 rounded-lg border border-[#8B6F47]/10 rotate-[1deg]" />
+                    <div className="absolute top-4 left-0 w-40 h-28 bg-white rounded-lg border border-[#8B6F47]/15 shadow-sm p-3">
+                      <div className="space-y-2">
+                        <div className="h-2 bg-[#8B6F47]/15 rounded w-3/4" />
+                        <div className="h-2 bg-[#8B6F47]/10 rounded w-full" />
+                        <div className="h-2 bg-[#8B6F47]/10 rounded w-5/6" />
+                        <div className="h-2 bg-[#8B6F47]/8 rounded w-2/3" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -415,17 +359,12 @@ export default function LandingPage() {
         </div>
       </Slide>
 
-      {/* ═══ 7. DARK SECTION — integrations + stats ═══ */}
+      {/* ═══ 7. DARK SECTION — clean, no white rectangle ═══ */}
       <section
         className="min-h-screen flex items-center justify-center px-6 bg-[#1a1a1a] relative overflow-hidden"
         style={{ scrollSnapAlign: 'start' }}
       >
         <NoiseOverlay opacity={0.06} />
-
-        {/* Subtle waveform background */}
-        <div className="absolute inset-0 flex items-end justify-center opacity-[0.04] pointer-events-none">
-          <VideoLoop src="/ai-waveform.mp4" className="w-full max-w-4xl" />
-        </div>
 
         <div className="max-w-5xl mx-auto w-full relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -481,45 +420,67 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ 8. PRICING ═══ */}
+      {/* ═══ 8. PRICING — redesigned as a card ═══ */}
       <Slide className="bg-[#FAF8F3]">
-        <div className="max-w-4xl mx-auto text-center relative">
-          {/* Decorative background */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none">
-            <VideoLoop src="/floating-cards.mp4" className="w-full max-w-3xl" />
-          </div>
+        <div className="max-w-lg mx-auto w-full">
+          <motion.div {...scaleIn}>
+            <p className="text-sm uppercase tracking-[0.2em] text-[#A67A5B]/50 font-medium mb-8 text-center">Simple pricing</p>
 
-          <div className="relative z-10">
-            <motion.div {...scaleIn}>
-              <p className="text-sm uppercase tracking-[0.2em] text-[#A67A5B]/50 font-medium mb-4">Simple pricing</p>
-              <h2 className="text-6xl md:text-8xl lg:text-9xl font-bold text-[#8B6F47] mb-4">
-                <span style={{ fontFamily: 'Borel, cursive' }}>$5</span><span className="text-3xl md:text-4xl text-[#8B6F47]/50">/mo</span>
-              </h2>
-              <p className="text-lg md:text-xl text-[#8B7355] mb-1">per agent</p>
-            </motion.div>
-
-            <motion.div {...fadeUp} transition={{ delay: 0.2, duration: 0.5, ease }} className="mt-6 mb-10">
-              <div className="inline-flex items-center gap-6 md:gap-10 text-sm text-[#8B7355]">
-                <span>100 minutes included</span>
-                <span className="w-1 h-1 rounded-full bg-[#8B6F47]/30" />
-                <span>$0.10/min after</span>
-                <span className="w-1 h-1 rounded-full bg-[#8B6F47]/30" />
-                <span>Cancel anytime</span>
+            {/* Pricing card */}
+            <div className="bg-white rounded-3xl border border-[#E8DCC8] shadow-xl shadow-[#8B6F47]/8 overflow-hidden">
+              {/* Price header */}
+              <div className="px-8 pt-10 pb-6 text-center bg-gradient-to-b from-[#FAF8F3] to-white">
+                <h2 className="text-6xl md:text-7xl font-bold text-[#8B6F47] mb-1">
+                  <span style={{ fontFamily: 'Borel, cursive' }}>$5</span>
+                </h2>
+                <p className="text-lg text-[#8B7355]">per agent / month</p>
               </div>
-            </motion.div>
 
-            <motion.div {...fadeUp} transition={{ delay: 0.4, duration: 0.5, ease }} className="flex flex-col sm:flex-row items-center gap-3 justify-center">
-              <Link href="/auth?mode=signup">
-                <Button size="lg" className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-10 py-6 text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
-                  Get Started Free <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="/demo">
-                <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">Try the Live Demo</Button>
+              {/* Features list */}
+              <div className="px-8 py-6 space-y-4">
+                {[
+                  '100 minutes of calls included',
+                  '$0.10 per minute after',
+                  'Unlimited agents',
+                  'Real-time call transcripts',
+                  'Calendar booking integration',
+                  'Custom voice selection',
+                  'Cancel anytime',
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + i * 0.05, duration: 0.4, ease }}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-[#8B6F47]" />
+                    </div>
+                    <span className="text-sm text-[#3D3425]">{item}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="px-8 pb-8 pt-2">
+                <Link href="/auth?mode=signup" className="block">
+                  <Button size="lg" className="w-full bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-xl py-6 text-lg font-medium shadow-lg shadow-[#8B6F47]/20 group cursor-pointer">
+                    Start Free <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <p className="text-xs text-[#A67A5B]/40 mt-3 text-center">No credit card required. No contracts.</p>
+              </div>
+            </div>
+
+            {/* Demo link below card */}
+            <motion.div {...fadeUp} transition={{ delay: 0.5, duration: 0.5, ease }} className="text-center mt-6">
+              <Link href="/demo" className="text-sm text-[#8B6F47] hover:text-[#A67A5B] transition-colors font-medium">
+                Or try the live demo first
               </Link>
             </motion.div>
-            <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.6 }} className="text-xs text-[#A67A5B]/40 mt-4">No credit card required. No contracts. No hidden fees.</motion.p>
-          </div>
+          </motion.div>
         </div>
       </Slide>
 
