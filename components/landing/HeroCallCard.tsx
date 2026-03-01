@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 /**
  * Live call transcript card for hero section.
  * Auto-plays a phone conversation between a caller and HelloML AI.
- * Clean UI card with typing animation — demonstrates the product instantly.
+ * BIGGER version with more detail — demonstrates the product instantly.
  */
 
 interface Message {
@@ -14,14 +14,16 @@ interface Message {
 }
 
 const CONVERSATION: Message[] = [
-  { role: 'caller', text: "Hi, I need to schedule an appointment for Thursday." },
-  { role: 'ai', text: "Of course! I have a 2:30 opening on Thursday. Would that work?" },
-  { role: 'caller', text: "That's perfect. Can you also send me the address?" },
-  { role: 'ai', text: "You're all set for Thursday at 2:30. I'll send the address and confirmation to your email right now." },
+  { role: 'caller', text: "Hi, I need to schedule a plumbing repair for this week." },
+  { role: 'ai', text: "I can help with that. We have openings on Wednesday at 10 AM or Thursday at 2:30 PM. Which works better?" },
+  { role: 'caller', text: "Thursday at 2:30 works. Do you need my address?" },
+  { role: 'ai', text: "Yes please, and I'll also need a brief description of the issue so our technician comes prepared." },
+  { role: 'caller', text: "It's a leaking kitchen faucet. Address is 445 Oak Street." },
+  { role: 'ai', text: "Perfect. You're booked for Thursday at 2:30 for a kitchen faucet repair at 445 Oak Street. I'll send a confirmation text with your technician's name shortly." },
 ];
 
-const TYPING_SPEED = 35; // ms per character
-const PAUSE_BETWEEN = 800; // ms between messages
+const TYPING_SPEED = 30; // ms per character
+const PAUSE_BETWEEN = 700; // ms between messages
 const RESTART_DELAY = 3000; // ms before restarting
 
 export function HeroCallCard({ className = '' }: { className?: string }) {
@@ -29,15 +31,22 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
   const [currentMsg, setCurrentMsg] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Timer
+  useEffect(() => {
+    const t = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (currentMsg >= CONVERSATION.length) {
-      // Restart after delay
       const t = setTimeout(() => {
         setMessages([]);
         setCurrentMsg(0);
         setCurrentChar(0);
+        setElapsed(0);
       }, RESTART_DELAY);
       return () => clearTimeout(t);
     }
@@ -45,7 +54,6 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
     const msg = CONVERSATION[currentMsg];
 
     if (currentChar === 0) {
-      // Start new message — show typing indicator
       setIsTyping(true);
       const t = setTimeout(() => {
         setIsTyping(false);
@@ -56,7 +64,6 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
     }
 
     if (currentChar <= msg.text.length) {
-      // Type character
       const t = setTimeout(() => {
         setMessages(prev => {
           const updated = [...prev];
@@ -72,7 +79,6 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
       return () => clearTimeout(t);
     }
 
-    // Message complete — pause then next
     const t = setTimeout(() => {
       setCurrentMsg(m => m + 1);
       setCurrentChar(0);
@@ -80,60 +86,68 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
     return () => clearTimeout(t);
   }, [currentMsg, currentChar]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [messages]);
 
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
   return (
     <div className={`relative ${className}`}>
-      {/* Call card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/10 overflow-hidden" style={{ width: 440, maxWidth: '92vw' }}>
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/15 overflow-hidden" style={{ width: 520, maxWidth: '94vw' }}>
         {/* Call header */}
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-[#E8DCC8]/50 bg-[#FAF8F3]">
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[#E8DCC8]/50 bg-[#FAF8F3]">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-[#8B6F47]/15 flex items-center justify-center">
+              <svg className="w-5 h-5 text-[#8B6F47]" viewBox="0 0 48 48" fill="none"><path d="M38 32.5v4.5a3 3 0 01-3.27 3 29.7 29.7 0 01-12.95-4.61 29.27 29.27 0 01-9-9A29.7 29.7 0 018.17 13.27 3 3 0 0111.15 10H15.67a3 3 0 013 2.58 19.27 19.27 0 001.05 4.22 3 3 0 01-.68 3.16l-1.9 1.9a24 24 0 009 9l1.9-1.9a3 3 0 013.16-.68 19.27 19.27 0 004.22 1.05 3 3 0 012.58 3.07z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" />
+          </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-[#3D3425]">HelloML Agent</p>
-            <p className="text-xs text-[#8B7355]">Active call</p>
+            <p className="text-xs text-green-600 font-medium">Live call in progress</p>
           </div>
           {/* Live waveform bars */}
-          <div className="flex items-end gap-[2px] h-5">
-            {Array.from({ length: 5 }, (_, i) => (
+          <div className="flex items-end gap-[2px] h-6 mr-2">
+            {Array.from({ length: 7 }, (_, i) => (
               <div
                 key={i}
-                className="w-[3px] rounded-full bg-[#8B6F47]"
+                className="w-[3px] rounded-full bg-[#8B6F47]/60"
                 style={{
-                  height: 8 + Math.random() * 12,
+                  height: 6 + Math.random() * 14,
                   transformOrigin: 'bottom',
-                  animation: `voiceBar ${0.3 + i * 0.1}s ${i * 0.05}s ease-in-out infinite alternate`,
+                  animation: `voiceBar ${0.3 + i * 0.08}s ${i * 0.04}s ease-in-out infinite alternate`,
                 }}
               />
             ))}
           </div>
+          <span className="text-xs font-mono text-[#A67A5B]/60 tabular-nums">{timeStr}</span>
         </div>
 
         {/* Transcript area */}
-        <div ref={containerRef} className="px-5 py-3 space-y-2.5 min-h-[150px] max-h-[180px] overflow-y-auto">
+        <div ref={containerRef} className="px-5 py-4 space-y-3 min-h-[220px] max-h-[280px] overflow-y-auto">
           {messages.map((msg, i) => (
             <div
               key={i}
               className={`flex ${msg.role === 'caller' ? 'justify-start' : 'justify-end'}`}
             >
               <div
-                className={`max-w-[80%] px-3.5 py-2 rounded-2xl text-sm leading-relaxed ${
+                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
                   msg.role === 'caller'
                     ? 'bg-[#F5F0E8] text-[#3D3425] rounded-bl-md'
                     : 'bg-[#8B6F47] text-white rounded-br-md'
                 }`}
               >
                 {msg.text}
-                {msg.typing && <span className="inline-block w-[2px] h-4 bg-current ml-0.5 animate-pulse" />}
+                {msg.typing && <span className="inline-block w-[2px] h-3.5 bg-current ml-0.5 animate-pulse" />}
               </div>
             </div>
           ))}
-          {isTyping && (
+          {isTyping && currentMsg < CONVERSATION.length && (
             <div className={`flex ${CONVERSATION[currentMsg]?.role === 'caller' ? 'justify-start' : 'justify-end'}`}>
               <div className={`px-4 py-2.5 rounded-2xl ${
                 CONVERSATION[currentMsg]?.role === 'caller'
@@ -156,9 +170,13 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
           )}
         </div>
 
-        {/* Call duration footer */}
-        <div className="px-5 py-2 border-t border-[#E8DCC8]/30 bg-[#FAF8F3]/50">
-          <p className="text-[10px] text-[#A67A5B]/60 text-center font-mono">00:42</p>
+        {/* Bottom bar with booking confirmation */}
+        <div className="px-5 py-2.5 border-t border-[#E8DCC8]/30 bg-[#FAF8F3]/50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <p className="text-[11px] text-[#8B7355]">Real-time transcription</p>
+          </div>
+          <p className="text-[11px] text-[#A67A5B]/50">Powered by HelloML</p>
         </div>
       </div>
     </div>
