@@ -102,7 +102,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               transition={{ duration: 1, ease }}
-              className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-0 leading-[1.05]"
+              className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-4 leading-[1.05]"
             >
               <span className="text-[#8B6F47]/40">AI that </span>
               <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
