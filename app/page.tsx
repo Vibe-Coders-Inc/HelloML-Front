@@ -146,9 +146,38 @@ const integrations = [
    8 sections, conversion-optimized
    ═══════════════════════════════════════════ */
 export default function LandingPage() {
+  /* ── Hero scroll-linked: scale down + blur as you scroll away ── */
+  const heroRef = useRef(null);
+  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 0.9]);
+  const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
+  const heroBlur = useTransform(heroScroll, [0, 1], [0, 8]);
+
+  /* ── Dashboard: clip-path reveal from center ── */
   const dashRef = useRef(null);
-  const { scrollYProgress: dashScroll } = useScroll({ target: dashRef, offset: ['start end', 'end start'] });
-  const dashY = useTransform(dashScroll, [0, 1], [40, -40]);
+  const { scrollYProgress: dashScroll } = useScroll({ target: dashRef, offset: ['start end', 'center center'] });
+  const dashClip = useTransform(dashScroll, [0, 1], ['inset(5% 30% 5% 30% round 16px)', 'inset(0% 0% 0% 0% round 16px)']);
+  const dashScale = useTransform(dashScroll, [0, 1], [0.92, 1]);
+  const dashOpacity = useTransform(dashScroll, [0, 0.3], [0, 1]);
+
+  /* ── Bold statement: scroll-linked convergence ── */
+  const statementRef = useRef(null);
+  const { scrollYProgress: stmtScroll } = useScroll({ target: statementRef, offset: ['start end', 'center center'] });
+  const stmtTalksX = useTransform(stmtScroll, [0, 0.6], [-150, 0]);
+  const stmtHumanY = useTransform(stmtScroll, [0.1, 0.7], [80, 0]);
+  const stmtWorksX = useTransform(stmtScroll, [0.2, 0.8], [150, 0]);
+  const stmtMachineY = useTransform(stmtScroll, [0.3, 0.9], [100, 0]);
+  const stmtOpacity = useTransform(stmtScroll, [0, 0.4], [0, 1]);
+  const stmtWorksOpacity = useTransform(stmtScroll, [0.15, 0.5], [0, 0.25]);
+  const stmtMachineOpacity = useTransform(stmtScroll, [0.25, 0.65], [0, 1]);
+  const stmtOrbScale = useTransform(stmtScroll, [0, 0.5], [0.4, 1]);
+  const stmtLikeOpacity = useTransform(stmtScroll, [0.05, 0.45], [0, 0.35]);
+
+  /* ── Features: scroll-linked scale ── */
+  const featRef = useRef(null);
+  const { scrollYProgress: featScroll } = useScroll({ target: featRef, offset: ['start end', 'start 0.3'] });
+  const featScale = useTransform(featScroll, [0, 1], [0.95, 1]);
+  const featOpacity = useTransform(featScroll, [0, 0.5], [0, 1]);
 
   return (
     <div className="min-h-screen bg-[#FAF8F3] overflow-x-hidden">
@@ -168,13 +197,11 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── 1. HERO ── */}
-      <section className="pt-28 md:pt-40 pb-16 flex flex-col items-center justify-center">
+      {/* ── 1. HERO (sticky, scales down on scroll) ── */}
+      <section ref={heroRef} className="pt-28 md:pt-40 pb-16 flex flex-col items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-4xl mx-auto text-center px-6"
+          style={{ scale: heroScale, opacity: heroOpacity, filter: useTransform(heroBlur, v => `blur(${v}px)`) }}
+          className="max-w-4xl mx-auto text-center px-6 will-change-transform"
         >
           {/* Wisprflow-style opacity mixing: "AI that" at 40% opacity, "answers" full */}
           <motion.h1
@@ -230,10 +257,10 @@ export default function LandingPage() {
         </div>
       </FadeIn>
 
-      {/* ── 3. DASHBOARD (parallax) ── */}
-      <motion.div ref={dashRef} style={{ y: dashY }} className="w-full max-w-5xl mx-auto px-4 md:px-6 mt-2 mb-16">
-        <FadeIn className="will-change-transform">
-          <div className="relative perspective-mobile md:perspective-desktop rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10">
+      {/* ── 3. DASHBOARD (clip-path reveal on scroll) ── */}
+      <div ref={dashRef} className="w-full max-w-5xl mx-auto px-4 md:px-6 mt-2 mb-16">
+        <motion.div style={{ clipPath: dashClip, scale: dashScale, opacity: dashOpacity }} className="will-change-transform">
+          <div className="relative rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10">
             <div className="bg-[#F5EFE6] px-2 md:px-4 py-1 md:py-3 flex items-center gap-1 md:gap-2 border-b border-[#E8DCC8]/60">
               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
               <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
@@ -249,31 +276,25 @@ export default function LandingPage() {
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ background: 'linear-gradient(to top, #FAF8F3 10%, transparent)' }} />
           </div>
-        </FadeIn>
-      </motion.div>
+        </motion.div>
+      </div>
 
-      {/* ── BOLD STATEMENT (scattered typography on scroll) ── */}
-      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+      {/* ── BOLD STATEMENT (scroll-linked convergence) ── */}
+      <section ref={statementRef} className="py-32 md:py-48 px-4 relative overflow-hidden">
         <div className="max-w-6xl mx-auto">
           {/* Row 1: "Talks" [orb] "like a" */}
           <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-10 mb-2 md:mb-4">
             <motion.span
-              initial={{ opacity: 0, x: -100 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ x: stmtTalksX, opacity: stmtOpacity }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight will-change-transform"
+              data-font="playfair"
             >
               Talks
             </motion.span>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="w-20 h-20 sm:w-28 sm:h-28 md:w-40 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden shrink-0"
+              style={{ scale: stmtOrbScale, opacity: stmtOpacity }}
+              className="w-20 h-20 sm:w-28 sm:h-28 md:w-40 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden shrink-0 will-change-transform"
             >
               <div className="w-full h-full relative" style={{
                 background: 'linear-gradient(135deg, #1a1520 0%, #3a2560 30%, #8B6F47 60%, #D4A96A 80%, #E8DCC8 100%)',
@@ -288,12 +309,9 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.span
-              initial={{ opacity: 0, x: 80 }}
-              whileInView={{ opacity: 0.35, x: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none"
-              style={{ fontFamily: 'Borel, cursive' }}
+              style={{ opacity: stmtLikeOpacity }}
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none will-change-transform"
+              data-font="borel"
             >
               like a
             </motion.span>
@@ -302,12 +320,9 @@ export default function LandingPage() {
           {/* Row 2: "human." */}
           <div className="flex justify-center md:justify-start md:pl-[15%] mb-2 md:mb-4">
             <motion.span
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ y: stmtHumanY, opacity: stmtOpacity }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight will-change-transform"
+              data-font="playfair"
             >
               human.
             </motion.span>
@@ -316,22 +331,16 @@ export default function LandingPage() {
           {/* Row 3: "Works" "like a" */}
           <div className="flex items-baseline justify-center md:justify-end md:pr-[5%] gap-4 sm:gap-6 md:gap-10 mb-2 md:mb-4">
             <motion.span
-              initial={{ opacity: 0, x: 100 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47]/25 leading-none tracking-tight"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ x: stmtWorksX, opacity: stmtWorksOpacity }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight will-change-transform"
+              data-font="playfair"
             >
               Works
             </motion.span>
             <motion.span
-              initial={{ opacity: 0, y: -30 }}
-              whileInView={{ opacity: 0.35, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none"
-              style={{ fontFamily: 'Borel, cursive' }}
+              style={{ opacity: stmtLikeOpacity }}
+              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#8B6F47] leading-none will-change-transform"
+              data-font="borel"
             >
               like a
             </motion.span>
@@ -340,12 +349,9 @@ export default function LandingPage() {
           {/* Row 4: "machine." */}
           <div className="flex justify-center md:justify-end md:pr-[15%]">
             <motion.span
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              style={{ y: stmtMachineY, opacity: stmtMachineOpacity }}
+              className="text-6xl sm:text-8xl md:text-[130px] lg:text-[150px] font-bold text-[#8B6F47] leading-none tracking-tight will-change-transform"
+              data-font="playfair"
             >
               machine.
             </motion.span>
@@ -410,8 +416,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. FEATURES (staggered 2x2 grid) ── */}
-      <section className="py-20 md:py-24 px-4 bg-[#F0EBE1]">
+      {/* ── 5. FEATURES (scroll-linked scale reveal) ── */}
+      <motion.section ref={featRef} style={{ scale: featScale, opacity: featOpacity }} className="py-20 md:py-24 px-4 bg-[#F0EBE1] will-change-transform">
         <div className="max-w-5xl mx-auto">
           <FadeIn className="text-center mb-12">
             <h2 className="text-3xl md:text-5xl font-bold text-[#8B6F47]">
@@ -450,7 +456,7 @@ export default function LandingPage() {
             ))}
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── 6. DARK SECTION (integrations + social proof) ── */}
       <section className="py-24 md:py-32 px-4 bg-[#1a1a1a] relative overflow-hidden">

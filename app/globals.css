@@ -48,6 +48,14 @@ body {
   font-family: 'Playfair Display', Georgia, serif;
 }
 
+[data-font="playfair"] {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+[data-font="borel"] {
+  font-family: 'Borel', cursive;
+}
+
 /* ═══════════════════════════════════════════
    CSS SCROLL-DRIVEN REVEAL
    Uses animation-timeline: view() for buttery
