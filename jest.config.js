@@ -8,6 +8,7 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^lottie-react$': '<rootDir>/__tests__/__mocks__/lottie-react.tsx',
   },
   testMatch: ['<rootDir>/__tests__/**/*.test.{ts,tsx}'],
 };

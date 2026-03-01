@@ -1,7 +1,10 @@
 'use client';
 
+import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic } from 'lucide-react';
+import Lottie, { LottieRefCurrentProps } from 'lottie-react';
+import voiceOrbData from '@/lib/voice-orb-lottie.json';
 
 interface VoiceOrbProps {
   state: 'idle' | 'connecting' | 'active' | 'ended';
@@ -11,115 +14,61 @@ interface VoiceOrbProps {
 }
 
 /**
- * Premium voice orb — organic pulsing blob with layered gradient rings.
- * Reacts to audio level and AI speaking state.
- * Inspired by LottieFiles "Med Purple Active" orb style.
+ * Voice orb using a real Lottie animation (Med Purple Active).
+ * Reacts to audio level by controlling playback speed.
+ * Tinted to brown via CSS filter to match HelloML palette.
  */
 export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbProps) {
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
   const isActive = state === 'active';
   const isConnecting = state === 'connecting';
-  const isEnded = state === 'ended';
 
-  // Audio-reactive scale
-  const pulse = isActive ? 1 + audioLevel * 0.3 : 1;
+  // Control Lottie playback speed based on audio level
+  useEffect(() => {
+    if (!lottieRef.current) return;
+    if (isActive) {
+      // Speed up animation based on audio level (0.5x idle to 3x loud)
+      lottieRef.current.setSpeed(0.5 + audioLevel * 2.5);
+    } else if (isConnecting) {
+      lottieRef.current.setSpeed(1.2);
+    } else {
+      lottieRef.current.setSpeed(0.5);
+    }
+  }, [isActive, isConnecting, audioLevel]);
 
-  // Colors based on state
-  const primaryColor = aiSpeaking ? '#8B5CF6' : '#8B6F47';
-  const glowColor = aiSpeaking ? 'rgba(139,92,246,' : 'rgba(139,111,71,';
+  // Scale based on audio
+  const pulse = isActive ? 1 + audioLevel * 0.15 : 1;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 300, height: 300 }}>
-      {/* Outermost gradient ring — soft halo */}
+      {/* Lottie orb — tinted to brown with CSS filter */}
       <motion.div
-        className="absolute rounded-full"
+        className="absolute inset-0 flex items-center justify-center"
         animate={{
-          scale: isActive ? pulse * 1.6 : isConnecting ? [1.3, 1.45, 1.3] : [1.2, 1.3, 1.2],
-          opacity: isActive ? 0.12 + audioLevel * 0.15 : isConnecting ? [0.06, 0.12, 0.06] : 0.08,
+          scale: isActive ? pulse : isConnecting ? [1, 1.05, 1] : 1,
+          opacity: state === 'ended' ? 0.3 : 1,
         }}
         transition={isActive
-          ? { scale: { duration: 0.12, ease: 'easeOut' }, opacity: { duration: 0.12 } }
-          : { duration: 3, repeat: Infinity, ease: 'easeInOut' }
-        }
-        style={{
-          width: 200,
-          height: 200,
-          background: `conic-gradient(from 0deg, ${glowColor}0.2), ${glowColor}0.05), ${glowColor}0.15), ${glowColor}0.05))`,
-          filter: 'blur(20px)',
-        }}
-      />
-
-      {/* Ring 2 — visible gradient ring */}
-      <AnimatePresence>
-        {(isActive || isConnecting || state === 'idle') && (
-          <motion.div
-            className="absolute rounded-full"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{
-              scale: isActive ? pulse * 1.35 : isConnecting ? [1.15, 1.25, 1.15] : [1.05, 1.15, 1.05],
-              opacity: isActive ? 0.2 + audioLevel * 0.2 : [0.08, 0.16, 0.08],
-              rotate: isActive ? [0, 360] : [0, 180],
-            }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={isActive
-              ? { scale: { duration: 0.12 }, rotate: { duration: 8, repeat: Infinity, ease: 'linear' } }
-              : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
-            }
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: '50%',
-              border: `2px solid ${glowColor}${isActive ? '0.25' : '0.12'})`,
-              background: `conic-gradient(from 45deg, ${glowColor}0.15), transparent, ${glowColor}0.08), transparent)`,
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Ring 1 — inner glow ring */}
-      <motion.div
-        className="absolute rounded-full"
-        animate={{
-          scale: isActive ? pulse * 1.15 : isConnecting ? [1.02, 1.1, 1.02] : [1, 1.06, 1],
-          opacity: isActive ? 0.25 + audioLevel * 0.3 : [0.1, 0.2, 0.1],
-        }}
-        transition={isActive
-          ? { duration: 0.12, ease: 'easeOut' }
-          : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
-        }
-        style={{
-          width: 150,
-          height: 150,
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${glowColor}0.3) 0%, ${glowColor}0.08) 60%, transparent 80%)`,
-          border: `1.5px solid ${glowColor}0.15)`,
-        }}
-      />
-
-      {/* Core orb — solid center with gradient */}
-      <motion.div
-        className="absolute rounded-full"
-        animate={{
-          scale: isActive ? pulse : isConnecting ? [1, 1.04, 1] : 1,
-          boxShadow: isActive
-            ? `0 0 ${25 + audioLevel * 40}px ${glowColor}${0.15 + audioLevel * 0.2}), inset 0 0 30px ${glowColor}0.1)`
-            : `0 0 20px ${glowColor}0.08), inset 0 0 20px ${glowColor}0.05)`,
-        }}
-        transition={isActive
-          ? { duration: 0.12, ease: 'easeOut' }
+          ? { scale: { duration: 0.12, ease: 'easeOut' } }
           : isConnecting
-            ? { duration: 1.5, repeat: Infinity, ease: 'easeInOut' }
-            : { duration: 0.3 }
+            ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+            : { duration: 0.5 }
         }
         style={{
-          width: 120,
-          height: 120,
-          background: isActive && aiSpeaking
-            ? 'linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(139,92,246,0.1) 50%, rgba(167,139,250,0.15) 100%)'
-            : 'linear-gradient(135deg, rgba(201,168,124,0.22) 0%, rgba(166,122,91,0.1) 50%, rgba(201,168,124,0.18) 100%)',
-          backdropFilter: 'blur(30px)',
-          border: `1px solid ${glowColor}0.12)`,
+          // Tint the purple Lottie orb to warm brown
+          filter: aiSpeaking
+            ? 'hue-rotate(-60deg) saturate(0.8) brightness(1.1)'
+            : 'hue-rotate(-60deg) saturate(0.6) sepia(0.3) brightness(1.05)',
         }}
-      />
+      >
+        <Lottie
+          lottieRef={lottieRef}
+          animationData={voiceOrbData}
+          loop
+          autoplay
+          style={{ width: 280, height: 280 }}
+        />
+      </motion.div>
 
       {/* Clickable center content */}
       <motion.button
@@ -149,7 +98,6 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
             animate={{ opacity: 1 }}
             style={{ height: 32 }}
           >
-            {/* Audio bars — dome shape like wisprflow voice icon */}
             {Array.from({ length: 7 }, (_, i) => {
               const center = 3;
               const dist = Math.abs(i - center) / center;
@@ -171,7 +119,7 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
             })}
           </motion.div>
         )}
-        {isEnded && (
+        {state === 'ended' && (
           <div className="text-[#6B553A]/60 text-sm font-medium">Done</div>
         )}
       </motion.button>
