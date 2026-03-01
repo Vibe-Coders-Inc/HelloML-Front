@@ -189,25 +189,20 @@ body {
   100% { transform: scaleY(1); }
 }
 
-/* Three independent blob animations for organic orb */
+/* Three independent blob animations — SMOOTH, subtle morphing */
 @keyframes blobA {
-  0%   { border-radius: 42% 58% 62% 38% / 45% 55% 45% 55%; transform: rotate(0deg); }
-  25%  { border-radius: 55% 45% 38% 62% / 58% 42% 56% 44%; }
-  50%  { border-radius: 38% 62% 55% 45% / 42% 58% 62% 38%; transform: rotate(6deg); }
-  75%  { border-radius: 62% 38% 45% 55% / 55% 45% 38% 62%; }
-  100% { border-radius: 42% 58% 62% 38% / 45% 55% 45% 55%; transform: rotate(0deg); }
+  0%   { border-radius: 44% 56% 54% 46% / 48% 52% 48% 52%; transform: rotate(0deg); }
+  33%  { border-radius: 52% 48% 46% 54% / 54% 46% 52% 48%; transform: rotate(3deg); }
+  66%  { border-radius: 46% 54% 52% 48% / 46% 54% 46% 54%; transform: rotate(-2deg); }
+  100% { border-radius: 44% 56% 54% 46% / 48% 52% 48% 52%; transform: rotate(0deg); }
 }
 @keyframes blobB {
-  0%   { border-radius: 58% 42% 45% 55% / 62% 38% 55% 45%; transform: rotate(0deg) translate(3px, -2px); }
-  33%  { border-radius: 45% 55% 62% 38% / 38% 62% 42% 58%; transform: rotate(-4deg) translate(-2px, 3px); }
-  66%  { border-radius: 62% 38% 38% 62% / 55% 45% 58% 42%; transform: rotate(5deg) translate(2px, 1px); }
-  100% { border-radius: 58% 42% 45% 55% / 62% 38% 55% 45%; transform: rotate(0deg) translate(3px, -2px); }
+  0%   { border-radius: 52% 48% 48% 52% / 54% 46% 50% 50%; transform: translate(2px, -1px); }
+  50%  { border-radius: 48% 52% 54% 46% / 46% 54% 48% 52%; transform: translate(-2px, 2px); }
+  100% { border-radius: 52% 48% 48% 52% / 54% 46% 50% 50%; transform: translate(2px, -1px); }
 }
 @keyframes blobC {
-  0%   { border-radius: 50% 50% 55% 45% / 55% 45% 50% 50%; transform: rotate(0deg) translate(-2px, 2px); }
-  20%  { border-radius: 65% 35% 40% 60% / 35% 65% 55% 45%; transform: rotate(3deg) translate(3px, -1px); }
-  40%  { border-radius: 40% 60% 65% 35% / 60% 40% 35% 65%; transform: rotate(-5deg) translate(-1px, -3px); }
-  60%  { border-radius: 55% 45% 35% 65% / 45% 55% 65% 35%; transform: rotate(4deg) translate(1px, 2px); }
-  80%  { border-radius: 35% 65% 50% 50% / 65% 35% 45% 55%; transform: rotate(-2deg) translate(-3px, 1px); }
-  100% { border-radius: 50% 50% 55% 45% / 55% 45% 50% 50%; transform: rotate(0deg) translate(-2px, 2px); }
+  0%   { border-radius: 48% 52% 52% 48% / 50% 50% 52% 48%; transform: translate(-1px, 1px); }
+  50%  { border-radius: 54% 46% 46% 54% / 48% 52% 46% 54%; transform: translate(1px, -2px); }
+  100% { border-radius: 48% 52% 52% 48% / 50% 50% 52% 48%; transform: translate(-1px, 1px); }
 }

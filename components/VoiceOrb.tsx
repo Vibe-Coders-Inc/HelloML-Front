@@ -19,16 +19,17 @@ interface VoiceOrbProps {
 export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbProps) {
   const isActive = state === 'active';
   const isConnecting = state === 'connecting';
-  const pulse = isActive ? 1 + audioLevel * 0.15 : 1;
+  // Gentle pulse — small range so it doesn't seize
+  const pulse = isActive ? 1 + audioLevel * 0.08 : 1;
   const glowIntensity = isActive ? 0.25 + audioLevel * 0.4 : isConnecting ? 0.15 : 0.1;
 
-  // Speed multiplier for blob morphing
-  const speed = isActive ? 0.6 + audioLevel * 0.4 : isConnecting ? 0.8 : 1;
+  // Speed multiplier — keep animations smooth, barely change with audio
+  const speed = isActive ? 0.85 : isConnecting ? 0.9 : 1;
 
   // Each blob layer has different colors and animation names
   const blobLayers = [
     {
-      animation: `blobA ${4 * speed}s ease-in-out infinite`,
+      animation: `blobA ${8 * speed}s ease-in-out infinite`,
       bg: aiSpeaking
         ? 'radial-gradient(circle at 40% 35%, rgba(200,160,100,0.95) 0%, rgba(139,111,71,1) 60%, rgba(80,55,30,1) 100%)'
         : 'radial-gradient(circle at 40% 35%, rgba(210,175,120,0.95) 0%, rgba(150,115,65,1) 60%, rgba(90,65,35,1) 100%)',
@@ -36,7 +37,7 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
       zIndex: 1,
     },
     {
-      animation: `blobB ${3.5 * speed}s ease-in-out infinite`,
+      animation: `blobB ${10 * speed}s ease-in-out infinite`,
       bg: aiSpeaking
         ? 'radial-gradient(circle at 55% 45%, rgba(180,140,80,0.8) 0%, rgba(120,90,50,0.85) 60%, rgba(70,50,28,0.9) 100%)'
         : 'radial-gradient(circle at 55% 45%, rgba(195,160,100,0.8) 0%, rgba(140,105,60,0.85) 60%, rgba(85,60,32,0.9) 100%)',
@@ -44,7 +45,7 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
       zIndex: 2,
     },
     {
-      animation: `blobC ${5 * speed}s ease-in-out infinite`,
+      animation: `blobC ${12 * speed}s ease-in-out infinite`,
       bg: aiSpeaking
         ? 'radial-gradient(circle at 35% 55%, rgba(170,130,75,0.7) 0%, rgba(110,80,45,0.75) 60%, rgba(65,45,25,0.8) 100%)'
         : 'radial-gradient(circle at 35% 55%, rgba(185,150,95,0.7) 0%, rgba(130,95,55,0.75) 60%, rgba(75,55,30,0.8) 100%)',
@@ -63,7 +64,7 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
           opacity: glowIntensity,
         }}
         transition={isActive
-          ? { duration: 0.1, ease: 'easeOut' }
+          ? { type: 'spring', stiffness: 60, damping: 20 }
           : { duration: 3, repeat: Infinity, ease: 'easeInOut' }
         }
         style={{
@@ -83,7 +84,7 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
             scale: isActive ? pulse : isConnecting ? [1, 1.04, 1] : [1, 1.02, 1],
           }}
           transition={isActive
-            ? { duration: 0.12, ease: 'easeOut' }
+            ? { type: 'spring', stiffness: 80, damping: 15 }
             : { duration: 2 + i, repeat: Infinity, ease: 'easeInOut' }
           }
           style={{
@@ -112,12 +113,12 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, onClick }: VoiceOrbPro
         animate={{
           scale: isActive ? pulse : isConnecting ? [1, 1.03, 1] : 1,
         }}
-        transition={isActive ? { duration: 0.12 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        transition={isActive ? { type: 'spring', stiffness: 80, damping: 15 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         style={{
           width: 200,
           height: 200,
           zIndex: 4,
-          animation: `blobA ${4.5 * speed}s ease-in-out infinite`,
+          animation: `blobA ${9 * speed}s ease-in-out infinite`,
           background: 'radial-gradient(circle at 30% 25%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 35%, transparent 55%)',
           pointerEvents: 'none',
         }}
