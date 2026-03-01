@@ -9,6 +9,7 @@ import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { VoiceEqualizer } from '@/components/landing/VoiceEqualizer';
 import { HeroCallCard } from '@/components/landing/HeroCallCard';
+import { HeroVoiceOrb } from '@/components/landing/HeroVoiceOrb';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
 import { useState } from 'react';
 
@@ -112,10 +113,15 @@ export default function LandingPage() {
             </motion.h1>
           </div>
 
-          {/* Hero call card */}
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-6">
-            <HeroCallCard />
-          </motion.div>
+          {/* Hero visual: voice orb + call card */}
+          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0 mb-6">
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
+              <HeroVoiceOrb />
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.5 }}>
+              <HeroCallCard />
+            </motion.div>
+          </div>
 
           <div className="max-w-4xl mx-auto text-center">
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg sm:text-xl text-[#8B7355] mb-8 max-w-xl mx-auto">
