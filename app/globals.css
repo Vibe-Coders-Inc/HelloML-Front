@@ -184,26 +184,4 @@ body {
   }
 }
 
-@keyframes voice-orb-1 {
-  0%, 100% { transform: scaleY(0.3); }
-  50% { transform: scaleY(1.0); }
-}
-
-@keyframes voice-orb-2 {
-  0%, 100% { transform: scaleY(0.5); }
-  35% { transform: scaleY(0.2); }
-  70% { transform: scaleY(0.9); }
-}
-
-@keyframes voice-orb-3 {
-  0%, 100% { transform: scaleY(0.2); }
-  40% { transform: scaleY(1.1); }
-  75% { transform: scaleY(0.4); }
-}
-
-@keyframes voice-orb-4 {
-  0%, 100% { transform: scaleY(0.6); }
-  30% { transform: scaleY(0.2); }
-  60% { transform: scaleY(1.0); }
-  85% { transform: scaleY(0.5); }
-}
+/* Voice waveform now uses canvas animation — no CSS keyframes needed */
