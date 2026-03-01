@@ -50,7 +50,7 @@ describe('VoiceOrb', () => {
   it('has correct container dimensions', () => {
     const { container } = render(<VoiceOrb state="idle" audioLevel={0} aiSpeaking={false} />);
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper.style.width).toBe('280px');
-    expect(wrapper.style.height).toBe('280px');
+    expect(wrapper.style.width).toBe('300px');
+    expect(wrapper.style.height).toBe('300px');
   });
 });
