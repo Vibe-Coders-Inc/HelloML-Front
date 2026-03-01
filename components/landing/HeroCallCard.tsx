@@ -115,7 +115,7 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
         </div>
 
         {/* Transcript area */}
-        <div ref={containerRef} className="px-5 py-4 space-y-3 min-h-[180px] max-h-[220px] overflow-y-auto">
+        <div ref={containerRef} className="px-5 py-3 space-y-2.5 min-h-[150px] max-h-[180px] overflow-y-auto">
           {messages.map((msg, i) => (
             <div
               key={i}
