@@ -4,8 +4,9 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Two crossing conversation ribbons with voice icon at intersection.
- * Caller speech flows left→right, AI responses flow right→left.
- * Ribbons cross at center where voice bars icon sits.
+ * Caller speech flows left→right (enters bottom-left, exits top-right).
+ * AI responses flow right→left (enters top-left, exits bottom-right).
+ * Voice bars icon sits at the crossing point.
  */
 
 const CALLER_TEXT = "Yeah hi I need to schedule something for Thursday if that works... um also wanted to ask about pricing for the full service package? And do you guys do weekends? My wife was asking about Saturday appointments too. Oh and one more thing can you send me the address again I lost the email... ";
@@ -22,10 +23,8 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
 
     function animate() {
       if (!running) return;
-      // Caller flows left to right (negative offset moves text forward)
       callerOffsetRef.current -= 0.5;
       if (callerOffsetRef.current < -4000) callerOffsetRef.current += 2000;
-      // AI flows right to left (positive offset)
       aiOffsetRef.current += 0.5;
       if (aiOffsetRef.current > 4000) aiOffsetRef.current -= 2000;
 
@@ -49,48 +48,62 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
   const aiTripled = AI_TEXT + AI_TEXT + AI_TEXT;
 
   return (
-    <div className={`relative w-full overflow-hidden ${className}`} style={{ height: 200 }} aria-hidden="true">
+    <div className={`relative w-full overflow-hidden ${className}`} style={{ height: 240 }} aria-hidden="true">
       <svg
-        viewBox="0 0 1200 200"
+        viewBox="0 0 1200 240"
         preserveAspectRatio="xMidYMid meet"
         className="w-full h-full"
       >
         <defs>
-          {/* Caller ribbon: enters bottom-left, curves up through center, exits top-right */}
+          {/* Caller ribbon: sweeps from bottom-left up to top-right, gentle S-curve */}
           <path
             id="callerPath"
-            d="M -300,180 C 100,180 300,50 500,40 C 600,35 600,35 700,40 C 900,50 1100,180 1500,180"
+            d="M -400,220 C 0,220 200,120 450,80 C 580,58 620,58 750,80 C 1000,120 1200,220 1600,220"
             fill="none"
           />
-          {/* AI ribbon: enters top-left, curves down through center, exits bottom-right */}
+          {/* AI ribbon: sweeps from top-left down to bottom-right, crossing the caller ribbon */}
           <path
             id="aiPath"
-            d="M -300,20 C 100,20 300,150 500,160 C 600,165 600,165 700,160 C 900,150 1100,20 1500,20"
+            d="M -400,20 C 0,20 200,120 450,160 C 580,182 620,182 750,160 C 1000,120 1200,20 1600,20"
             fill="none"
           />
         </defs>
 
-        {/* Caller ribbon band (dark brown) */}
+        {/* AI ribbon band (behind — slightly lighter) */}
         <path
-          d="M -300,180 C 100,180 300,50 500,40 C 600,35 600,35 700,40 C 900,50 1100,180 1500,180"
-          stroke="#3D3425"
-          strokeWidth="38"
-          strokeLinecap="round"
-          fill="none"
-          opacity="0.88"
-        />
-
-        {/* AI ribbon band (warm brown, slightly lighter) */}
-        <path
-          d="M -300,20 C 100,20 300,150 500,160 C 600,165 600,165 700,160 C 900,150 1100,20 1500,20"
+          d="M -400,20 C 0,20 200,120 450,160 C 580,182 620,182 750,160 C 1000,120 1200,20 1600,20"
           stroke="#6B5740"
-          strokeWidth="38"
+          strokeWidth="36"
           strokeLinecap="round"
           fill="none"
-          opacity="0.88"
+          opacity="0.85"
         />
 
-        {/* Caller text flowing along path */}
+        {/* AI text */}
+        <text
+          ref={aiTextRef}
+          fill="#FAF8F3"
+          fontSize="13"
+          fontFamily="system-ui, -apple-system, sans-serif"
+          letterSpacing="0.02em"
+          opacity="0.8"
+        >
+          <textPath href="#aiPath" startOffset="0">
+            {aiTripled}
+          </textPath>
+        </text>
+
+        {/* Caller ribbon band (in front — darker) */}
+        <path
+          d="M -400,220 C 0,220 200,120 450,80 C 580,58 620,58 750,80 C 1000,120 1200,220 1600,220"
+          stroke="#3D3425"
+          strokeWidth="36"
+          strokeLinecap="round"
+          fill="none"
+          opacity="0.9"
+        />
+
+        {/* Caller text */}
         <text
           ref={callerTextRef}
           fill="#FAF8F3"
@@ -103,29 +116,15 @@ export function VoiceEqualizer({ className = '' }: { className?: string }) {
             {callerTripled}
           </textPath>
         </text>
-
-        {/* AI text flowing along path */}
-        <text
-          ref={aiTextRef}
-          fill="#FAF8F3"
-          fontSize="13"
-          fontFamily="system-ui, -apple-system, sans-serif"
-          letterSpacing="0.02em"
-          opacity="0.85"
-        >
-          <textPath href="#aiPath" startOffset="0">
-            {aiTripled}
-          </textPath>
-        </text>
       </svg>
 
       {/* Voice bars icon at the crossing point */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <div className="bg-[#FAF8F3] border-2 border-[#3D3425] rounded-2xl px-5 py-3 flex items-end gap-[3px] shadow-lg" style={{ height: 54 }}>
+        <div className="bg-[#FAF8F3] border-2 border-[#3D3425] rounded-2xl px-5 py-3 flex items-end gap-[3px] shadow-lg shadow-[#3D3425]/20" style={{ height: 56 }}>
           {Array.from({ length: 16 }, (_, i) => {
             const center = 7.5;
             const dist = Math.abs(i - center) / center;
-            const h = Math.round(26 - dist * 18);
+            const h = Math.round(28 - dist * 20);
             return (
               <div
                 key={i}
