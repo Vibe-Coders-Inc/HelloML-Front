@@ -96,29 +96,30 @@ export default function LandingPage() {
 
       {/* ═══ 1. HERO ═══ */}
       <Slide className="bg-[#FAF8F3]">
-        <div className="max-w-4xl mx-auto text-center pt-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1, ease }}
-            className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-0 leading-[1.05]"
-          >
-            <span className="text-[#8B6F47]/40">AI that </span>
-            <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
-            <br className="hidden sm:block" />
-            <span className="text-[#8B6F47]"> your phone.</span>
-          </motion.h1>
-        </div>
+        <div className="w-full flex flex-col items-center">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 1, ease }}
+              className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-0 leading-[1.05]"
+            >
+              <span className="text-[#8B6F47]/40">AI that </span>
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
+              <br className="hidden sm:block" />
+              <span className="text-[#8B6F47]"> your phone.</span>
+            </motion.h1>
+          </div>
 
-        {/* Full-width flowing text ribbon */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }} className="w-full">
-          <VoiceEqualizer />
-        </motion.div>
+          {/* Full-width flowing text ribbon */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }} className="w-full -my-2">
+            <VoiceEqualizer />
+          </motion.div>
 
-        <div className="max-w-4xl mx-auto text-center -mt-6">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg sm:text-xl text-[#8B7355] mb-8 max-w-xl mx-auto">
-            Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">$5</span>/mo.
-          </motion.p>
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg sm:text-xl text-[#8B7355] mb-8 max-w-xl mx-auto">
+              Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">$5</span>/mo.
+            </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="flex flex-col sm:flex-row items-center gap-3 justify-center mb-3">
             <Link href="/demo">
@@ -145,6 +146,7 @@ export default function LandingPage() {
               </div>
             </div>
           </motion.div>
+          </div>
         </div>
       </Slide>
 
