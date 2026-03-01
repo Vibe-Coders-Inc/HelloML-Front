@@ -110,9 +110,9 @@ describe('Landing Page', () => {
     expect(signIn.closest('a')).toHaveAttribute('href', '/auth?mode=signin');
   });
 
-  it('shows hero call card', () => {
+  it('shows social proof section', () => {
     render(<LandingPage />);
-    expect(screen.getByTestId('hero-call-card')).toBeInTheDocument();
+    expect(screen.getByText(/Built by engineers from/)).toBeInTheDocument();
   });
 
   it('shows integration logos', () => {
