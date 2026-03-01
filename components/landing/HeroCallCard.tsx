@@ -90,7 +90,7 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
   return (
     <div className={`relative ${className}`}>
       {/* Call card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/10 overflow-hidden" style={{ width: 380, maxWidth: '90vw' }}>
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/10 overflow-hidden" style={{ width: 440, maxWidth: '92vw' }}>
         {/* Call header */}
         <div className="flex items-center gap-3 px-5 py-3 border-b border-[#E8DCC8]/50 bg-[#FAF8F3]">
           <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
