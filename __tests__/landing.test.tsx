@@ -41,6 +41,9 @@ jest.mock('@/components/Logo', () => ({
 jest.mock('@/components/landing/VoiceEqualizer', () => ({
   VoiceEqualizer: () => <div data-testid="voice-equalizer" />,
 }));
+jest.mock('@/components/landing/HeroCallCard', () => ({
+  HeroCallCard: () => <div data-testid="hero-call-card" />,
+}));
 
 jest.mock('@/components/landing/NoiseOverlay', () => ({
   NoiseOverlay: () => <div data-testid="noise-overlay" />,

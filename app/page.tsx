@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { VoiceEqualizer } from '@/components/landing/VoiceEqualizer';
+import { HeroCallCard } from '@/components/landing/HeroCallCard';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
 import { useState } from 'react';
 
@@ -111,9 +112,9 @@ export default function LandingPage() {
             </motion.h1>
           </div>
 
-          {/* Full-width flowing text ribbon */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }} className="w-full -my-2">
-            <VoiceEqualizer />
+          {/* Hero call card */}
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-6">
+            <HeroCallCard />
           </motion.div>
 
           <div className="max-w-4xl mx-auto text-center">
