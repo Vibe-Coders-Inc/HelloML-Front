@@ -151,7 +151,8 @@ export default function LandingPage() {
   const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroScale = useTransform(heroScroll, [0, 1], [1, 0.9]);
   const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
-  const heroBlur = useTransform(heroScroll, [0, 1], [0, 8]);
+  const heroBlurRaw = useTransform(heroScroll, [0, 1], [0, 8]);
+  const heroFilter = useTransform(heroBlurRaw, v => `blur(${v}px)`);
 
   /* ── Dashboard: clip-path reveal from center ── */
   const dashRef = useRef(null);
@@ -200,7 +201,7 @@ export default function LandingPage() {
       {/* ── 1. HERO (sticky, scales down on scroll) ── */}
       <section ref={heroRef} className="pt-28 md:pt-40 pb-16 flex flex-col items-center justify-center">
         <motion.div
-          style={{ scale: heroScale, opacity: heroOpacity, filter: useTransform(heroBlur, v => `blur(${v}px)`) }}
+          style={{ scale: heroScale, opacity: heroOpacity, filter: heroFilter }}
           className="max-w-4xl mx-auto text-center px-6 will-change-transform"
         >
           {/* Wisprflow-style opacity mixing: "AI that" at 40% opacity, "answers" full */}

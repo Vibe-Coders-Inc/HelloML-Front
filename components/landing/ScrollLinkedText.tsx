@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 
 /**
  * Wisprflow-style scroll-linked text where each word lights up
@@ -44,7 +44,7 @@ function Word({
 }: {
   word: string;
   range: [number, number];
-  progress: any;
+  progress: MotionValue<number>;
 }) {
   const opacity = useTransform(progress, range, [0.15, 1]);
   return (

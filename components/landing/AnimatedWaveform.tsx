@@ -14,7 +14,7 @@ export function AnimatedWaveform({ className = '' }: { className?: string }) {
     let animFrameId: number;
 
     // Dynamically import anime.js (v4)
-    import('animejs').then(({ animate, svg: animeSvg, createTimeline, stagger }) => {
+    import('animejs').then(({ animate, svg: animeSvg, stagger }) => {
       if (!mounted || !svgRef.current) return;
 
       const paths = svgRef.current.querySelectorAll('.wave-path');
