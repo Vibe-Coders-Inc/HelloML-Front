@@ -21,7 +21,9 @@ jest.mock('framer-motion', () => ({
     span: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
     p: ({ children, style, ...props }: any) => <p {...props}>{children}</p>,
     h1: ({ children, style, ...props }: any) => <h1 {...props}>{children}</h1>,
+    h2: ({ children, style, ...props }: any) => <h2 {...props}>{children}</h2>,
     section: ({ children, style, ...props }: any) => <section {...props}>{children}</section>,
+    svg: ({ children, style, ...props }: any) => <svg {...props}>{children}</svg>,
   },
   useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
   useTransform: () => 0,
@@ -145,7 +147,8 @@ describe('Landing Page', () => {
 
   it('has pain point section', () => {
     render(<LandingPage />);
-    expect(screen.getByText(/Every missed call/)).toBeInTheDocument();
+    expect(screen.getByText('Every')).toBeInTheDocument();
+    expect(screen.getByText('customer.')).toBeInTheDocument();
   });
 
   it('has dark integrations section', () => {
