@@ -43,14 +43,14 @@ function generateFacePoints(): { x: number; y: number }[][] {
   }
   paths.push(head);
 
-  // 1. Left eye — 40pts almond
+  // 1. Left eye — 40pts almond (slightly larger, friendlier)
   const lEye: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.45;
+    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.35;
     lEye.push({
-      x: CX - 36 + Math.cos(t) * 20,
-      y: CY - 20 + Math.sin(t) * (9 - pinch * 9),
+      x: CX - 36 + Math.cos(t) * 22,
+      y: CY - 20 + Math.sin(t) * (11 - pinch * 11),
     });
   }
   paths.push(lEye);
@@ -63,14 +63,14 @@ function generateFacePoints(): { x: number; y: number }[][] {
   }
   paths.push(lPup);
 
-  // 3. Right eye — 40pts
+  // 3. Right eye — 40pts (slightly larger, friendlier)
   const rEye: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.45;
+    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.35;
     rEye.push({
-      x: CX + 36 + Math.cos(t) * 20,
-      y: CY - 20 + Math.sin(t) * (9 - pinch * 9),
+      x: CX + 36 + Math.cos(t) * 22,
+      y: CY - 20 + Math.sin(t) * (11 - pinch * 11),
     });
   }
   paths.push(rEye);
@@ -83,13 +83,13 @@ function generateFacePoints(): { x: number; y: number }[][] {
   }
   paths.push(rPup);
 
-  // 5. Left eyebrow — 30pts
+  // 5. Left eyebrow — 30pts (slightly raised, friendly arch)
   const lBrow: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
     lBrow.push({
       x: CX - 55 + t * 42,
-      y: CY - 42 - Math.sin(t * Math.PI) * 8,
+      y: CY - 44 - Math.sin(t * Math.PI) * 10,
     });
   }
   paths.push(lBrow);
@@ -100,7 +100,7 @@ function generateFacePoints(): { x: number; y: number }[][] {
     const t = i / 29;
     rBrow.push({
       x: CX + 13 + t * 42,
-      y: CY - 42 - Math.sin(t * Math.PI) * 8,
+      y: CY - 44 - Math.sin(t * Math.PI) * 10,
     });
   }
   paths.push(rBrow);
@@ -114,13 +114,13 @@ function generateFacePoints(): { x: number; y: number }[][] {
   }
   paths.push(nose);
 
-  // 8. Mouth — 40pts (gentle smile)
+  // 8. Mouth — 40pts (warm, wider smile)
   const mouth: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = i / 39;
     mouth.push({
-      x: CX - 26 + t * 52,
-      y: CY + 48 + Math.sin(t * Math.PI) * 9,
+      x: CX - 32 + t * 64,
+      y: CY + 48 + Math.sin(t * Math.PI) * 13,
     });
   }
   paths.push(mouth);
@@ -493,27 +493,49 @@ export function FaceGearMorph() {
 
         if (closed) ctx.closePath();
 
-        // Stroke style
-        const alpha = isOuter ? 0.85 : isFine ? 0.4 : 0.6;
-        const lw = isOuter ? 2.5 : isFine ? 1.2 : 1.8;
-        const r = Math.round(139 + ease * 35);
-        const g = Math.round(111 + ease * 18);
-        const b = Math.round(71 + ease * 8);
+        // Per-path colors for visual richness
+        // Face mode colors (blended toward gear gold with ease)
+        type PathColor = { r: number; g: number; b: number; a: number; lw: number; fill?: { r: number; g: number; b: number; a: number } };
+        const faceColors: Record<number, PathColor> = {
+          0:  { r: 160, g: 120, b: 75, a: 0.75, lw: 2.5 },   // Head: warm medium brown
+          1:  { r: 120, g: 85, b: 55, a: 0.7, lw: 1.8 },      // Left eye: darker brown
+          2:  { r: 90, g: 65, b: 40, a: 0.85, lw: 1.5, fill: { r: 90, g: 65, b: 40, a: 0.45 } }, // Left pupil: dark brown filled
+          3:  { r: 120, g: 85, b: 55, a: 0.7, lw: 1.8 },      // Right eye
+          4:  { r: 90, g: 65, b: 40, a: 0.85, lw: 1.5, fill: { r: 90, g: 65, b: 40, a: 0.45 } }, // Right pupil
+          5:  { r: 130, g: 95, b: 60, a: 0.55, lw: 1.5 },     // Left brow: medium
+          6:  { r: 130, g: 95, b: 60, a: 0.55, lw: 1.5 },     // Right brow
+          7:  { r: 155, g: 115, b: 75, a: 0.45, lw: 1.3 },    // Nose: lighter, subtle
+          8:  { r: 175, g: 120, b: 85, a: 0.6, lw: 1.8 },     // Mouth: warm rosy brown
+          9:  { r: 175, g: 120, b: 85, a: 0.5, lw: 1.2 },     // Upper lip
+          10: { r: 100, g: 70, b: 42, a: 0.7, lw: 2, fill: { r: 100, g: 70, b: 42, a: 0.4 } },   // Hair top: rich dark brown
+          11: { r: 100, g: 70, b: 42, a: 0.65, lw: 1.8, fill: { r: 100, g: 70, b: 42, a: 0.35 } }, // Hair side
+          12: { r: 140, g: 140, b: 130, a: 0.5, lw: 2.2 },    // Headset band: silvery gray-brown
+          13: { r: 130, g: 130, b: 120, a: 0.55, lw: 2, fill: { r: 130, g: 130, b: 120, a: 0.2 } }, // Earpiece: gray
+          14: { r: 140, g: 140, b: 130, a: 0.45, lw: 1.5 },   // Mic arm: silver
+          15: { r: 130, g: 130, b: 120, a: 0.6, lw: 1.2, fill: { r: 130, g: 130, b: 120, a: 0.3 } }, // Mic tip
+        };
+        // Gear mode: everything shifts toward golden
+        const gearColor = { r: 175, g: 130, b: 80 };
 
-        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.lineWidth = lw;
+        const fc = faceColors[p] || { r: 139, g: 111, b: 71, a: 0.6, lw: 1.8 };
+        const sr = Math.round(fc.r * (1 - ease) + gearColor.r * ease);
+        const sg = Math.round(fc.g * (1 - ease) + gearColor.g * ease);
+        const sb = Math.round(fc.b * (1 - ease) + gearColor.b * ease);
+        const sa = fc.a;
+
+        ctx.strokeStyle = `rgba(${sr}, ${sg}, ${sb}, ${sa})`;
+        ctx.lineWidth = fc.lw;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Fill hair (solid), pupils, center hole, mic tip
-        if (p === 10 || p === 11) {
-          // Hair: solid fill in face mode, fades to transparent in gear mode
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.35 * (1 - ease) + 0.15 * ease})`;
-          ctx.fill();
-        }
-        if (p === 2 || p === 4 || p === 15) {
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.2 + ease * 0.15})`;
+        // Fills
+        if (fc.fill) {
+          const fr = Math.round(fc.fill.r * (1 - ease) + gearColor.r * ease);
+          const fg = Math.round(fc.fill.g * (1 - ease) + gearColor.g * ease);
+          const fb = Math.round(fc.fill.b * (1 - ease) + gearColor.b * ease);
+          const fa = fc.fill.a * (1 - ease * 0.4); // fade fill slightly in gear mode
+          ctx.fillStyle = `rgba(${fr}, ${fg}, ${fb}, ${fa})`;
           ctx.fill();
         }
       }
