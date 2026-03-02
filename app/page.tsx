@@ -99,7 +99,7 @@ export default function LandingPage() {
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8, ease }}
               className="text-lg md:text-xl text-[#8B7355] mb-6 max-w-lg mx-auto lg:mx-0">
-              Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47] text-2xl">$5</span>/mo.
+              Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47] text-2xl">$29</span>/mo.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6, ease }}
@@ -407,7 +407,7 @@ export default function LandingPage() {
           {/* Giant price as the hero element */}
           <div className="mb-8">
             <div className="flex items-baseline justify-center gap-2">
-              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[100px] sm:text-[130px] md:text-[160px] font-bold text-[#8B6F47] leading-none">$5</span>
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[100px] sm:text-[130px] md:text-[160px] font-bold text-[#8B6F47] leading-none">$29</span>
               <div className="text-left">
                 <span className="block text-xl text-[#8B7355]">per agent</span>
                 <span className="block text-xl text-[#8B7355]">per month</span>
@@ -419,7 +419,7 @@ export default function LandingPage() {
           {/* Feature pills */}
           <motion.div {...fadeUp} className="flex flex-wrap items-center justify-center gap-3 mb-10">
             {[
-              '100 minutes included',
+              '200 minutes included',
               '$0.10/min after',
               'Unlimited agents',
               'Call transcripts',

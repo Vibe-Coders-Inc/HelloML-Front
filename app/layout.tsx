@@ -33,7 +33,7 @@ const organizationJsonLd = {
   url: 'https://www.helloml.app',
   logo: 'https://www.helloml.app/icon',
   description:
-    'HelloML provides AI phone agents and virtual receptionist services for small businesses. Automated phone answering, appointment booking, and AI-powered call handling — starting at $5/month.',
+    'HelloML provides AI phone agents and virtual receptionist services for small businesses. Automated phone answering, appointment booking, and AI-powered call handling — starting at $29/month.',
   sameAs: [
     'https://www.helloml.app',
   ],
@@ -65,7 +65,7 @@ const softwareJsonLd = {
       price: '5.00',
       priceCurrency: 'USD',
       billingIncrement: 'P1M',
-      description: 'Starter plan — $5/mo for 100 minutes of AI phone answering.',
+      description: 'Starter plan — $29/mo for 200 minutes of AI phone answering.',
     },
   ],
   featureList: [
@@ -95,7 +95,7 @@ const faqJsonLd = {
       name: 'How much does HelloML cost?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'HelloML starts free. The Starter plan is $5/month and includes 100 minutes of AI phone answering. No credit card required to get started.',
+        text: 'HelloML starts free. The Starter plan is $29/month and includes 200 minutes of AI phone answering. No credit card required to get started.',
       },
     },
     {
@@ -119,7 +119,7 @@ const faqJsonLd = {
       name: 'Is HelloML suitable for small businesses?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Absolutely. HelloML is built for small businesses that need a virtual receptionist without the cost of hiring staff. At $5/month, it\'s the most affordable AI answering service available.',
+        text: 'Absolutely. HelloML is built for small businesses that need a virtual receptionist without the cost of hiring staff. At $29/month, it\'s the most affordable AI answering service available.',
       },
     },
   ],

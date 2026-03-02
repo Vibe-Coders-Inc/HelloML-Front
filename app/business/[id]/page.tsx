@@ -1054,7 +1054,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <>
-                          Subscribe - $5/mo
+                          Subscribe - $29/mo
                         </>
                       )}
                     </GlowButton>
@@ -1072,7 +1072,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 ) : (
                   (() => {
                     const isSubscribed = subscriptionData?.has_active_subscription;
-                    const includedMins = isSubscribed ? (usageData?.included_minutes ?? 100) : 5;
+                    const includedMins = isSubscribed ? (usageData?.included_minutes ?? 200) : 5;
                     const used = usageData?.minutes_used ?? 0;
                     const remaining = Math.max(0, includedMins - used);
 
@@ -1088,7 +1088,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         </div>
                         <p className="text-xs text-[#8B7355] mt-1">
                           {isSubscribed
-                            ? `$5/mo includes ${includedMins} minutes`
+                            ? `$29/mo includes ${includedMins} minutes`
                             : remaining <= 0
                             ? 'Free trial ended — subscribe to continue'
                             : `${remaining.toFixed(1)} free minutes remaining`

@@ -8,7 +8,7 @@ export const siteMetadata = {
     template: '%s | HelloML — AI Phone Agent',
   },
   description:
-    'HelloML is an AI phone agent that answers calls 24/7, books appointments, and responds from your knowledge base. The AI receptionist for small business — just $5/mo for 100 minutes. Try automated phone answering free.',
+    'HelloML is an AI phone agent that answers calls 24/7, books appointments, and responds from your knowledge base. The AI receptionist for small business — just $29/mo for 200 minutes. Try automated phone answering free.',
   keywords: [
     'ai phone agent',
     'ai receptionist',

@@ -24,7 +24,7 @@ const includedFeatures = [
   { icon: Bot, text: 'AI-powered voice agent' },
   { icon: Phone, text: 'Dedicated phone number' },
   { icon: FileText, text: 'Knowledge base uploads' },
-  { icon: Clock, text: '100 minutes included' },
+  { icon: Clock, text: '200 minutes included' },
   { icon: Zap, text: 'Real-time transcription' },
   { icon: Shield, text: 'Call analytics & history' },
 ];
@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     question: 'Can I add more agents?',
-    answer: 'Yes! Each additional agent is $5/month with its own 100 minutes included. Overage minutes are pooled across all your agents.',
+    answer: 'Yes! Each additional agent is $29/month with its own 200 minutes included. Overage minutes are pooled across all your agents.',
   },
   {
     question: 'What happens if I go over my minutes?',
@@ -123,12 +123,12 @@ export default function PricingPage() {
               <p className="text-white/70 text-xs font-semibold tracking-widest uppercase mb-4">Per Agent</p>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-sm text-white/60 font-medium self-start mt-3">$</span>
-                <span className="text-8xl font-extrabold text-white tracking-tight leading-none">5</span>
+                <span className="text-8xl font-extrabold text-white tracking-tight leading-none">29</span>
                 <span className="text-white/50 text-base font-medium self-end mb-2">/mo</span>
               </div>
               <div className="mt-4 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5">
                 <Clock className="w-3.5 h-3.5 text-white/80" />
-                <span className="text-white/90 text-sm font-medium">100 minutes included</span>
+                <span className="text-white/90 text-sm font-medium">200 minutes included</span>
               </div>
             </div>
 

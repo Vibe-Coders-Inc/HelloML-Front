@@ -89,7 +89,7 @@ describe('Landing Page', () => {
   it('has pricing info', () => {
     render(<LandingPage />);
     expect(screen.getByText(/per agent/)).toBeInTheDocument();
-    expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
+    expect(screen.getByText(/200 minutes included/)).toBeInTheDocument();
   });
 
   it('has Get Started Free CTA', () => {
