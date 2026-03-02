@@ -9,6 +9,8 @@ import { ArrowRight, Check } from 'lucide-react';
 import Image from 'next/image';
 import { HeroCallCard } from '@/components/landing/HeroCallCard';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
+import { MissedCallCascade } from '@/components/landing/MissedCallCascade';
+import { SplitWaveform } from '@/components/landing/SplitWaveform';
 
 /* ═══════════════════════════════════════════
    HELLOML LANDING PAGE — v5
@@ -151,6 +153,7 @@ export default function LandingPage() {
             <p className="text-lg md:text-xl text-[#8B7355] max-w-xl mx-auto">
               They call your competitor instead. Every missed call is lost revenue.
             </p>
+            <MissedCallCascade />
           </motion.div>
         </div>
       </Slide>
@@ -169,6 +172,7 @@ export default function LandingPage() {
               <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
             <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
+            <SplitWaveform />
           </div>
         </div>
       </Slide>
@@ -402,7 +406,6 @@ export default function LandingPage() {
         <motion.div {...scaleIn} className="max-w-4xl mx-auto w-full text-center">
           {/* Giant price as the hero element */}
           <div className="mb-8">
-            <p className="text-sm uppercase tracking-[0.25em] text-[#8B6F47]/50 font-semibold mb-6">One plan. Everything included.</p>
             <div className="flex items-baseline justify-center gap-2">
               <span style={{ fontFamily: 'Borel, cursive' }} className="text-[100px] sm:text-[130px] md:text-[160px] font-bold text-[#8B6F47] leading-none">$5</span>
               <div className="text-left">
@@ -410,6 +413,7 @@ export default function LandingPage() {
                 <span className="block text-xl text-[#8B7355]">per month</span>
               </div>
             </div>
+            <p className="text-sm uppercase tracking-[0.25em] text-[#8B6F47]/50 font-semibold mt-8">One plan. Everything included.</p>
           </div>
 
           {/* Feature pills */}
