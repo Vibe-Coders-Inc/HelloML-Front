@@ -137,33 +137,43 @@ function generateFacePoints(): { x: number; y: number }[][] {
   }
   paths.push(lip);
 
-  // 10. Hair — 60pts. Wavy volume on top of head
+  // 10. Hair top — 60pts. Closed filled shape: outer wavy edge + inner head contour
   const hair: { x: number; y: number }[] = [];
-  for (let i = 0; i < 60; i++) {
-    const t = i / 59;
-    // Arc across the top, from left side to right side
-    const angle = Math.PI * 1.15 + t * Math.PI * 0.7; // ~205deg to ~330deg (top arc)
+  const hairOuterPts = 35;
+  const hairInnerPts = 60 - hairOuterPts; // 25 pts for return path along head
+  // Outer edge: wavy volume above head
+  for (let i = 0; i < hairOuterPts; i++) {
+    const t = i / (hairOuterPts - 1);
+    const angle = Math.PI * 1.12 + t * Math.PI * 0.76; // left to right across top
     const baseR = 112;
-    // Add wavy volume outward
-    const wave = Math.sin(t * Math.PI * 5) * 8 + 15; // volume above head
+    const wave = Math.sin(t * Math.PI * 4) * 7 + 18;
     const r = baseR + wave;
-    hair.push({
-      x: CX + Math.cos(angle) * r,
-      y: CY + Math.sin(angle) * r,
-    });
+    hair.push({ x: CX + Math.cos(angle) * r, y: CY + Math.sin(angle) * r });
+  }
+  // Inner edge: follow head contour back (reversed)
+  for (let i = 0; i < hairInnerPts; i++) {
+    const t = 1 - i / (hairInnerPts - 1);
+    const angle = Math.PI * 1.12 + t * Math.PI * 0.76;
+    const jawNarrow = Math.sin(angle) > 0.3 ? (Math.sin(angle) - 0.3) * 0.18 : 0;
+    const rx = 105 - jawNarrow * 105;
+    hair.push({ x: CX + Math.cos(angle) * rx, y: CY + Math.sin(angle) * 125 });
   }
   paths.push(hair);
 
-  // 11. Hair left side strands — 30pts
+  // 11. Hair left side — 30pts. Closed filled shape along left temple
   const hairL: { x: number; y: number }[] = [];
-  for (let i = 0; i < 30; i++) {
-    const t = i / 29;
-    const angle = Math.PI * 0.95 + t * Math.PI * 0.25;
-    const wave = Math.sin(t * Math.PI * 3) * 5 + 10;
-    hairL.push({
-      x: CX + Math.cos(angle) * (110 + wave),
-      y: CY + Math.sin(angle) * (125 + wave * 0.5),
-    });
+  const hairLOuter = 18;
+  const hairLInner = 30 - hairLOuter; // 12 pts
+  for (let i = 0; i < hairLOuter; i++) {
+    const t = i / (hairLOuter - 1);
+    const angle = Math.PI * 0.88 + t * Math.PI * 0.28;
+    const wave = Math.sin(t * Math.PI * 2) * 4 + 12;
+    hairL.push({ x: CX + Math.cos(angle) * (110 + wave), y: CY + Math.sin(angle) * (125 + wave * 0.3) });
+  }
+  for (let i = 0; i < hairLInner; i++) {
+    const t = 1 - i / (hairLInner - 1);
+    const angle = Math.PI * 0.88 + t * Math.PI * 0.28;
+    hairL.push({ x: CX + Math.cos(angle) * 108, y: CY + Math.sin(angle) * 125 });
   }
   paths.push(hairL);
 
@@ -437,8 +447,8 @@ export function FaceGearMorph() {
         const gp = gearPaths[p];
         const count = Math.min(fp.length, gp.length);
 
-        // Closed shapes: head(0), eyes(1-4), earpiece(13), mic(15), all gear rings/gears
-        const closedIndices = [0, 1, 2, 3, 4, 13, 15];
+        // Closed shapes: head(0), eyes(1-4), hair(10,11), earpiece(13), mic(15)
+        const closedIndices = [0, 1, 2, 3, 4, 10, 11, 13, 15];
         const closed = closedIndices.includes(p);
 
         // Is this a small satellite gear? (11, 12, 13 in gear mode)
@@ -496,7 +506,12 @@ export function FaceGearMorph() {
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Fill pupils, center hole, mic tip, bolt holes
+        // Fill hair (solid), pupils, center hole, mic tip
+        if (p === 10 || p === 11) {
+          // Hair: solid fill in face mode, fades to transparent in gear mode
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.35 * (1 - ease) + 0.15 * ease})`;
+          ctx.fill();
+        }
         if (p === 2 || p === 4 || p === 15) {
           ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.2 + ease * 0.15})`;
           ctx.fill();
