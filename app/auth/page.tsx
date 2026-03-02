@@ -76,9 +76,9 @@ function FloatingOrb() {
         center - r * 0.25, center - r * 0.25, r * 0.05,
         center, center, r
       );
-      grad.addColorStop(0, 'rgba(201, 183, 144, 0.9)');  // warm highlight
-      grad.addColorStop(0.4, 'rgba(166, 122, 91, 0.7)');  // mid brown
-      grad.addColorStop(0.7, 'rgba(139, 111, 71, 0.5)');  // deeper
+      grad.addColorStop(0, 'rgba(220, 200, 165, 0.95)');  // warm highlight
+      grad.addColorStop(0.4, 'rgba(180, 140, 100, 0.75)'); // mid
+      grad.addColorStop(0.7, 'rgba(160, 120, 80, 0.45)');  // deeper
       grad.addColorStop(1, 'rgba(139, 111, 71, 0.0)');
 
       ctx.beginPath();
@@ -245,39 +245,39 @@ function AuthContent() {
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#FAF8F3]">
       {/* Left branding panel - hidden on mobile */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
-        {/* Same cream base as landing page */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FAF8F3] via-[#F5EFE6] to-[#EDE4D4]" />
+        {/* Warm brown base — contrasts with cream right side */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3D2E1F] via-[#4A3828] to-[#2E2218]" />
 
-        {/* Subtle warm wash */}
-        <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#C9B790]/10 blur-[120px]" />
-        <div className="absolute bottom-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#A67A5B]/8 blur-[100px]" />
+        {/* Subtle warm glow accents */}
+        <div className="absolute top-[15%] right-[5%] w-[400px] h-[400px] rounded-full bg-[#8B6F47]/15 blur-[120px]" />
+        <div className="absolute bottom-[10%] left-[10%] w-[350px] h-[350px] rounded-full bg-[#A67A5B]/10 blur-[100px]" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14">
           {/* Logo */}
           <Link href="/" className="inline-flex hover:opacity-80 transition-opacity">
-            <Logo size="small" lightMode />
+            <Logo size="small" />
           </Link>
 
           {/* Center: Orb + tagline */}
           <div className="flex-1 flex flex-col items-center justify-center">
             <FloatingOrb />
-            <h2 className="mt-8 text-3xl xl:text-4xl font-bold text-[#3D2E1F] tracking-tight text-center leading-tight">
+            <h2 className="mt-8 text-3xl xl:text-4xl font-bold text-[#FAF8F3] tracking-tight text-center leading-tight">
               AI that{' '}
-              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#C9B790]">
                 answers
               </span>
               <br />
               your phone.
             </h2>
-            <p className="mt-4 text-[#A67A5B]/70 text-center max-w-xs leading-relaxed">
+            <p className="mt-4 text-[#C9B790]/50 text-center max-w-xs leading-relaxed">
               Set up a voice agent in minutes. No code, no complexity.
             </p>
           </div>
 
           {/* Bottom: simple and honest */}
           <div className="text-center">
-            <p className="text-sm text-[#A67A5B]/40">
+            <p className="text-sm text-[#C9B790]/30">
               Starting at $5/mo
             </p>
           </div>
