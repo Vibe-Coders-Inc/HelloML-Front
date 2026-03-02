@@ -91,6 +91,7 @@ export default function DemoPage() {
               state="idle"
               audioLevel={0}
               aiSpeaking={false}
+              voice={selectedVoice}
               onClick={() => session.start(selectedVoice)}
             />
 
@@ -115,6 +116,7 @@ export default function DemoPage() {
               state="connecting"
               audioLevel={0}
               aiSpeaking={false}
+              voice={selectedVoice}
             />
           </motion.div>
         )}
@@ -135,6 +137,7 @@ export default function DemoPage() {
               state="active"
               audioLevel={session.audioLevel}
               aiSpeaking={session.aiSpeaking}
+              voice={selectedVoice}
             />
 
             {/* Live transcript */}
