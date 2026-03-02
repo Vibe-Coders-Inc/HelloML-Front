@@ -137,9 +137,23 @@ export default function DemoPage() {
               aiSpeaking={session.aiSpeaking}
             />
 
-            <p className="mt-4 text-[#8B6F47]/50 text-xs">
-              {session.aiSpeaking ? 'AI is speaking...' : 'Listening...'}
-            </p>
+            {/* Live transcript */}
+            <div className="mt-6 min-h-[3rem] max-w-md px-4">
+              {session.transcript ? (
+                <motion.p
+                  key={session.transcript.slice(0, 20)}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[#3D2E1F]/80 text-base sm:text-lg text-center font-light leading-relaxed"
+                >
+                  {session.transcript}
+                </motion.p>
+              ) : (
+                <p className="text-[#8B6F47]/40 text-sm text-center">
+                  {session.aiSpeaking ? 'AI is speaking...' : 'Listening...'}
+                </p>
+              )}
+            </div>
 
             {/* Controls */}
             <div className="flex items-center gap-4 mt-8">

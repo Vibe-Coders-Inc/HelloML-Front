@@ -12,6 +12,7 @@ interface DemoSessionState {
   aiSpeaking: boolean;
   errorMessage?: string;
   isMuted: boolean;
+  transcript: string;
 }
 
 interface UseDemoSessionReturn extends DemoSessionState {
@@ -27,6 +28,7 @@ export function useDemoSession(): UseDemoSessionReturn {
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isMuted, setIsMuted] = useState(false);
+  const [transcript, setTranscript] = useState('');
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -180,14 +182,21 @@ export function useDemoSession(): UseDemoSessionReturn {
         try {
           const msg = JSON.parse(e.data);
           if (msg.type === 'response.audio.delta') {
-            // Clear any pending "stop speaking" timeout
             if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
             setAiSpeaking(true);
           } else if (msg.type === 'response.audio.done' || msg.type === 'response.done') {
-            // Debounce: wait 400ms before marking as not speaking
-            // Prevents flicker between consecutive audio chunks
             if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
             aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 400);
+          }
+          // Live transcript of AI speech
+          if (msg.type === 'response.audio_transcript.delta' && msg.delta) {
+            setTranscript(prev => prev + msg.delta);
+          } else if (msg.type === 'response.audio_transcript.done') {
+            // Keep the final transcript visible briefly, then clear for next response
+            setTimeout(() => setTranscript(''), 3000);
+          } else if (msg.type === 'response.created') {
+            // New response starting, clear old transcript
+            setTranscript('');
           }
         } catch { /* ignore */ }
       };
@@ -256,5 +265,5 @@ export function useDemoSession(): UseDemoSessionReturn {
   // Cleanup on unmount
   useEffect(() => cleanup, [cleanup]);
 
-  return { status, timeLeft, audioLevel, aiSpeaking, errorMessage, isMuted, start, end, toggleMute };
+  return { status, timeLeft, audioLevel, aiSpeaking, errorMessage, isMuted, transcript, start, end, toggleMute };
 }
