@@ -56,12 +56,12 @@ function FloatingOrb() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const size = 280;
+    const size = 380;
     canvas.width = size;
     canvas.height = size;
     let animId: number;
     const center = size / 2;
-    const baseRadius = 90;
+    const baseRadius = 130;
 
     function draw(t: number) {
       if (!ctx) return;
@@ -76,9 +76,9 @@ function FloatingOrb() {
         center - r * 0.25, center - r * 0.25, r * 0.05,
         center, center, r
       );
-      grad.addColorStop(0, 'rgba(220, 200, 165, 0.95)');  // warm highlight
-      grad.addColorStop(0.4, 'rgba(180, 140, 100, 0.75)'); // mid
-      grad.addColorStop(0.7, 'rgba(160, 120, 80, 0.45)');  // deeper
+      grad.addColorStop(0, 'rgba(245, 235, 215, 1.0)');     // bright warm white
+      grad.addColorStop(0.3, 'rgba(220, 195, 155, 0.9)');   // warm gold
+      grad.addColorStop(0.6, 'rgba(180, 145, 100, 0.6)');   // mid brown
       grad.addColorStop(1, 'rgba(139, 111, 71, 0.0)');
 
       ctx.beginPath();
@@ -90,8 +90,8 @@ function FloatingOrb() {
       const hx = center + Math.cos(t * 0.0004) * r * 0.3;
       const hy = center + Math.sin(t * 0.0006) * r * 0.25;
       const hGrad = ctx.createRadialGradient(hx, hy, 0, hx, hy, r * 0.5);
-      hGrad.addColorStop(0, 'rgba(250, 248, 243, 0.35)');
-      hGrad.addColorStop(1, 'rgba(250, 248, 243, 0.0)');
+      hGrad.addColorStop(0, 'rgba(255, 252, 245, 0.5)');
+      hGrad.addColorStop(1, 'rgba(255, 252, 245, 0.0)');
       ctx.beginPath();
       ctx.arc(center, center, r, 0, Math.PI * 2);
       ctx.fillStyle = hGrad;
@@ -100,9 +100,9 @@ function FloatingOrb() {
       // Outer glow
       const glowR = r + 30 + Math.sin(t * 0.001) * 8;
       const glow = ctx.createRadialGradient(center, center, r * 0.8, center, center, glowR);
-      glow.addColorStop(0, 'rgba(201, 183, 144, 0.0)');
-      glow.addColorStop(0.5, 'rgba(201, 183, 144, 0.06)');
-      glow.addColorStop(1, 'rgba(201, 183, 144, 0.0)');
+      glow.addColorStop(0, 'rgba(220, 200, 165, 0.0)');
+      glow.addColorStop(0.5, 'rgba(220, 200, 165, 0.12)');
+      glow.addColorStop(1, 'rgba(220, 200, 165, 0.0)');
       ctx.beginPath();
       ctx.arc(center, center, glowR, 0, Math.PI * 2);
       ctx.fillStyle = glow;
@@ -118,7 +118,7 @@ function FloatingOrb() {
   return (
     <canvas
       ref={canvasRef}
-      className="w-[280px] h-[280px]"
+      className="w-[380px] h-[380px]"
       style={{ imageRendering: 'auto' }}
     />
   );
@@ -245,8 +245,8 @@ function AuthContent() {
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#FAF8F3]">
       {/* Left branding panel - hidden on mobile */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
-        {/* Warm brown base — contrasts with cream right side */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#3D2E1F] via-[#4A3828] to-[#2E2218]" />
+        {/* Warm mid-brown base — visible contrast without going too dark */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#6B5540] via-[#7A6350] to-[#5C4735]" />
 
         {/* Subtle warm glow accents */}
         <div className="absolute top-[15%] right-[5%] w-[400px] h-[400px] rounded-full bg-[#8B6F47]/15 blur-[120px]" />
@@ -262,25 +262,21 @@ function AuthContent() {
           {/* Center: Orb + tagline */}
           <div className="flex-1 flex flex-col items-center justify-center">
             <FloatingOrb />
-            <h2 className="mt-8 text-3xl xl:text-4xl font-bold text-[#FAF8F3] tracking-tight text-center leading-tight">
+            <h2 className="mt-10 text-4xl xl:text-5xl font-bold text-[#FAF8F3] tracking-tight text-center leading-tight">
               AI that{' '}
-              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#C9B790]">
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#DCC8A0]">
                 answers
               </span>
               <br />
               your phone.
             </h2>
-            <p className="mt-4 text-[#C9B790]/50 text-center max-w-xs leading-relaxed">
+            <p className="mt-5 text-lg text-[#D4C4A8]/50 text-center max-w-sm leading-relaxed">
               Set up a voice agent in minutes. No code, no complexity.
             </p>
           </div>
 
-          {/* Bottom: simple and honest */}
-          <div className="text-center">
-            <p className="text-sm text-[#C9B790]/30">
-              Starting at $5/mo
-            </p>
-          </div>
+          {/* Bottom spacer */}
+          <div />
         </div>
       </div>
 
