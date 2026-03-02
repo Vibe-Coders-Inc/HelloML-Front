@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DEMO_DURATION = 120; // seconds
-const REALTIME_MODEL = 'gpt-realtime-1.5';
+
+export interface TranscriptEntry {
+  role: 'user' | 'ai';
+  text: string;
+  final: boolean;
+}
 
 interface DemoSessionState {
   status: 'idle' | 'connecting' | 'active' | 'ended' | 'error';
@@ -12,7 +17,7 @@ interface DemoSessionState {
   aiSpeaking: boolean;
   errorMessage?: string;
   isMuted: boolean;
-  transcript: string;
+  transcript: TranscriptEntry[];
 }
 
 interface UseDemoSessionReturn extends DemoSessionState {
@@ -28,7 +33,7 @@ export function useDemoSession(): UseDemoSessionReturn {
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isMuted, setIsMuted] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -39,6 +44,8 @@ export function useDemoSession(): UseDemoSessionReturn {
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const aiSpeakingTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Track current streaming AI text to build it up incrementally
+  const aiStreamRef = useRef('');
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -103,6 +110,7 @@ export function useDemoSession(): UseDemoSessionReturn {
       setStatus('connecting');
       setErrorMessage(undefined);
       setTimeLeft(DEMO_DURATION);
+      setTranscript([]);
 
       // 1. Get mic
       let stream: MediaStream;
@@ -168,10 +176,11 @@ export function useDemoSession(): UseDemoSessionReturn {
       dcRef.current = dc;
 
       dc.onopen = () => {
-        // Enable audio transcription so we get response.audio_transcript.delta events
+        // Enable both input and output audio transcription
         dc.send(JSON.stringify({
           type: 'session.update',
           session: {
+            input_audio_transcription: { model: 'whisper-1' },
             output_audio_transcription: { model: 'whisper-1' },
           },
         }));
@@ -188,6 +197,8 @@ export function useDemoSession(): UseDemoSessionReturn {
       dc.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data);
+
+          // --- AI speaking detection ---
           if (msg.type === 'response.audio.delta') {
             if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
             setAiSpeaking(true);
@@ -195,27 +206,70 @@ export function useDemoSession(): UseDemoSessionReturn {
             if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
             aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 400);
           }
-          // Live transcript of AI speech
-          if (msg.type === 'response.audio_transcript.delta') {
-            if (msg.delta) setTranscript(prev => prev + msg.delta);
-          } else if (msg.type === 'response.text.delta' && msg.delta) {
-            // Fallback: some models send text.delta instead
-            setTranscript(prev => prev + msg.delta);
+
+          // --- AI transcript (streaming deltas) ---
+          if (msg.type === 'response.audio_transcript.delta' && msg.delta) {
+            aiStreamRef.current += msg.delta;
+            const text = aiStreamRef.current;
+            setTranscript(prev => {
+              const last = prev[prev.length - 1];
+              if (last && last.role === 'ai' && !last.final) {
+                return [...prev.slice(0, -1), { role: 'ai', text, final: false }];
+              }
+              return [...prev, { role: 'ai', text, final: false }];
+            });
           } else if (msg.type === 'response.audio_transcript.done') {
-            // Keep the final transcript visible briefly, then clear for next response
-            setTimeout(() => setTranscript(''), 3000);
-          } else if (msg.type === 'response.created') {
-            // New response starting, clear old transcript
-            setTranscript('');
+            const text = msg.transcript || aiStreamRef.current;
+            aiStreamRef.current = '';
+            setTranscript(prev => {
+              const last = prev[prev.length - 1];
+              if (last && last.role === 'ai' && !last.final) {
+                return [...prev.slice(0, -1), { role: 'ai', text, final: true }];
+              }
+              return [...prev, { role: 'ai', text, final: true }];
+            });
           }
-        } catch { /* ignore */ }
+
+          // --- Fallback: response.text.delta (some models) ---
+          if (msg.type === 'response.text.delta' && msg.delta) {
+            aiStreamRef.current += msg.delta;
+            const text = aiStreamRef.current;
+            setTranscript(prev => {
+              const last = prev[prev.length - 1];
+              if (last && last.role === 'ai' && !last.final) {
+                return [...prev.slice(0, -1), { role: 'ai', text, final: false }];
+              }
+              return [...prev, { role: 'ai', text, final: false }];
+            });
+          } else if (msg.type === 'response.text.done') {
+            aiStreamRef.current = '';
+            // Mark last AI entry as final
+            setTranscript(prev => {
+              const last = prev[prev.length - 1];
+              if (last && last.role === 'ai') {
+                return [...prev.slice(0, -1), { ...last, final: true }];
+              }
+              return prev;
+            });
+          }
+
+          // --- New AI response starting ---
+          if (msg.type === 'response.created') {
+            aiStreamRef.current = '';
+          }
+
+          // --- User transcript (from input audio transcription) ---
+          if (msg.type === 'conversation.item.input_audio_transcription.completed' && msg.transcript) {
+            setTranscript(prev => [...prev, { role: 'user', text: msg.transcript.trim(), final: true }]);
+          }
+
+        } catch { /* ignore parse errors */ }
       };
 
       // 5. SDP exchange
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      // Use the new /v1/realtime/calls endpoint per OpenAI docs
       const sdpRes = await fetch(
         'https://api.openai.com/v1/realtime/calls',
         {

@@ -158,20 +158,28 @@ export default function DemoPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center text-center"
+              className="flex flex-col items-center text-center w-full max-w-lg"
             >
-              {/* Live transcript */}
-              <div className="mt-6 min-h-[3rem] max-w-md px-4">
-                {session.transcript && (
-                  <motion.p
-                    key={session.transcript.slice(0, 20)}
+              {/* Live transcript — shows last 3 entries */}
+              <div className="mt-6 w-full px-4 space-y-3 min-h-[4rem]">
+                {session.transcript.slice(-3).map((entry, i) => (
+                  <motion.div
+                    key={`${entry.role}-${i}-${entry.text.slice(0, 10)}`}
                     initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[#3D2E1F]/80 text-base sm:text-lg text-center font-light leading-relaxed"
+                    animate={{ opacity: entry.final ? 1 : 0.7 }}
+                    className={`text-sm sm:text-base leading-relaxed ${
+                      entry.role === 'ai'
+                        ? 'text-[#3D2E1F]/80 text-center font-light'
+                        : 'text-[#8B6F47]/60 text-center italic'
+                    }`}
                   >
-                    {session.transcript}
-                  </motion.p>
-                )}
+                    <span className="text-[#8B6F47]/40 text-xs mr-1.5">
+                      {entry.role === 'ai' ? 'AI' : 'You'}
+                    </span>
+                    {entry.text}
+                    {!entry.final && <span className="animate-pulse ml-0.5">|</span>}
+                  </motion.div>
+                ))}
               </div>
 
               {/* Controls */}
