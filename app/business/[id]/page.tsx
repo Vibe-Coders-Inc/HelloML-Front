@@ -1259,7 +1259,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       <VoiceSelector
                         value={agent.voice_model || 'ash'}
                         onChange={(voice) => handleAgentFieldUpdate('voice_model', voice)}
-                        disabled={false}
+                        disabled={!isAgentEditing}
                       />
                     </div>
                     {/* Temperature hidden — defaulted to 0.7 for reliability */}
