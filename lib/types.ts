@@ -117,6 +117,7 @@ export interface UsageResponse {
   minutes_used: number;
   included_minutes: number;
   overage_minutes: number;
+  credited_minutes: number;
   period_start: string | null;
   period_end: string | null;
 }

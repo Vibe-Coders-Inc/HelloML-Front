@@ -1129,6 +1129,25 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                             </p>
                           </div>
                         )}
+
+                        {/* Credited minutes (spam/no-activity filtered) */}
+                        {isSubscribed && usageData && usageData.credited_minutes > 0 && (
+                          <div className="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span className="text-sm font-medium text-emerald-800">Minutes credited back</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-lg font-bold text-emerald-700">{usageData.credited_minutes.toFixed(1)}</span>
+                                <span className="text-xs text-emerald-600 ml-1">mins</span>
+                              </div>
+                            </div>
+                            <p className="text-xs text-emerald-600 mt-1">
+                              Spam and no-activity calls are not charged
+                            </p>
+                          </div>
+                        )}
                       </>
                     );
                   })()
