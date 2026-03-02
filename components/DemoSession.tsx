@@ -197,6 +197,11 @@ export function useDemoSession(): UseDemoSessionReturn {
       dc.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data);
+          
+          // Debug: log all event types to console
+          if (msg.type && !msg.type.includes('audio.delta') && !msg.type.includes('input_audio_buffer')) {
+            console.log('[DemoSession]', msg.type, msg.type.includes('transcript') ? msg : '');
+          }
 
           // --- AI speaking detection ---
           if (msg.type === 'response.audio.delta') {
@@ -251,6 +256,43 @@ export function useDemoSession(): UseDemoSessionReturn {
               }
               return prev;
             });
+          }
+
+          // --- Fallback: content_part.done may contain transcript ---
+          if (msg.type === 'response.content_part.done' && msg.part) {
+            const text = msg.part.transcript || msg.part.text;
+            if (text) {
+              setTranscript(prev => {
+                const last = prev[prev.length - 1];
+                if (last && last.role === 'ai' && !last.final) {
+                  return [...prev.slice(0, -1), { role: 'ai', text, final: true }];
+                }
+                return [...prev, { role: 'ai', text, final: true }];
+              });
+              aiStreamRef.current = '';
+            }
+          }
+
+          // --- Fallback: output_item.done may contain transcript ---
+          if (msg.type === 'response.output_item.done' && msg.item) {
+            const content = msg.item.content;
+            if (Array.isArray(content)) {
+              for (const part of content) {
+                const text = part.transcript || part.text;
+                if (text) {
+                  setTranscript(prev => {
+                    // Only add if we don't already have this text
+                    const last = prev[prev.length - 1];
+                    if (last && last.role === 'ai' && last.text === text) return prev;
+                    if (last && last.role === 'ai' && !last.final) {
+                      return [...prev.slice(0, -1), { role: 'ai', text, final: true }];
+                    }
+                    return [...prev, { role: 'ai', text, final: true }];
+                  });
+                }
+              }
+              aiStreamRef.current = '';
+            }
           }
 
           // --- New AI response starting ---
