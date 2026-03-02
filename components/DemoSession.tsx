@@ -196,7 +196,10 @@ export function useDemoSession(): UseDemoSessionReturn {
             aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 400);
           }
           // Live transcript of AI speech
-          if (msg.type === 'response.audio_transcript.delta' && msg.delta) {
+          if (msg.type === 'response.audio_transcript.delta') {
+            if (msg.delta) setTranscript(prev => prev + msg.delta);
+          } else if (msg.type === 'response.text.delta' && msg.delta) {
+            // Fallback: some models send text.delta instead
             setTranscript(prev => prev + msg.delta);
           } else if (msg.type === 'response.audio_transcript.done') {
             // Keep the final transcript visible briefly, then clear for next response

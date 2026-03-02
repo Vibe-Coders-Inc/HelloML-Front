@@ -39,7 +39,8 @@ export function VoiceOrb({ state, audioLevel, aiSpeaking, voice = 'ash', onClick
   const scaleRef = useRef(1);
   const grainDataRef = useRef<ImageData | null>(null);
   // Smooth color transitions when voice changes
-  const currentColorRef = useRef({ hi: [230,200,155], mid: [185,145,90], deep: [120,85,45], glow: [200,160,100] });
+  const initPalette = VOICE_PALETTES[voice] || VOICE_PALETTES.ash;
+  const currentColorRef = useRef({ hi: [...initPalette.hi], mid: [...initPalette.mid], deep: [...initPalette.deep], glow: [...initPalette.glow] });
 
   const isActive = state === 'active';
   const isConnecting = state === 'connecting';

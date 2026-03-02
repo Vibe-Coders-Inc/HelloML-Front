@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MicOff, PhoneOff, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VoiceOrb } from '@/components/VoiceOrb';
@@ -31,6 +31,8 @@ export default function DemoPage() {
   const session = useDemoSession();
   const [selectedVoice, setSelectedVoice] = useState('ash');
 
+  const isLive = session.status === 'active' || session.status === 'connecting';
+
   return (
     <div className="min-h-screen bg-[#FAF6F0] flex flex-col">
       {/* Nav */}
@@ -49,136 +51,151 @@ export default function DemoPage() {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-16">
-        {/* IDLE STATE */}
-        {session.status === 'idle' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center text-center"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#3D2E1F] mb-4">
-              Talk to an AI Phone Agent
-            </h1>
-            <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-6 max-w-md">
-              Experience what HelloML sounds like — live.
-            </p>
 
-            {/* Voice Picker */}
-            <div className="w-full max-w-lg mb-8">
-              <p className="text-[#8B6F47]/50 text-xs mb-3 text-center">Choose a voice</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {VOICES.map((voice) => (
-                  <button
-                    key={voice.id}
-                    onClick={() => setSelectedVoice(voice.id)}
-                    title={voice.desc}
-                    className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                      selectedVoice === voice.id
-                        ? 'bg-[#8B6F47] text-white shadow-md scale-105'
-                        : 'bg-[#E8DCC8]/60 text-[#8B6F47]/80 hover:bg-[#E8DCC8] hover:text-[#8B6F47]'
-                    }`}
-                  >
-                    {voice.label}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[#8B6F47]/30 text-xs mt-2 text-center">
-                {VOICES.find(v => v.id === selectedVoice)?.desc}
+        {/* IDLE STATE — top content */}
+        <AnimatePresence mode="wait">
+          {session.status === 'idle' && (
+            <motion.div
+              key="idle-top"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center"
+            >
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#3D2E1F] mb-4">
+                Talk to an AI Phone Agent
+              </h1>
+              <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-6 max-w-md">
+                Experience what HelloML sounds like — live.
               </p>
-            </div>
 
-            <VoiceOrb
-              state="idle"
-              audioLevel={0}
-              aiSpeaking={false}
-              voice={selectedVoice}
-              onClick={() => session.start(selectedVoice)}
-            />
-
-            <p className="mt-10 text-[#8B6F47]/50 text-xs sm:text-sm">
-              No signup required • 2 minute demo • Uses your microphone
-            </p>
-            <p className="mt-3 text-[#8B6F47]/30 text-xs max-w-sm">
-              This demo uses your microphone to have a live conversation with our AI
-            </p>
-          </motion.div>
-        )}
-
-        {/* CONNECTING STATE */}
-        {session.status === 'connecting' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center text-center"
-          >
-            <h2 className="text-xl text-[#8B6F47] mb-8">Connecting...</h2>
-            <VoiceOrb
-              state="connecting"
-              audioLevel={0}
-              aiSpeaking={false}
-              voice={selectedVoice}
-            />
-          </motion.div>
-        )}
-
-        {/* ACTIVE STATE */}
-        {session.status === 'active' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center text-center"
-          >
-            {/* Timer */}
-            <p className="text-[#8B6F47]/40 text-sm mb-6 tabular-nums">
-              {formatTime(session.timeLeft)}
-            </p>
-
-            <VoiceOrb
-              state="active"
-              audioLevel={session.audioLevel}
-              aiSpeaking={session.aiSpeaking}
-              voice={selectedVoice}
-            />
-
-            {/* Live transcript */}
-            <div className="mt-6 min-h-[3rem] max-w-md px-4">
-              {session.transcript ? (
-                <motion.p
-                  key={session.transcript.slice(0, 20)}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-[#3D2E1F]/80 text-base sm:text-lg text-center font-light leading-relaxed"
-                >
-                  {session.transcript}
-                </motion.p>
-              ) : (
-                <p className="text-[#8B6F47]/40 text-sm text-center">
-                  {session.aiSpeaking ? 'AI is speaking...' : 'Listening...'}
+              {/* Voice Picker */}
+              <div className="w-full max-w-lg mb-8">
+                <p className="text-[#8B6F47]/50 text-xs mb-3 text-center">Choose a voice</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {VOICES.map((voice) => (
+                    <button
+                      key={voice.id}
+                      onClick={() => setSelectedVoice(voice.id)}
+                      title={voice.desc}
+                      className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                        selectedVoice === voice.id
+                          ? 'bg-[#8B6F47] text-white shadow-md scale-105'
+                          : 'bg-[#E8DCC8]/60 text-[#8B6F47]/80 hover:bg-[#E8DCC8] hover:text-[#8B6F47]'
+                      }`}
+                    >
+                      {voice.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[#8B6F47]/30 text-xs mt-2 text-center">
+                  {VOICES.find(v => v.id === selectedVoice)?.desc}
                 </p>
-              )}
-            </div>
+              </div>
+            </motion.div>
+          )}
 
-            {/* Controls */}
-            <div className="flex items-center gap-4 mt-8">
-              <button
-                onClick={session.toggleMute}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                  session.isMuted
-                    ? 'bg-red-100 text-red-500'
-                    : 'bg-[#8B6F47]/10 text-[#8B6F47]/70 hover:bg-[#8B6F47]/20'
-                }`}
-              >
-                <MicOff className="w-5 h-5" />
-              </button>
-              <button
-                onClick={session.end}
-                className="w-14 h-14 rounded-full bg-red-100 text-red-500 hover:bg-red-200 flex items-center justify-center transition-colors"
-              >
-                <PhoneOff className="w-6 h-6" />
-              </button>
-            </div>
-          </motion.div>
+          {session.status === 'connecting' && (
+            <motion.div
+              key="connecting-top"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <h2 className="text-xl text-[#8B6F47] mb-8">Connecting...</h2>
+            </motion.div>
+          )}
+
+          {session.status === 'active' && (
+            <motion.div
+              key="active-top"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <p className="text-[#8B6F47]/40 text-sm mb-6 tabular-nums">
+                {formatTime(session.timeLeft)}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* VOICE ORB — always mounted, never unmounts (preserves color state) */}
+        {(session.status === 'idle' || isLive) && (
+          <VoiceOrb
+            state={session.status === 'idle' ? 'idle' : session.status === 'connecting' ? 'connecting' : 'active'}
+            audioLevel={session.audioLevel}
+            aiSpeaking={session.aiSpeaking}
+            voice={selectedVoice}
+            onClick={session.status === 'idle' ? () => session.start(selectedVoice) : undefined}
+          />
         )}
+
+        {/* Bottom content — transcript, controls, etc */}
+        <AnimatePresence mode="wait">
+          {session.status === 'idle' && (
+            <motion.div
+              key="idle-bottom"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <p className="mt-10 text-[#8B6F47]/50 text-xs sm:text-sm">
+                No signup required • 2 minute demo • Uses your microphone
+              </p>
+              <p className="mt-3 text-[#8B6F47]/30 text-xs max-w-sm">
+                This demo uses your microphone to have a live conversation with our AI
+              </p>
+            </motion.div>
+          )}
+
+          {session.status === 'active' && (
+            <motion.div
+              key="active-bottom"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              {/* Live transcript */}
+              <div className="mt-6 min-h-[3rem] max-w-md px-4">
+                {session.transcript && (
+                  <motion.p
+                    key={session.transcript.slice(0, 20)}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[#3D2E1F]/80 text-base sm:text-lg text-center font-light leading-relaxed"
+                  >
+                    {session.transcript}
+                  </motion.p>
+                )}
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center gap-4 mt-8">
+                <button
+                  onClick={session.toggleMute}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                    session.isMuted
+                      ? 'bg-red-100 text-red-500'
+                      : 'bg-[#8B6F47]/10 text-[#8B6F47]/70 hover:bg-[#8B6F47]/20'
+                  }`}
+                >
+                  <MicOff className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={session.end}
+                  className="w-14 h-14 rounded-full bg-red-100 text-red-500 hover:bg-red-200 flex items-center justify-center transition-colors"
+                >
+                  <PhoneOff className="w-6 h-6" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ENDED STATE */}
         {session.status === 'ended' && (
