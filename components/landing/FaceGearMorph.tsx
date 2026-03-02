@@ -1,157 +1,472 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { createTimeline } from 'animejs';
+import { useRef, useEffect, useCallback } from 'react';
 
-// Both paths have exactly the same structure: M + 32 C commands
-// This ensures smooth morphing between the two shapes.
+/**
+ * Particle system: ~200 dots form a human face profile,
+ * then snap into a precise gear/circuit formation.
+ * Canvas-based for performance, anime.js-free (requestAnimationFrame).
+ */
 
-// Face: oval head, two dot-eyes, curved smile
-const FACE_PATH = [
-  'M 125 25',
-  'C 145 25 170 35 185 55',
-  'C 200 75 210 100 210 125',
-  'C 210 150 200 175 185 195',
-  'C 170 215 145 225 125 225',
-  'C 105 225 80 215 65 195',
-  'C 50 175 40 150 40 125',
-  'C 40 100 50 75 65 55',
-  'C 80 35 105 25 125 25',
-  // left eye
-  'C 125 25 90 88 85 93',
-  'C 80 98 80 103 85 108',
-  'C 90 113 100 113 105 108',
-  'C 110 103 110 98 105 93',
-  'C 100 88 90 88 90 93',
-  // right eye
-  'C 90 93 150 88 145 93',
-  'C 140 98 140 103 145 108',
-  'C 150 113 160 113 165 108',
-  'C 170 103 170 98 165 93',
-  'C 160 88 150 88 150 93',
-  // smile
-  'C 150 93 85 158 88 162',
-  'C 91 166 98 172 105 175',
-  'C 112 178 118 179 125 179',
-  'C 132 179 138 178 145 175',
-  'C 152 172 159 166 162 162',
-  'C 165 158 162 155 158 155',
-  // connect back
-  'C 154 155 148 160 145 163',
-  'C 138 168 132 170 125 170',
-  'C 118 170 112 168 105 163',
-  'C 102 160 96 155 92 155',
-  'C 88 155 85 158 88 162',
-  'C 91 166 125 25 125 25',
-  'C 125 25 125 25 125 25',
-].join(' ');
+// Generate face profile points (detailed side profile with features)
+function generateFacePoints(cx: number, cy: number, count: number): { x: number; y: number }[] {
+  const points: { x: number; y: number }[] = [];
+  const scale = 0.85;
 
-// Gear/cog with 8 teeth + interior circuit lines
-const GEAR_PATH = [
-  'M 125 30',
-  'C 135 30 140 30 145 35',
-  'C 150 25 160 20 170 30',
-  'C 180 40 175 50 170 55',
-  'C 180 60 190 65 195 75',
-  'C 205 70 215 75 220 85',
-  'C 225 95 218 105 210 105',
-  'C 215 115 215 125 215 130',
-  'C 225 135 225 145 220 155',
-  'C 215 165 205 165 200 160',
-  'C 195 170 185 178 180 182',
-  'C 188 190 185 200 175 205',
-  'C 165 210 158 205 155 198',
-  'C 148 202 138 205 130 205',
-  'C 125 215 118 220 110 215',
-  'C 102 210 100 202 102 195',
-  'C 95 192 85 185 78 178',
-  'C 70 185 60 185 55 175',
-  'C 50 165 55 155 62 150',
-  'C 55 140 50 130 48 120',
-  'C 38 120 30 112 32 102',
-  'C 34 92 42 88 50 90',
-  'C 52 80 58 68 65 60',
-  'C 58 52 60 42 70 38',
-  'C 80 34 88 40 90 48',
-  'C 98 42 108 35 115 32',
-  'C 118 30 122 30 125 30',
-  // interior circuit nodes
-  'C 125 30 100 100 105 105',
-  'C 110 110 115 110 120 105',
-  'C 125 100 130 105 135 110',
-  'C 140 115 150 120 155 115',
-  'C 160 110 155 100 145 98',
-  'C 135 96 125 30 125 30',
-].join(' ');
+  // Head outline (elliptical, side profile shape)
+  const headPoints = Math.floor(count * 0.35);
+  for (let i = 0; i < headPoints; i++) {
+    const t = (i / headPoints) * Math.PI * 2;
+    const rx = 65 * scale;
+    const ry = 80 * scale;
+    // Slightly flatten the back of the head
+    const xMod = Math.cos(t) < -0.3 ? 0.85 : 1;
+    points.push({
+      x: cx + Math.cos(t) * rx * xMod + (Math.random() - 0.5) * 3,
+      y: cy + Math.sin(t) * ry + (Math.random() - 0.5) * 3,
+    });
+  }
+
+  // Eye (left, detailed - circle of dots)
+  const eyePoints = Math.floor(count * 0.06);
+  for (let i = 0; i < eyePoints; i++) {
+    const t = (i / eyePoints) * Math.PI * 2;
+    const r = 8 * scale;
+    points.push({
+      x: cx - 18 * scale + Math.cos(t) * r,
+      y: cy - 18 * scale + Math.sin(t) * r,
+    });
+  }
+
+  // Eye pupil
+  const pupilPoints = Math.floor(count * 0.03);
+  for (let i = 0; i < pupilPoints; i++) {
+    const t = (i / pupilPoints) * Math.PI * 2;
+    const r = 3 * scale;
+    points.push({
+      x: cx - 18 * scale + Math.cos(t) * r,
+      y: cy - 18 * scale + Math.sin(t) * r,
+    });
+  }
+
+  // Eye (right)
+  for (let i = 0; i < eyePoints; i++) {
+    const t = (i / eyePoints) * Math.PI * 2;
+    const r = 8 * scale;
+    points.push({
+      x: cx + 18 * scale + Math.cos(t) * r,
+      y: cy - 18 * scale + Math.sin(t) * r,
+    });
+  }
+
+  // Right pupil
+  for (let i = 0; i < pupilPoints; i++) {
+    const t = (i / pupilPoints) * Math.PI * 2;
+    const r = 3 * scale;
+    points.push({
+      x: cx + 18 * scale + Math.cos(t) * r,
+      y: cy - 18 * scale + Math.sin(t) * r,
+    });
+  }
+
+  // Eyebrows
+  const browPoints = Math.floor(count * 0.04);
+  for (let i = 0; i < browPoints; i++) {
+    const t = i / browPoints;
+    points.push({
+      x: cx - 28 * scale + t * 20 * scale,
+      y: cy - 32 * scale - Math.sin(t * Math.PI) * 4 * scale,
+    });
+    points.push({
+      x: cx + 8 * scale + t * 20 * scale,
+      y: cy - 32 * scale - Math.sin(t * Math.PI) * 4 * scale,
+    });
+  }
+
+  // Nose
+  const nosePoints = Math.floor(count * 0.04);
+  for (let i = 0; i < nosePoints; i++) {
+    const t = i / nosePoints;
+    points.push({
+      x: cx + Math.sin(t * Math.PI) * 6 * scale,
+      y: cy - 8 * scale + t * 22 * scale,
+    });
+  }
+
+  // Mouth (smile curve)
+  const mouthPoints = Math.floor(count * 0.05);
+  for (let i = 0; i < mouthPoints; i++) {
+    const t = (i / mouthPoints) * Math.PI;
+    points.push({
+      x: cx - 16 * scale + (t / Math.PI) * 32 * scale,
+      y: cy + 28 * scale + Math.sin(t) * 6 * scale,
+    });
+  }
+
+  // Upper lip
+  for (let i = 0; i < Math.floor(count * 0.03); i++) {
+    const t = i / Math.floor(count * 0.03);
+    points.push({
+      x: cx - 16 * scale + t * 32 * scale,
+      y: cy + 28 * scale - Math.sin(t * Math.PI) * 2 * scale,
+    });
+  }
+
+  // Jaw line
+  const jawPoints = Math.floor(count * 0.06);
+  for (let i = 0; i < jawPoints; i++) {
+    const t = i / jawPoints;
+    const angle = Math.PI * 0.3 + t * Math.PI * 0.4;
+    points.push({
+      x: cx + Math.cos(angle) * 60 * scale,
+      y: cy + Math.sin(angle) * 75 * scale,
+    });
+  }
+
+  // Neural/organic scatter (brain area, top of head)
+  const neuralPoints = Math.floor(count * 0.15);
+  for (let i = 0; i < neuralPoints; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * 45 * scale;
+    const px = cx + Math.cos(angle) * r;
+    const py = cy - 30 * scale + Math.sin(angle) * r * 0.6;
+    // Only keep points inside the head
+    const dx = (px - cx) / (65 * scale);
+    const dy = (py - cy) / (80 * scale);
+    if (dx * dx + dy * dy < 0.85) {
+      points.push({ x: px, y: py });
+    }
+  }
+
+  // Fill remaining
+  while (points.length < count) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * 50 * scale;
+    points.push({
+      x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 10,
+      y: cy + Math.sin(angle) * r * 0.8 + (Math.random() - 0.5) * 10,
+    });
+  }
+
+  return points.slice(0, count);
+}
+
+// Generate gear points (detailed mechanical gear with teeth and internal structure)
+function generateGearPoints(cx: number, cy: number, count: number): { x: number; y: number }[] {
+  const points: { x: number; y: number }[] = [];
+  const scale = 0.85;
+
+  // Outer gear teeth (detailed)
+  const teeth = 16;
+  const outerR = 75 * scale;
+  const innerR = 60 * scale;
+  const toothPoints = Math.floor(count * 0.35);
+  for (let i = 0; i < toothPoints; i++) {
+    const t = (i / toothPoints) * Math.PI * 2;
+    const toothPhase = Math.floor((t / (Math.PI * 2)) * teeth * 2) % 2;
+    const r = toothPhase === 0 ? outerR : innerR;
+    const jitter = (Math.random() - 0.5) * 1.5;
+    points.push({
+      x: cx + Math.cos(t) * (r + jitter),
+      y: cy + Math.sin(t) * (r + jitter),
+    });
+  }
+
+  // Inner ring
+  const innerRingPoints = Math.floor(count * 0.12);
+  for (let i = 0; i < innerRingPoints; i++) {
+    const t = (i / innerRingPoints) * Math.PI * 2;
+    points.push({
+      x: cx + Math.cos(t) * 35 * scale,
+      y: cy + Math.sin(t) * 35 * scale,
+    });
+  }
+
+  // Center hub
+  const hubPoints = Math.floor(count * 0.08);
+  for (let i = 0; i < hubPoints; i++) {
+    const t = (i / hubPoints) * Math.PI * 2;
+    points.push({
+      x: cx + Math.cos(t) * 12 * scale,
+      y: cy + Math.sin(t) * 12 * scale,
+    });
+  }
+
+  // Spokes (6 spokes connecting hub to inner ring)
+  const spokeCount = 6;
+  const spokePoints = Math.floor(count * 0.12);
+  const perSpoke = Math.floor(spokePoints / spokeCount);
+  for (let s = 0; s < spokeCount; s++) {
+    const angle = (s / spokeCount) * Math.PI * 2;
+    for (let i = 0; i < perSpoke; i++) {
+      const t = i / perSpoke;
+      const r = 12 * scale + t * 23 * scale;
+      points.push({
+        x: cx + Math.cos(angle) * r,
+        y: cy + Math.sin(angle) * r,
+      });
+    }
+  }
+
+  // Circuit nodes (small dots at intersections)
+  const nodePositions = [
+    [0.5, -0.3], [-0.5, -0.3], [0.3, 0.5], [-0.3, 0.5],
+    [0.45, 0], [-0.45, 0], [0, 0.45], [0, -0.45],
+  ];
+  const circuitPoints = Math.floor(count * 0.06);
+  const perNode = Math.floor(circuitPoints / nodePositions.length);
+  for (const [nx, ny] of nodePositions) {
+    for (let i = 0; i < perNode; i++) {
+      const t = (i / perNode) * Math.PI * 2;
+      const r = 3 * scale;
+      points.push({
+        x: cx + nx * 55 * scale + Math.cos(t) * r,
+        y: cy + ny * 55 * scale + Math.sin(t) * r,
+      });
+    }
+  }
+
+  // Circuit traces (connecting lines between nodes)
+  const tracePoints = Math.floor(count * 0.1);
+  const traces = [
+    [[0.5, -0.3], [0.45, 0]],
+    [[-0.5, -0.3], [-0.45, 0]],
+    [[0.45, 0], [0.3, 0.5]],
+    [[-0.45, 0], [-0.3, 0.5]],
+    [[0, -0.45], [0.5, -0.3]],
+    [[0, -0.45], [-0.5, -0.3]],
+    [[0, 0.45], [0.3, 0.5]],
+    [[0, 0.45], [-0.3, 0.5]],
+  ];
+  const perTrace = Math.floor(tracePoints / traces.length);
+  for (const [start, end] of traces) {
+    for (let i = 0; i < perTrace; i++) {
+      const t = i / perTrace;
+      points.push({
+        x: cx + (start[0] + (end[0] - start[0]) * t) * 55 * scale,
+        y: cy + (start[1] + (end[1] - start[1]) * t) * 55 * scale,
+      });
+    }
+  }
+
+  // Small detail dots scattered in gaps
+  while (points.length < count) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = 15 * scale + Math.random() * 55 * scale;
+    points.push({
+      x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 4,
+      y: cy + Math.sin(angle) * r + (Math.random() - 0.5) * 4,
+    });
+  }
+
+  return points.slice(0, count);
+}
+
+const PARTICLE_COUNT = 220;
+const SIZE = 280;
+const CENTER = SIZE / 2;
 
 export function FaceGearMorph() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const visibleRef = useRef(false);
+  const animRef = useRef<number>(0);
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    canvas.width = SIZE * dpr;
+    canvas.height = SIZE * dpr;
+    ctx.scale(dpr, dpr);
+
+    const faceTargets = generateFacePoints(CENTER, CENTER, PARTICLE_COUNT);
+    const gearTargets = generateGearPoints(CENTER, CENTER, PARTICLE_COUNT);
+
+    // Current particle positions (start scattered)
+    const particles = faceTargets.map((p) => ({
+      x: p.x + (Math.random() - 0.5) * 200,
+      y: p.y + (Math.random() - 0.5) * 200,
+      vx: 0,
+      vy: 0,
+      size: 1.2 + Math.random() * 1.8,
+      alpha: 0.4 + Math.random() * 0.6,
+      // Organic sway for face mode
+      swayPhase: Math.random() * Math.PI * 2,
+      swayAmp: 0.3 + Math.random() * 0.8,
+    }));
+
+    // Connections (for gear mode - circuit lines)
+    const connections: [number, number][] = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+        const dx = gearTargets[i].x - gearTargets[j].x;
+        const dy = gearTargets[i].y - gearTargets[j].y;
+        if (dx * dx + dy * dy < 400) { // distance < 20
+          connections.push([i, j]);
+        }
+      }
+    }
+
+    let morphProgress = 0; // 0 = face, 1 = gear
+    let morphDirection = 1;
+    let holdTimer = 0;
+    const holdDuration = 90; // frames to hold at each state
+    const morphSpeed = 0.008;
+    let gearRotation = 0;
+    let time = 0;
+
+    const loop = () => {
+      if (!visibleRef.current) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+
+      time++;
+      ctx.clearRect(0, 0, SIZE, SIZE);
+
+      // Update morph
+      if (holdTimer > 0) {
+        holdTimer--;
+      } else {
+        morphProgress += morphSpeed * morphDirection;
+        if (morphProgress >= 1) {
+          morphProgress = 1;
+          morphDirection = -1;
+          holdTimer = holdDuration;
+        } else if (morphProgress <= 0) {
+          morphProgress = 0;
+          morphDirection = 1;
+          holdTimer = holdDuration;
+        }
+      }
+
+      // Smooth easing
+      const ease = morphProgress < 0.5
+        ? 4 * morphProgress * morphProgress * morphProgress
+        : 1 - Math.pow(-2 * morphProgress + 2, 3) / 2;
+
+      // Gear rotation (only when in gear mode)
+      gearRotation += ease * 0.003;
+
+      // Update particles
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const p = particles[i];
+        const face = faceTargets[i];
+        const gear = gearTargets[i];
+
+        // Rotate gear target around center
+        const gx = gear.x - CENTER;
+        const gy = gear.y - CENTER;
+        const cos = Math.cos(gearRotation);
+        const sin = Math.sin(gearRotation);
+        const rotatedGearX = CENTER + gx * cos - gy * sin;
+        const rotatedGearY = CENTER + gx * sin + gy * cos;
+
+        // Lerp target
+        const targetX = face.x * (1 - ease) + rotatedGearX * ease;
+        const targetY = face.y * (1 - ease) + rotatedGearY * ease;
+
+        // Organic sway (only in face mode)
+        const sway = (1 - ease) * Math.sin(time * 0.02 + p.swayPhase) * p.swayAmp;
+
+        // Spring physics toward target
+        const dx = targetX + sway - p.x;
+        const dy = targetY + sway * 0.7 - p.y;
+        p.vx += dx * 0.08;
+        p.vy += dy * 0.08;
+        p.vx *= 0.85;
+        p.vy *= 0.85;
+        p.x += p.vx;
+        p.y += p.vy;
+      }
+
+      // Draw connections (fade in with gear mode)
+      if (ease > 0.1) {
+        ctx.strokeStyle = `rgba(139, 111, 71, ${ease * 0.15})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        for (const [a, b] of connections) {
+          ctx.moveTo(particles[a].x, particles[a].y);
+          ctx.lineTo(particles[b].x, particles[b].y);
+        }
+        ctx.stroke();
+      }
+
+      // Draw particles
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const p = particles[i];
+
+        // Color shifts: warm brown for face, golden for gear
+        const r = Math.round(139 + ease * 30);
+        const g = Math.round(111 + ease * 10);
+        const b = Math.round(71 - ease * 10);
+
+        // Size: slightly larger in gear mode for mechanical feel
+        const size = p.size * (1 + ease * 0.4);
+
+        // Shape: round for face, slightly square for gear
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha * (0.6 + ease * 0.4)})`;
+
+        if (ease > 0.6) {
+          // Square-ish particles in gear mode
+          const squareness = (ease - 0.6) * 2.5; // 0 to 1
+          const s = size * (1 + squareness * 0.3);
+          const cornerRadius = s * (1 - squareness * 0.7);
+          ctx.beginPath();
+          ctx.roundRect(p.x - s, p.y - s, s * 2, s * 2, cornerRadius);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Glow effect at center
+      const gradient = ctx.createRadialGradient(CENTER, CENTER, 0, CENTER, CENTER, 30);
+      gradient.addColorStop(0, `rgba(139, 111, 71, ${0.08 + ease * 0.08})`);
+      gradient.addColorStop(1, 'rgba(139, 111, 71, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(CENTER, CENTER, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      animRef.current = requestAnimationFrame(loop);
+    };
+
+    animRef.current = requestAnimationFrame(loop);
+  }, []);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const path = pathRef.current;
-    if (!container || !path) return;
-
-    let tl: ReturnType<typeof createTimeline> | null = null;
-    let playing = false;
-
-    function buildAndPlay() {
-      if (tl) return;
-      tl = createTimeline({
-        loop: true,
-        defaults: { ease: 'inOutQuad' },
-      })
-        .add(path as SVGPathElement, { d: GEAR_PATH, duration: 3000 }, '+=1000')
-        .add(path as SVGPathElement, { d: FACE_PATH, duration: 3000 }, '+=1000');
-
-      playing = true;
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          if (!tl) {
-            buildAndPlay();
-          } else if (!playing) {
-            tl.play();
-            playing = true;
-          }
-        } else {
-          if (tl && playing) {
-            tl.pause();
-            playing = false;
-          }
-        }
+        visibleRef.current = entry.isIntersecting;
       },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
+    observer.observe(canvas);
 
-    observer.observe(container);
+    draw();
 
     return () => {
       observer.disconnect();
-      if (tl) tl.pause();
+      cancelAnimationFrame(animRef.current);
     };
-  }, []);
+  }, [draw]);
 
   return (
-    <div ref={containerRef} className="w-[220px] h-[220px] mx-auto mt-8">
-      <svg
-        viewBox="0 0 250 250"
-        className="w-full h-full"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <path
-          ref={pathRef}
-          d={FACE_PATH}
-          stroke="#8B6F47"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <div className="flex justify-center mt-8 mb-4">
+      <canvas
+        ref={canvasRef}
+        style={{ width: SIZE, height: SIZE }}
+        className="opacity-80"
+      />
     </div>
   );
 }
