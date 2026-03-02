@@ -22,9 +22,9 @@ const CONVERSATION: Message[] = [
   { role: 'ai', text: "Perfect. You're booked for Thursday at 2:30 for a kitchen faucet repair at 445 Oak Street. I'll send a confirmation text with your technician's name shortly." },
 ];
 
-const TYPING_SPEED = 30; // ms per character
-const PAUSE_BETWEEN = 700; // ms between messages
-const RESTART_DELAY = 3000; // ms before restarting
+const TYPING_SPEED = 35; // ms per character — consistent, no acceleration
+const PAUSE_BETWEEN = 900; // ms between messages
+const RESTART_DELAY = 4000; // ms before restarting
 
 export function HeroCallCard({ className = '' }: { className?: string }) {
   const [messages, setMessages] = useState<{ role: string; text: string; typing?: boolean }[]>([]);
@@ -129,7 +129,7 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
         </div>
 
         {/* Transcript area */}
-        <div ref={containerRef} className="px-5 py-4 space-y-3 min-h-[220px] max-h-[280px] overflow-y-auto">
+        <div ref={containerRef} className="px-5 py-4 space-y-3 min-h-[300px] max-h-[360px] overflow-y-auto">
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -143,7 +143,6 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
                 }`}
               >
                 {msg.text}
-                {msg.typing && <span className="inline-block w-[2px] h-3.5 bg-current ml-0.5 animate-pulse" />}
               </div>
             </div>
           ))}
