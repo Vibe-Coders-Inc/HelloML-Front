@@ -4,142 +4,219 @@ import { useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 const vp = { once: true, margin: '-50px' as const };
-
-/**
- * Clean line-art face that morphs into a detailed gear.
- * Both shapes drawn as connected stroke paths on canvas.
- * Large, bold, unmistakable.
- */
-
 const SIZE = 360;
 const CX = SIZE / 2;
 const CY = SIZE / 2;
 
-// Generate points along a path for smooth morphing
-// Both shapes MUST have the same total point count
+/*
+ * PATH INDEX — each face path maps to a gear path with same point count:
+ *  0: Head outline (120) → Outer gear teeth (120)
+ *  1: Left eye (40) → Inner ring A (40)
+ *  2: Left pupil (20) → Inner ring B (20)
+ *  3: Right eye (40) → Hub ring (40)
+ *  4: Right pupil (20) → Center hole (20)
+ *  5: Left eyebrow (30) → Spoke 0deg (30)
+ *  6: Right eyebrow (30) → Spoke 60deg (30)
+ *  7: Nose (30) → Spoke 120deg (30)
+ *  8: Mouth (40) → Spoke 180deg (40)
+ *  9: Upper lip (30) → Spoke 240deg + 300deg (30)
+ * 10: Hair top (60) → Outer ring detail (60)
+ * 11: Hair left side (30) → Small gear A (30)
+ * 12: Headset band (40) → Small gear B (40)
+ * 13: Headset earpiece (30) → Small gear C (30)
+ * 14: Headset mic arm (20) → Bolt hole A (20)
+ * 15: Headset mic (20) → Bolt hole B (20)
+ */
 
 function generateFacePoints(): { x: number; y: number }[][] {
   const paths: { x: number; y: number }[][] = [];
 
-  // 1. Head outline (oval) — 120 points
+  // 0. Head outline — 120pts. Not a perfect oval: narrower jaw, wider forehead
   const head: { x: number; y: number }[] = [];
   for (let i = 0; i < 120; i++) {
     const t = (i / 120) * Math.PI * 2;
-    head.push({
-      x: CX + Math.cos(t) * 110,
-      y: CY + Math.sin(t) * 130,
-    });
+    // Jaw narrows at bottom
+    const jawNarrow = Math.sin(t) > 0.3 ? (Math.sin(t) - 0.3) * 0.18 : 0;
+    const rx = 105 - jawNarrow * 105;
+    const ry = 125;
+    head.push({ x: CX + Math.cos(t) * rx, y: CY + Math.sin(t) * ry });
   }
   paths.push(head);
 
-  // 2. Left eye — 40 points (almond shape)
-  const leftEye: { x: number; y: number }[] = [];
+  // 1. Left eye — 40pts almond
+  const lEye: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    const rx = 22;
-    const ry = 10;
-    // Almond: pinch at ends
-    const squeeze = Math.pow(Math.cos(t), 2) * 0.3;
-    leftEye.push({
-      x: CX - 38 + Math.cos(t) * rx,
-      y: CY - 25 + Math.sin(t) * (ry - squeeze * ry),
+    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.45;
+    lEye.push({
+      x: CX - 36 + Math.cos(t) * 20,
+      y: CY - 20 + Math.sin(t) * (9 - pinch * 9),
     });
   }
-  paths.push(leftEye);
+  paths.push(lEye);
 
-  // 3. Left pupil — 20 points
-  const leftPupil: { x: number; y: number }[] = [];
+  // 2. Left pupil — 20pts
+  const lPup: { x: number; y: number }[] = [];
   for (let i = 0; i < 20; i++) {
     const t = (i / 20) * Math.PI * 2;
-    leftPupil.push({
-      x: CX - 38 + Math.cos(t) * 8,
-      y: CY - 25 + Math.sin(t) * 8,
-    });
+    lPup.push({ x: CX - 36 + Math.cos(t) * 7, y: CY - 20 + Math.sin(t) * 7 });
   }
-  paths.push(leftPupil);
+  paths.push(lPup);
 
-  // 4. Right eye — 40 points
-  const rightEye: { x: number; y: number }[] = [];
+  // 3. Right eye — 40pts
+  const rEye: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    const rx = 22;
-    const ry = 10;
-    const squeeze = Math.pow(Math.cos(t), 2) * 0.3;
-    rightEye.push({
-      x: CX + 38 + Math.cos(t) * rx,
-      y: CY - 25 + Math.sin(t) * (ry - squeeze * ry),
+    const pinch = Math.pow(Math.abs(Math.cos(t)), 1.5) * 0.45;
+    rEye.push({
+      x: CX + 36 + Math.cos(t) * 20,
+      y: CY - 20 + Math.sin(t) * (9 - pinch * 9),
     });
   }
-  paths.push(rightEye);
+  paths.push(rEye);
 
-  // 5. Right pupil — 20 points
-  const rightPupil: { x: number; y: number }[] = [];
+  // 4. Right pupil — 20pts
+  const rPup: { x: number; y: number }[] = [];
   for (let i = 0; i < 20; i++) {
     const t = (i / 20) * Math.PI * 2;
-    rightPupil.push({
-      x: CX + 38 + Math.cos(t) * 8,
-      y: CY - 25 + Math.sin(t) * 8,
-    });
+    rPup.push({ x: CX + 36 + Math.cos(t) * 7, y: CY - 20 + Math.sin(t) * 7 });
   }
-  paths.push(rightPupil);
+  paths.push(rPup);
 
-  // 6. Left eyebrow — 30 points (arc)
-  const leftBrow: { x: number; y: number }[] = [];
+  // 5. Left eyebrow — 30pts
+  const lBrow: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
-    leftBrow.push({
-      x: CX - 58 + t * 44,
-      y: CY - 48 - Math.sin(t * Math.PI) * 10,
+    lBrow.push({
+      x: CX - 55 + t * 42,
+      y: CY - 42 - Math.sin(t * Math.PI) * 8,
     });
   }
-  paths.push(leftBrow);
+  paths.push(lBrow);
 
-  // 7. Right eyebrow — 30 points
-  const rightBrow: { x: number; y: number }[] = [];
+  // 6. Right eyebrow — 30pts
+  const rBrow: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
-    rightBrow.push({
-      x: CX + 14 + t * 44,
-      y: CY - 48 - Math.sin(t * Math.PI) * 10,
+    rBrow.push({
+      x: CX + 13 + t * 42,
+      y: CY - 42 - Math.sin(t * Math.PI) * 8,
     });
   }
-  paths.push(rightBrow);
+  paths.push(rBrow);
 
-  // 8. Nose — 30 points (vertical line curving at bottom)
+  // 7. Nose — 30pts
   const nose: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
-    const curve = t > 0.7 ? Math.sin((t - 0.7) / 0.3 * Math.PI) * 8 : 0;
-    nose.push({
-      x: CX + curve,
-      y: CY - 12 + t * 40,
-    });
+    const bulb = t > 0.65 ? Math.sin((t - 0.65) / 0.35 * Math.PI) * 7 : 0;
+    nose.push({ x: CX + bulb, y: CY - 8 + t * 35 });
   }
   paths.push(nose);
 
-  // 9. Mouth — 40 points (smile)
+  // 8. Mouth — 40pts (gentle smile)
   const mouth: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = i / 39;
     mouth.push({
-      x: CX - 30 + t * 60,
-      y: CY + 50 + Math.sin(t * Math.PI) * 12,
+      x: CX - 26 + t * 52,
+      y: CY + 48 + Math.sin(t * Math.PI) * 9,
     });
   }
   paths.push(mouth);
 
-  // 10. Upper lip detail — 30 points
-  const upperLip: { x: number; y: number }[] = [];
+  // 9. Upper lip — 30pts
+  const lip: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
     const t = i / 29;
-    // Cupid's bow shape
-    const bow = Math.abs(t - 0.5) < 0.15 ? -4 : 0;
-    upperLip.push({
-      x: CX - 28 + t * 56,
-      y: CY + 48 + bow + Math.sin(t * Math.PI) * 2,
+    const bow = Math.abs(t - 0.5) < 0.12 ? -3 : 0;
+    lip.push({
+      x: CX - 24 + t * 48,
+      y: CY + 46 + bow + Math.sin(t * Math.PI) * 2,
     });
   }
-  paths.push(upperLip);
+  paths.push(lip);
+
+  // 10. Hair — 60pts. Wavy volume on top of head
+  const hair: { x: number; y: number }[] = [];
+  for (let i = 0; i < 60; i++) {
+    const t = i / 59;
+    // Arc across the top, from left side to right side
+    const angle = Math.PI * 1.15 + t * Math.PI * 0.7; // ~205deg to ~330deg (top arc)
+    const baseR = 112;
+    // Add wavy volume outward
+    const wave = Math.sin(t * Math.PI * 5) * 8 + 15; // volume above head
+    const r = baseR + wave;
+    hair.push({
+      x: CX + Math.cos(angle) * r,
+      y: CY + Math.sin(angle) * r,
+    });
+  }
+  paths.push(hair);
+
+  // 11. Hair left side strands — 30pts
+  const hairL: { x: number; y: number }[] = [];
+  for (let i = 0; i < 30; i++) {
+    const t = i / 29;
+    const angle = Math.PI * 0.95 + t * Math.PI * 0.25;
+    const wave = Math.sin(t * Math.PI * 3) * 5 + 10;
+    hairL.push({
+      x: CX + Math.cos(angle) * (110 + wave),
+      y: CY + Math.sin(angle) * (125 + wave * 0.5),
+    });
+  }
+  paths.push(hairL);
+
+  // 12. Headset band — 40pts. Arc over the top of head
+  const hBand: { x: number; y: number }[] = [];
+  for (let i = 0; i < 40; i++) {
+    const t = i / 39;
+    const angle = Math.PI * 1.15 + t * Math.PI * 0.7;
+    const r = 138; // outside the hair
+    hBand.push({
+      x: CX + Math.cos(angle) * r,
+      y: CY + Math.sin(angle) * r,
+    });
+  }
+  paths.push(hBand);
+
+  // 13. Headset earpiece (left ear) — 30pts. Oval on left side
+  const earpiece: { x: number; y: number }[] = [];
+  for (let i = 0; i < 30; i++) {
+    const t = (i / 30) * Math.PI * 2;
+    earpiece.push({
+      x: CX - 118 + Math.cos(t) * 12,
+      y: CY - 8 + Math.sin(t) * 18,
+    });
+  }
+  paths.push(earpiece);
+
+  // 14. Headset mic arm — 20pts. Curved line from earpiece down to mouth
+  const micArm: { x: number; y: number }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const t = i / 19;
+    // Curve from left ear down and inward to mouth area
+    const startX = CX - 118, startY = CY + 10;
+    const endX = CX - 50, endY = CY + 65;
+    const ctrlX = CX - 125, ctrlY = CY + 55;
+    const mt = t;
+    micArm.push({
+      x: (1 - mt) * (1 - mt) * startX + 2 * (1 - mt) * mt * ctrlX + mt * mt * endX,
+      y: (1 - mt) * (1 - mt) * startY + 2 * (1 - mt) * mt * ctrlY + mt * mt * endY,
+    });
+  }
+  paths.push(micArm);
+
+  // 15. Headset mic tip — 20pts. Small circle at end of mic arm
+  const mic: { x: number; y: number }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const t = (i / 20) * Math.PI * 2;
+    mic.push({
+      x: CX - 50 + Math.cos(t) * 8,
+      y: CY + 65 + Math.sin(t) * 8,
+    });
+  }
+  paths.push(mic);
 
   return paths;
 }
@@ -147,153 +224,150 @@ function generateFacePoints(): { x: number; y: number }[][] {
 function generateGearPoints(): { x: number; y: number }[][] {
   const paths: { x: number; y: number }[][] = [];
 
-  // 1. Outer gear ring with teeth — 120 points (matches head)
+  // 0. Outer gear teeth — 120pts
   const teeth = 20;
   const outerR = 130;
-  const innerR = 105;
-  const toothWidth = 0.35; // how much of each tooth period is the flat top
+  const innerR = 108;
   const outer: { x: number; y: number }[] = [];
   for (let i = 0; i < 120; i++) {
     const t = (i / 120) * Math.PI * 2;
-    const toothPhase = ((t / (Math.PI * 2)) * teeth) % 1;
+    const phase = ((t / (Math.PI * 2)) * teeth) % 1;
     let r: number;
-    if (toothPhase < toothWidth) {
-      r = outerR; // tooth top
-    } else if (toothPhase < toothWidth + 0.1) {
-      // falling edge
-      const edge = (toothPhase - toothWidth) / 0.1;
-      r = outerR - edge * (outerR - innerR);
-    } else if (toothPhase < 1 - 0.1) {
-      r = innerR; // valley
-    } else {
-      // rising edge
-      const edge = (toothPhase - (1 - 0.1)) / 0.1;
-      r = innerR + edge * (outerR - innerR);
-    }
-    outer.push({
-      x: CX + Math.cos(t) * r,
-      y: CY + Math.sin(t) * r,
-    });
+    if (phase < 0.3) r = outerR;
+    else if (phase < 0.38) r = outerR - ((phase - 0.3) / 0.08) * (outerR - innerR);
+    else if (phase < 0.88) r = innerR;
+    else r = innerR + ((phase - 0.88) / 0.12) * (outerR - innerR);
+    outer.push({ x: CX + Math.cos(t) * r, y: CY + Math.sin(t) * r });
   }
   paths.push(outer);
 
-  // 2. Inner ring 1 — 40 points (matches left eye)
-  const ring1: { x: number; y: number }[] = [];
+  // 1. Inner ring A — 40pts (r=75)
+  const ringA: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    ring1.push({
-      x: CX + Math.cos(t) * 72,
-      y: CY + Math.sin(t) * 72,
-    });
+    ringA.push({ x: CX + Math.cos(t) * 75, y: CY + Math.sin(t) * 75 });
   }
-  paths.push(ring1);
+  paths.push(ringA);
 
-  // 3. Inner ring 2 — 20 points (matches left pupil)
-  const ring2: { x: number; y: number }[] = [];
+  // 2. Inner ring B — 20pts (r=65)
+  const ringB: { x: number; y: number }[] = [];
   for (let i = 0; i < 20; i++) {
     const t = (i / 20) * Math.PI * 2;
-    ring2.push({
-      x: CX + Math.cos(t) * 60,
-      y: CY + Math.sin(t) * 60,
-    });
+    ringB.push({ x: CX + Math.cos(t) * 65, y: CY + Math.sin(t) * 65 });
   }
-  paths.push(ring2);
+  paths.push(ringB);
 
-  // 4. Center hub ring — 40 points (matches right eye)
+  // 3. Hub — 40pts (r=30)
   const hub: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
     const t = (i / 40) * Math.PI * 2;
-    hub.push({
-      x: CX + Math.cos(t) * 28,
-      y: CY + Math.sin(t) * 28,
-    });
+    hub.push({ x: CX + Math.cos(t) * 30, y: CY + Math.sin(t) * 30 });
   }
   paths.push(hub);
 
-  // 5. Center hole — 20 points (matches right pupil)
+  // 4. Center hole — 20pts (r=12)
   const hole: { x: number; y: number }[] = [];
   for (let i = 0; i < 20; i++) {
     const t = (i / 20) * Math.PI * 2;
-    hole.push({
-      x: CX + Math.cos(t) * 12,
-      y: CY + Math.sin(t) * 12,
-    });
+    hole.push({ x: CX + Math.cos(t) * 12, y: CY + Math.sin(t) * 12 });
   }
   paths.push(hole);
 
-  // 6. Spoke 1 — 30 points (matches left brow)
-  const spoke1: { x: number; y: number }[] = [];
-  const s1Angle = 0;
-  for (let i = 0; i < 30; i++) {
-    const t = i / 29;
-    const r = 28 + t * 44;
-    spoke1.push({
-      x: CX + Math.cos(s1Angle) * r,
-      y: CY + Math.sin(s1Angle) * r,
-    });
+  // Spokes: 6 spokes evenly spaced (each is a thick line from hub r=30 to inner ring r=75)
+  // They're drawn as thin rectangles (4px wide) for visual clarity
+  const spokeWidth = 4;
+  function makeSpoke(angle: number, count: number): { x: number; y: number }[] {
+    const pts: { x: number; y: number }[] = [];
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const perpX = -sin * spokeWidth / 2;
+    const perpY = cos * spokeWidth / 2;
+    const r1 = 30, r2 = 75;
+    const half = Math.floor(count / 2);
+    // Go out along one edge
+    for (let i = 0; i < half; i++) {
+      const t = i / (half - 1);
+      const r = r1 + t * (r2 - r1);
+      pts.push({ x: CX + cos * r + perpX, y: CY + sin * r + perpY });
+    }
+    // Come back along the other edge
+    for (let i = 0; i < count - half; i++) {
+      const t = 1 - i / (count - half - 1);
+      const r = r1 + t * (r2 - r1);
+      pts.push({ x: CX + cos * r - perpX, y: CY + sin * r - perpY });
+    }
+    return pts;
   }
-  paths.push(spoke1);
 
-  // 7. Spoke 2 — 30 points (matches right brow)
-  const spoke2: { x: number; y: number }[] = [];
-  const s2Angle = Math.PI * 2 / 3;
-  for (let i = 0; i < 30; i++) {
-    const t = i / 29;
-    const r = 28 + t * 44;
-    spoke2.push({
-      x: CX + Math.cos(s2Angle) * r,
-      y: CY + Math.sin(s2Angle) * r,
-    });
+  // 5-9: Six spokes at 0, 60, 120, 180, 240, 300 degrees
+  paths.push(makeSpoke(0, 30));                          // 5
+  paths.push(makeSpoke(Math.PI / 3, 30));                // 6
+  paths.push(makeSpoke(Math.PI * 2 / 3, 30));            // 7
+  paths.push(makeSpoke(Math.PI, 40));                     // 8
+  // 9: two half-spokes combined (15+15=30)
+  const spoke9: { x: number; y: number }[] = [];
+  const s9a = makeSpoke(Math.PI * 4 / 3, 15);
+  const s9b = makeSpoke(Math.PI * 5 / 3, 15);
+  spoke9.push(...s9a, ...s9b);
+  paths.push(spoke9);
+
+  // 10. Outer decorative ring — 60pts (r=95, dotted effect via slight wobble)
+  const decRing: { x: number; y: number }[] = [];
+  for (let i = 0; i < 60; i++) {
+    const t = (i / 60) * Math.PI * 2;
+    const wobble = Math.sin(t * 24) * 2;
+    decRing.push({ x: CX + Math.cos(t) * (95 + wobble), y: CY + Math.sin(t) * (95 + wobble) });
   }
-  paths.push(spoke2);
+  paths.push(decRing);
 
-  // 8. Spoke 3 — 30 points (matches nose)
-  const spoke3: { x: number; y: number }[] = [];
-  const s3Angle = Math.PI * 4 / 3;
+  // 11. Small gear A (top-right) — 30pts
+  const sg1cx = CX + 95, sg1cy = CY - 95;
+  const sg1: { x: number; y: number }[] = [];
   for (let i = 0; i < 30; i++) {
-    const t = i / 29;
-    const r = 28 + t * 44;
-    spoke3.push({
-      x: CX + Math.cos(s3Angle) * r,
-      y: CY + Math.sin(s3Angle) * r,
-    });
+    const t = (i / 30) * Math.PI * 2;
+    const phase = ((t / (Math.PI * 2)) * 8) % 1;
+    const r = phase < 0.35 ? 18 : 13;
+    sg1.push({ x: sg1cx + Math.cos(t) * r, y: sg1cy + Math.sin(t) * r });
   }
-  paths.push(spoke3);
+  paths.push(sg1);
 
-  // 9. Spoke 4 — 40 points (matches mouth)
-  const spoke4: { x: number; y: number }[] = [];
-  const s4Angle = Math.PI;
+  // 12. Small gear B (bottom-left) — 40pts
+  const sg2cx = CX - 90, sg2cy = CY + 90;
+  const sg2: { x: number; y: number }[] = [];
   for (let i = 0; i < 40; i++) {
-    const t = i / 39;
-    const r = 28 + t * 44;
-    spoke4.push({
-      x: CX + Math.cos(s4Angle) * r,
-      y: CY + Math.sin(s4Angle) * r,
-    });
+    const t = (i / 40) * Math.PI * 2;
+    const phase = ((t / (Math.PI * 2)) * 10) % 1;
+    const r = phase < 0.35 ? 20 : 15;
+    sg2.push({ x: sg2cx + Math.cos(t) * r, y: sg2cy + Math.sin(t) * r });
   }
-  paths.push(spoke4);
+  paths.push(sg2);
 
-  // 10. Spoke 5 + 6 — 30 points (matches upper lip)
-  const spoke5: { x: number; y: number }[] = [];
-  const s5Angle = Math.PI / 3;
-  for (let i = 0; i < 15; i++) {
-    const t = i / 14;
-    const r = 28 + t * 44;
-    spoke5.push({
-      x: CX + Math.cos(s5Angle) * r,
-      y: CY + Math.sin(s5Angle) * r,
-    });
+  // 13. Small gear C (top-left) — 30pts
+  const sg3cx = CX - 100, sg3cy = CY - 80;
+  const sg3: { x: number; y: number }[] = [];
+  for (let i = 0; i < 30; i++) {
+    const t = (i / 30) * Math.PI * 2;
+    const phase = ((t / (Math.PI * 2)) * 6) % 1;
+    const r = phase < 0.35 ? 15 : 11;
+    sg3.push({ x: sg3cx + Math.cos(t) * r, y: sg3cy + Math.sin(t) * r });
   }
-  const s6Angle = Math.PI * 5 / 3;
-  for (let i = 0; i < 15; i++) {
-    const t = i / 14;
-    const r = 28 + t * 44;
-    spoke5.push({
-      x: CX + Math.cos(s6Angle) * r,
-      y: CY + Math.sin(s6Angle) * r,
-    });
+  paths.push(sg3);
+
+  // 14. Bolt hole A — 20pts (small circle on main gear)
+  const bh1: { x: number; y: number }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const t = (i / 20) * Math.PI * 2;
+    bh1.push({ x: CX + 50 + Math.cos(t) * 5, y: CY + Math.sin(t) * 5 });
   }
-  paths.push(spoke5);
+  paths.push(bh1);
+
+  // 15. Bolt hole B — 20pts
+  const bh2: { x: number; y: number }[] = [];
+  for (let i = 0; i < 20; i++) {
+    const t = (i / 20) * Math.PI * 2;
+    bh2.push({ x: CX - 50 + Math.cos(t) * 5, y: CY + Math.sin(t) * 5 });
+  }
+  paths.push(bh2);
 
   return paths;
 }
@@ -317,16 +391,16 @@ export function FaceGearMorph() {
     const facePaths = generateFacePoints();
     const gearPaths = generateGearPoints();
 
-    let morphProgress = 0; // 0 = face, 1 = gear
+    let morphProgress = 0;
     let morphDir = 1;
     let holdTimer = 0;
-    const holdFrames = 120; // 2 seconds
+    const holdFrames = 120;
     const morphSpeed = 0.005;
     let gearAngle = 0;
     let time = 0;
 
-    // Breathing effect for face
-    const breathe = (t: number) => 1 + Math.sin(t * 0.8) * 0.008;
+    // Small gears rotate opposite direction
+    let smallGearAngle = 0;
 
     const loop = () => {
       if (!visibleRef.current) {
@@ -337,71 +411,69 @@ export function FaceGearMorph() {
       time += 0.016;
       ctx.clearRect(0, 0, SIZE, SIZE);
 
-      // Morph timing
-      if (holdTimer > 0) {
-        holdTimer--;
-      } else {
+      if (holdTimer > 0) holdTimer--;
+      else {
         morphProgress += morphSpeed * morphDir;
-        if (morphProgress >= 1) {
-          morphProgress = 1;
-          morphDir = -1;
-          holdTimer = holdFrames;
-        } else if (morphProgress <= 0) {
-          morphProgress = 0;
-          morphDir = 1;
-          holdTimer = holdFrames;
-        }
+        if (morphProgress >= 1) { morphProgress = 1; morphDir = -1; holdTimer = holdFrames; }
+        else if (morphProgress <= 0) { morphProgress = 0; morphDir = 1; holdTimer = holdFrames; }
       }
 
-      // Smooth easing (cubic)
       const t = morphProgress;
-      const ease = t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-      // Gear rotates when morphed
       gearAngle += ease * 0.004;
+      smallGearAngle -= ease * 0.008; // counter-rotate
+
       const cosA = Math.cos(gearAngle);
       const sinA = Math.sin(gearAngle);
 
-      // Face breathes when face-mode
-      const br = breathe(time) * (1 - ease) + 1 * ease;
+      // Face breathes subtly
+      const breathe = 1 + Math.sin(time * 0.8) * 0.006 * (1 - ease);
 
-      // Draw each path pair
       const pathCount = Math.min(facePaths.length, gearPaths.length);
 
       for (let p = 0; p < pathCount; p++) {
-        const facePath = facePaths[p];
-        const gearPath = gearPaths[p];
-        const count = Math.min(facePath.length, gearPath.length);
+        const fp = facePaths[p];
+        const gp = gearPaths[p];
+        const count = Math.min(fp.length, gp.length);
 
-        // Determine if this is a closed shape or open line
-        // Eyes, pupils, head, rings = closed. Brows, nose, mouth, lips, spokes = open.
-        const closedFace = p <= 4; // head, left eye, left pupil, right eye, right pupil
-        const closedGear = p <= 4; // outer, ring1, ring2, hub, hole
-        const closed = closedFace || closedGear;
+        // Closed shapes: head(0), eyes(1-4), earpiece(13), mic(15), all gear rings/gears
+        const closedIndices = [0, 1, 2, 3, 4, 13, 15];
+        const closed = closedIndices.includes(p);
 
-        // Stroke style — thicker for outer shapes
-        const isOuter = p === 0;
-        const isEyeOrHub = p >= 1 && p <= 4;
+        // Is this a small satellite gear? (11, 12, 13 in gear mode)
+        const isSmallGear = p >= 11 && p <= 13;
+        const sgCos = Math.cos(smallGearAngle);
+        const sgSin = Math.sin(smallGearAngle);
+
+        // Visual weight
+        const isOuter = p === 0 || p === 10 || p === 12;
+        const isFine = p >= 14;
 
         ctx.beginPath();
-
         for (let i = 0; i < count; i++) {
-          const fp = facePath[i];
-          const gp = gearPath[i];
+          const face = fp[i];
+          const gear = gp[i];
 
-          // Apply breathing to face points
-          const fx = CX + (fp.x - CX) * br;
-          const fy = CY + (fp.y - CY) * br;
+          // Face: apply breathing
+          const fx = CX + (face.x - CX) * breathe;
+          const fy = CY + (face.y - CY) * breathe;
 
-          // Apply rotation to gear points
-          const gdx = gp.x - CX;
-          const gdy = gp.y - CY;
-          const gx = CX + gdx * cosA - gdy * sinA;
-          const gy = CY + gdx * sinA + gdy * cosA;
+          // Gear: apply rotation
+          let gx: number, gy: number;
+          if (isSmallGear) {
+            // Small gears rotate around their own center
+            const gcx = p === 11 ? CX + 95 : p === 12 ? CX - 90 : CX - 100;
+            const gcy = p === 11 ? CY - 95 : p === 12 ? CY + 90 : CY - 80;
+            const dx = gear.x - gcx, dy = gear.y - gcy;
+            gx = gcx + dx * sgCos - dy * sgSin;
+            gy = gcy + dx * sgSin + dy * sgCos;
+          } else {
+            const dx = gear.x - CX, dy = gear.y - CY;
+            gx = CX + dx * cosA - dy * sinA;
+            gy = CY + dx * sinA + dy * cosA;
+          }
 
-          // Interpolate
           const x = fx * (1 - ease) + gx * ease;
           const y = fy * (1 - ease) + gy * ease;
 
@@ -411,36 +483,34 @@ export function FaceGearMorph() {
 
         if (closed) ctx.closePath();
 
-        // Style
-        const alpha = isOuter ? 0.85 : isEyeOrHub ? 0.65 : 0.5;
-        const width = isOuter ? 2.5 : isEyeOrHub ? 2 : 1.5;
-
-        // Color: warm brown, shifts slightly golden for gear
-        const r = Math.round(139 + ease * 40);
-        const g = Math.round(111 + ease * 20);
-        const b = Math.round(71 + ease * 10);
+        // Stroke style
+        const alpha = isOuter ? 0.85 : isFine ? 0.4 : 0.6;
+        const lw = isOuter ? 2.5 : isFine ? 1.2 : 1.8;
+        const r = Math.round(139 + ease * 35);
+        const g = Math.round(111 + ease * 18);
+        const b = Math.round(71 + ease * 8);
 
         ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.lineWidth = width;
+        ctx.lineWidth = lw;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Fill for pupils/hole with subtle opacity
-        if (p === 2 || p === 4) {
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.15 + ease * 0.15})`;
+        // Fill pupils, center hole, mic tip, bolt holes
+        if (p === 2 || p === 4 || p === 15) {
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.2 + ease * 0.15})`;
           ctx.fill();
         }
       }
 
-      // Subtle glow at center
-      const glowR = 20 + ease * 15;
-      const glow = ctx.createRadialGradient(CX, CY, 0, CX, CY, glowR);
-      glow.addColorStop(0, `rgba(200, 160, 100, ${0.06 + ease * 0.1})`);
+      // Center glow
+      const gr = 22 + ease * 12;
+      const glow = ctx.createRadialGradient(CX, CY, 0, CX, CY, gr);
+      glow.addColorStop(0, `rgba(200, 160, 100, ${0.05 + ease * 0.08})`);
       glow.addColorStop(1, 'rgba(200, 160, 100, 0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(CX, CY, glowR, 0, Math.PI * 2);
+      ctx.arc(CX, CY, gr, 0, Math.PI * 2);
       ctx.fill();
 
       animRef.current = requestAnimationFrame(loop);
@@ -452,18 +522,13 @@ export function FaceGearMorph() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => { visibleRef.current = entry.isIntersecting; },
       { threshold: 0.2 }
     );
     observer.observe(canvas);
     init();
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(animRef.current);
-    };
+    return () => { observer.disconnect(); cancelAnimationFrame(animRef.current); };
   }, [init]);
 
   return (
