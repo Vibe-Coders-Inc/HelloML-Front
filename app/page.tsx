@@ -248,7 +248,7 @@ export default function LandingPage() {
                   className="text-center"
                 >
                   {/* Number circle */}
-                  <div className="inline-flex items-center justify-center w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[#8B6F47] to-[#6B5235] text-white mb-6 shadow-xl shadow-[#8B6F47]/20">
+                  <div className="relative z-10 inline-flex items-center justify-center w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[#8B6F47] to-[#6B5235] text-white mb-6 shadow-xl shadow-[#8B6F47]/20">
                     <span className="text-5xl font-bold">{step.num}</span>
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold text-[#8B6F47] mb-2">{step.title}</h3>
