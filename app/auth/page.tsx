@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +43,84 @@ function PasswordStrengthBar({ password }: { password: string }) {
         {label}
       </p>
     </div>
+  );
+}
+
+// Gentle floating orb for the left panel
+function FloatingOrb() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const size = 280;
+    canvas.width = size;
+    canvas.height = size;
+    let animId: number;
+    const center = size / 2;
+    const baseRadius = 90;
+
+    function draw(t: number) {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, size, size);
+
+      // Slow breathing scale
+      const breath = 1 + Math.sin(t * 0.0008) * 0.04;
+      const r = baseRadius * breath;
+
+      // Main sphere gradient
+      const grad = ctx.createRadialGradient(
+        center - r * 0.25, center - r * 0.25, r * 0.05,
+        center, center, r
+      );
+      grad.addColorStop(0, 'rgba(201, 183, 144, 0.9)');  // warm highlight
+      grad.addColorStop(0.4, 'rgba(166, 122, 91, 0.7)');  // mid brown
+      grad.addColorStop(0.7, 'rgba(139, 111, 71, 0.5)');  // deeper
+      grad.addColorStop(1, 'rgba(139, 111, 71, 0.0)');
+
+      ctx.beginPath();
+      ctx.arc(center, center, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Drifting highlight
+      const hx = center + Math.cos(t * 0.0004) * r * 0.3;
+      const hy = center + Math.sin(t * 0.0006) * r * 0.25;
+      const hGrad = ctx.createRadialGradient(hx, hy, 0, hx, hy, r * 0.5);
+      hGrad.addColorStop(0, 'rgba(250, 248, 243, 0.35)');
+      hGrad.addColorStop(1, 'rgba(250, 248, 243, 0.0)');
+      ctx.beginPath();
+      ctx.arc(center, center, r, 0, Math.PI * 2);
+      ctx.fillStyle = hGrad;
+      ctx.fill();
+
+      // Outer glow
+      const glowR = r + 30 + Math.sin(t * 0.001) * 8;
+      const glow = ctx.createRadialGradient(center, center, r * 0.8, center, center, glowR);
+      glow.addColorStop(0, 'rgba(201, 183, 144, 0.0)');
+      glow.addColorStop(0.5, 'rgba(201, 183, 144, 0.06)');
+      glow.addColorStop(1, 'rgba(201, 183, 144, 0.0)');
+      ctx.beginPath();
+      ctx.arc(center, center, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      animId = requestAnimationFrame(() => draw(performance.now()));
+    }
+
+    draw(performance.now());
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="w-[280px] h-[280px]"
+      style={{ imageRendering: 'auto' }}
+    />
   );
 }
 
@@ -164,60 +242,50 @@ function AuthContent() {
   if (isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#FAF8F3]">
       {/* Left branding panel - hidden on mobile */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative bg-gradient-to-br from-[#8B6F47] via-[#9B7250] to-[#A67A5B] overflow-hidden">
-        {/* Subtle grain overlay */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }} />
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
+        {/* Same cream base as landing page */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FAF8F3] via-[#F5EFE6] to-[#EDE4D4]" />
 
-        {/* Gradient orbs */}
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#C9B790]/20 blur-[120px]" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-[#FAF8F3]/10 blur-[100px]" />
-        <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] rounded-full bg-[#8B6F47]/20 blur-[80px]" />
+        {/* Subtle warm wash */}
+        <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#C9B790]/10 blur-[120px]" />
+        <div className="absolute bottom-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#A67A5B]/8 blur-[100px]" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14">
           {/* Logo */}
           <Link href="/" className="inline-flex hover:opacity-80 transition-opacity">
-            <Logo size="small" />
+            <Logo size="small" lightMode />
           </Link>
 
-          {/* Hero text */}
-          <div className="flex-1 flex flex-col justify-center max-w-lg">
-            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] tracking-tight">
-              {authContent.hero.headline}
-              <br />
-              <span className="text-[#F5EFE6]/80">
-                {authContent.hero.taglines[0]}
+          {/* Center: Orb + tagline */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <FloatingOrb />
+            <h2 className="mt-8 text-3xl xl:text-4xl font-bold text-[#3D2E1F] tracking-tight text-center leading-tight">
+              AI that{' '}
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">
+                answers
               </span>
-            </h1>
-            <p className="mt-5 text-lg text-white/60 leading-relaxed max-w-sm">
-              {authContent.hero.description}
+              <br />
+              your phone.
+            </h2>
+            <p className="mt-4 text-[#A67A5B]/70 text-center max-w-xs leading-relaxed">
+              Set up a voice agent in minutes. No code, no complexity.
             </p>
           </div>
 
-          {/* Bottom testimonial / social proof */}
-          <div className="border-t border-white/10 pt-6">
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9B790] to-[#A67A5B] border-2 border-[#8B6F47] flex items-center justify-center text-[10px] font-semibold text-white">
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-white/50">
-                Trusted by growing businesses
-              </p>
-            </div>
+          {/* Bottom: simple and honest */}
+          <div className="text-center">
+            <p className="text-sm text-[#A67A5B]/40">
+              Starting at $5/mo
+            </p>
           </div>
         </div>
       </div>
 
       {/* Right auth panel */}
-      <div className="flex-1 flex flex-col bg-[#FAF8F3] min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen">
         {/* Top nav bar */}
         <div className="flex items-center justify-between px-6 sm:px-8 py-5">
           <Link href="/" className="inline-flex items-center gap-2 text-[#8B6F47]/70 hover:text-[#8B6F47] transition-colors text-sm font-medium group">
@@ -342,7 +410,7 @@ function AuthContent() {
               </form>
             )}
 
-            {/* Register Form */}
+            {/* Register Form - Step 1 */}
             {activeTab === 'register' && registerStep === 1 && (
               <div className="space-y-4">
                 <div className="space-y-1.5">
@@ -404,6 +472,7 @@ function AuthContent() {
               </div>
             )}
 
+            {/* Register Form - Step 2 */}
             {activeTab === 'register' && registerStep === 2 && (
               <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                 <div className="space-y-1.5">
