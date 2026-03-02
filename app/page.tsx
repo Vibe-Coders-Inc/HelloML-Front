@@ -167,12 +167,12 @@ export default function LandingPage() {
               <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
             <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
+            <FaceGearMorph />
             <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
               <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
               <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
             <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
-            <FaceGearMorph />
           </div>
         </div>
       </Slide>

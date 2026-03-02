@@ -3,268 +3,49 @@
 import { useRef, useEffect, useCallback } from 'react';
 
 /**
- * Particle system: ~200 dots form a human face profile,
- * then snap into a precise gear/circuit formation.
- * Canvas-based for performance, anime.js-free (requestAnimationFrame).
+ * HumanMachineVisual: Bold split graphic.
+ * Left: warm organic flowing shapes (human/voice).
+ * Right: precise geometric circuit grid (machine).
+ * They blend in the center. Rich gradients, large, eye-catching.
  */
 
-// Generate face profile points (detailed side profile with features)
-function generateFacePoints(cx: number, cy: number, count: number): { x: number; y: number }[] {
-  const points: { x: number; y: number }[] = [];
-  const scale = 0.85;
+const WIDTH = 600;
+const HEIGHT = 220;
 
-  // Head outline (elliptical, side profile shape)
-  const headPoints = Math.floor(count * 0.35);
-  for (let i = 0; i < headPoints; i++) {
-    const t = (i / headPoints) * Math.PI * 2;
-    const rx = 65 * scale;
-    const ry = 80 * scale;
-    // Slightly flatten the back of the head
-    const xMod = Math.cos(t) < -0.3 ? 0.85 : 1;
-    points.push({
-      x: cx + Math.cos(t) * rx * xMod + (Math.random() - 0.5) * 3,
-      y: cy + Math.sin(t) * ry + (Math.random() - 0.5) * 3,
-    });
+// Perlin-ish noise for organic shapes
+function createNoise() {
+  const perm = new Uint8Array(512);
+  const p = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  for (let i = 255; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [p[i], p[j]] = [p[j], p[i]];
   }
+  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
 
-  // Eye (left, detailed - circle of dots)
-  const eyePoints = Math.floor(count * 0.06);
-  for (let i = 0; i < eyePoints; i++) {
-    const t = (i / eyePoints) * Math.PI * 2;
-    const r = 8 * scale;
-    points.push({
-      x: cx - 18 * scale + Math.cos(t) * r,
-      y: cy - 18 * scale + Math.sin(t) * r,
-    });
-  }
+  const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+  const lerp = (a: number, b: number, t: number) => a + t * (b - a);
+  const grad = (hash: number, x: number, y: number) => {
+    const h = hash & 3;
+    const u = h < 2 ? x : y;
+    const v = h < 2 ? y : x;
+    return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+  };
 
-  // Eye pupil
-  const pupilPoints = Math.floor(count * 0.03);
-  for (let i = 0; i < pupilPoints; i++) {
-    const t = (i / pupilPoints) * Math.PI * 2;
-    const r = 3 * scale;
-    points.push({
-      x: cx - 18 * scale + Math.cos(t) * r,
-      y: cy - 18 * scale + Math.sin(t) * r,
-    });
-  }
-
-  // Eye (right)
-  for (let i = 0; i < eyePoints; i++) {
-    const t = (i / eyePoints) * Math.PI * 2;
-    const r = 8 * scale;
-    points.push({
-      x: cx + 18 * scale + Math.cos(t) * r,
-      y: cy - 18 * scale + Math.sin(t) * r,
-    });
-  }
-
-  // Right pupil
-  for (let i = 0; i < pupilPoints; i++) {
-    const t = (i / pupilPoints) * Math.PI * 2;
-    const r = 3 * scale;
-    points.push({
-      x: cx + 18 * scale + Math.cos(t) * r,
-      y: cy - 18 * scale + Math.sin(t) * r,
-    });
-  }
-
-  // Eyebrows
-  const browPoints = Math.floor(count * 0.04);
-  for (let i = 0; i < browPoints; i++) {
-    const t = i / browPoints;
-    points.push({
-      x: cx - 28 * scale + t * 20 * scale,
-      y: cy - 32 * scale - Math.sin(t * Math.PI) * 4 * scale,
-    });
-    points.push({
-      x: cx + 8 * scale + t * 20 * scale,
-      y: cy - 32 * scale - Math.sin(t * Math.PI) * 4 * scale,
-    });
-  }
-
-  // Nose
-  const nosePoints = Math.floor(count * 0.04);
-  for (let i = 0; i < nosePoints; i++) {
-    const t = i / nosePoints;
-    points.push({
-      x: cx + Math.sin(t * Math.PI) * 6 * scale,
-      y: cy - 8 * scale + t * 22 * scale,
-    });
-  }
-
-  // Mouth (smile curve)
-  const mouthPoints = Math.floor(count * 0.05);
-  for (let i = 0; i < mouthPoints; i++) {
-    const t = (i / mouthPoints) * Math.PI;
-    points.push({
-      x: cx - 16 * scale + (t / Math.PI) * 32 * scale,
-      y: cy + 28 * scale + Math.sin(t) * 6 * scale,
-    });
-  }
-
-  // Upper lip
-  for (let i = 0; i < Math.floor(count * 0.03); i++) {
-    const t = i / Math.floor(count * 0.03);
-    points.push({
-      x: cx - 16 * scale + t * 32 * scale,
-      y: cy + 28 * scale - Math.sin(t * Math.PI) * 2 * scale,
-    });
-  }
-
-  // Jaw line
-  const jawPoints = Math.floor(count * 0.06);
-  for (let i = 0; i < jawPoints; i++) {
-    const t = i / jawPoints;
-    const angle = Math.PI * 0.3 + t * Math.PI * 0.4;
-    points.push({
-      x: cx + Math.cos(angle) * 60 * scale,
-      y: cy + Math.sin(angle) * 75 * scale,
-    });
-  }
-
-  // Neural/organic scatter (brain area, top of head)
-  const neuralPoints = Math.floor(count * 0.15);
-  for (let i = 0; i < neuralPoints; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * 45 * scale;
-    const px = cx + Math.cos(angle) * r;
-    const py = cy - 30 * scale + Math.sin(angle) * r * 0.6;
-    // Only keep points inside the head
-    const dx = (px - cx) / (65 * scale);
-    const dy = (py - cy) / (80 * scale);
-    if (dx * dx + dy * dy < 0.85) {
-      points.push({ x: px, y: py });
-    }
-  }
-
-  // Fill remaining
-  while (points.length < count) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * 50 * scale;
-    points.push({
-      x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 10,
-      y: cy + Math.sin(angle) * r * 0.8 + (Math.random() - 0.5) * 10,
-    });
-  }
-
-  return points.slice(0, count);
+  return (x: number, y: number) => {
+    const X = Math.floor(x) & 255;
+    const Y = Math.floor(y) & 255;
+    const xf = x - Math.floor(x);
+    const yf = y - Math.floor(y);
+    const u = fade(xf);
+    const v = fade(yf);
+    const aa = perm[perm[X] + Y];
+    const ab = perm[perm[X] + Y + 1];
+    const ba = perm[perm[X + 1] + Y];
+    const bb = perm[perm[X + 1] + Y + 1];
+    return lerp(lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u), lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u), v);
+  };
 }
-
-// Generate gear points (detailed mechanical gear with teeth and internal structure)
-function generateGearPoints(cx: number, cy: number, count: number): { x: number; y: number }[] {
-  const points: { x: number; y: number }[] = [];
-  const scale = 0.85;
-
-  // Outer gear teeth (detailed)
-  const teeth = 16;
-  const outerR = 75 * scale;
-  const innerR = 60 * scale;
-  const toothPoints = Math.floor(count * 0.35);
-  for (let i = 0; i < toothPoints; i++) {
-    const t = (i / toothPoints) * Math.PI * 2;
-    const toothPhase = Math.floor((t / (Math.PI * 2)) * teeth * 2) % 2;
-    const r = toothPhase === 0 ? outerR : innerR;
-    const jitter = (Math.random() - 0.5) * 1.5;
-    points.push({
-      x: cx + Math.cos(t) * (r + jitter),
-      y: cy + Math.sin(t) * (r + jitter),
-    });
-  }
-
-  // Inner ring
-  const innerRingPoints = Math.floor(count * 0.12);
-  for (let i = 0; i < innerRingPoints; i++) {
-    const t = (i / innerRingPoints) * Math.PI * 2;
-    points.push({
-      x: cx + Math.cos(t) * 35 * scale,
-      y: cy + Math.sin(t) * 35 * scale,
-    });
-  }
-
-  // Center hub
-  const hubPoints = Math.floor(count * 0.08);
-  for (let i = 0; i < hubPoints; i++) {
-    const t = (i / hubPoints) * Math.PI * 2;
-    points.push({
-      x: cx + Math.cos(t) * 12 * scale,
-      y: cy + Math.sin(t) * 12 * scale,
-    });
-  }
-
-  // Spokes (6 spokes connecting hub to inner ring)
-  const spokeCount = 6;
-  const spokePoints = Math.floor(count * 0.12);
-  const perSpoke = Math.floor(spokePoints / spokeCount);
-  for (let s = 0; s < spokeCount; s++) {
-    const angle = (s / spokeCount) * Math.PI * 2;
-    for (let i = 0; i < perSpoke; i++) {
-      const t = i / perSpoke;
-      const r = 12 * scale + t * 23 * scale;
-      points.push({
-        x: cx + Math.cos(angle) * r,
-        y: cy + Math.sin(angle) * r,
-      });
-    }
-  }
-
-  // Circuit nodes (small dots at intersections)
-  const nodePositions = [
-    [0.5, -0.3], [-0.5, -0.3], [0.3, 0.5], [-0.3, 0.5],
-    [0.45, 0], [-0.45, 0], [0, 0.45], [0, -0.45],
-  ];
-  const circuitPoints = Math.floor(count * 0.06);
-  const perNode = Math.floor(circuitPoints / nodePositions.length);
-  for (const [nx, ny] of nodePositions) {
-    for (let i = 0; i < perNode; i++) {
-      const t = (i / perNode) * Math.PI * 2;
-      const r = 3 * scale;
-      points.push({
-        x: cx + nx * 55 * scale + Math.cos(t) * r,
-        y: cy + ny * 55 * scale + Math.sin(t) * r,
-      });
-    }
-  }
-
-  // Circuit traces (connecting lines between nodes)
-  const tracePoints = Math.floor(count * 0.1);
-  const traces = [
-    [[0.5, -0.3], [0.45, 0]],
-    [[-0.5, -0.3], [-0.45, 0]],
-    [[0.45, 0], [0.3, 0.5]],
-    [[-0.45, 0], [-0.3, 0.5]],
-    [[0, -0.45], [0.5, -0.3]],
-    [[0, -0.45], [-0.5, -0.3]],
-    [[0, 0.45], [0.3, 0.5]],
-    [[0, 0.45], [-0.3, 0.5]],
-  ];
-  const perTrace = Math.floor(tracePoints / traces.length);
-  for (const [start, end] of traces) {
-    for (let i = 0; i < perTrace; i++) {
-      const t = i / perTrace;
-      points.push({
-        x: cx + (start[0] + (end[0] - start[0]) * t) * 55 * scale,
-        y: cy + (start[1] + (end[1] - start[1]) * t) * 55 * scale,
-      });
-    }
-  }
-
-  // Small detail dots scattered in gaps
-  while (points.length < count) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = 15 * scale + Math.random() * 55 * scale;
-    points.push({
-      x: cx + Math.cos(angle) * r + (Math.random() - 0.5) * 4,
-      y: cy + Math.sin(angle) * r + (Math.random() - 0.5) * 4,
-    });
-  }
-
-  return points.slice(0, count);
-}
-
-const PARTICLE_COUNT = 220;
-const SIZE = 280;
-const CENTER = SIZE / 2;
 
 export function FaceGearMorph() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -278,45 +59,79 @@ export function FaceGearMorph() {
     if (!ctx) return;
 
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    canvas.width = SIZE * dpr;
-    canvas.height = SIZE * dpr;
+    canvas.width = WIDTH * dpr;
+    canvas.height = HEIGHT * dpr;
     ctx.scale(dpr, dpr);
 
-    const faceTargets = generateFacePoints(CENTER, CENTER, PARTICLE_COUNT);
-    const gearTargets = generateGearPoints(CENTER, CENTER, PARTICLE_COUNT);
+    const noise = createNoise();
+    let time = 0;
 
-    // Current particle positions (start scattered)
-    const particles = faceTargets.map((p) => ({
-      x: p.x + (Math.random() - 0.5) * 200,
-      y: p.y + (Math.random() - 0.5) * 200,
-      vx: 0,
-      vy: 0,
-      size: 1.2 + Math.random() * 1.8,
-      alpha: 0.4 + Math.random() * 0.6,
-      // Organic sway for face mode
-      swayPhase: Math.random() * Math.PI * 2,
-      swayAmp: 0.3 + Math.random() * 0.8,
-    }));
+    // Pre-generate circuit grid points
+    const gridCols = 12;
+    const gridRows = 5;
+    const gridStartX = WIDTH * 0.52;
+    const gridW = WIDTH * 0.44;
+    const gridH = HEIGHT * 0.75;
+    const gridOffY = HEIGHT * 0.12;
 
-    // Connections (for gear mode - circuit lines)
-    const connections: [number, number][] = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      for (let j = i + 1; j < PARTICLE_COUNT; j++) {
-        const dx = gearTargets[i].x - gearTargets[j].x;
-        const dy = gearTargets[i].y - gearTargets[j].y;
-        if (dx * dx + dy * dy < 400) { // distance < 20
-          connections.push([i, j]);
-        }
+    interface GridNode {
+      x: number;
+      y: number;
+      connections: number[];
+      pulsePhase: number;
+      size: number;
+    }
+
+    const gridNodes: GridNode[] = [];
+    for (let r = 0; r < gridRows; r++) {
+      for (let c = 0; c < gridCols; c++) {
+        const x = gridStartX + (c / (gridCols - 1)) * gridW;
+        const y = gridOffY + (r / (gridRows - 1)) * gridH;
+        const connections: number[] = [];
+        const idx = r * gridCols + c;
+        if (c > 0) connections.push(idx - 1);
+        if (r > 0) connections.push(idx - gridCols);
+        // Some diagonal connections for visual interest
+        if (c > 0 && r > 0 && Math.random() > 0.6) connections.push(idx - gridCols - 1);
+        if (c < gridCols - 1 && r > 0 && Math.random() > 0.7) connections.push(idx - gridCols + 1);
+        gridNodes.push({
+          x, y,
+          connections,
+          pulsePhase: Math.random() * Math.PI * 2,
+          size: 2 + Math.random() * 2,
+        });
       }
     }
 
-    let morphProgress = 0; // 0 = face, 1 = gear
-    let morphDirection = 1;
-    let holdTimer = 0;
-    const holdDuration = 90; // frames to hold at each state
-    const morphSpeed = 0.008;
-    let gearRotation = 0;
-    let time = 0;
+    // Pulse particles traveling along connections
+    interface Pulse {
+      fromNode: number;
+      toNode: number;
+      progress: number;
+      speed: number;
+      color: string;
+    }
+    let pulses: Pulse[] = [];
+    const pulseColors = [
+      'rgba(139, 111, 71, 0.9)',
+      'rgba(166, 122, 91, 0.9)',
+      'rgba(200, 160, 100, 0.8)',
+      'rgba(220, 180, 120, 0.7)',
+    ];
+
+    // Organic blobs config
+    const blobs = [
+      { cx: WIDTH * 0.18, cy: HEIGHT * 0.4, r: 55, color1: '#C4956A', color2: '#8B6F47', speed: 0.008, offset: 0 },
+      { cx: WIDTH * 0.12, cy: HEIGHT * 0.55, r: 40, color1: '#D4A574', color2: '#A67A5B', speed: 0.01, offset: 2 },
+      { cx: WIDTH * 0.28, cy: HEIGHT * 0.35, r: 35, color1: '#B8956E', color2: '#7A6040', speed: 0.012, offset: 4 },
+      { cx: WIDTH * 0.22, cy: HEIGHT * 0.65, r: 30, color1: '#DEB887', color2: '#8B6F47', speed: 0.009, offset: 6 },
+      { cx: WIDTH * 0.08, cy: HEIGHT * 0.35, r: 28, color1: '#C9A882', color2: '#9B7B52', speed: 0.011, offset: 8 },
+    ];
+
+    // Voice waveform bars
+    const waveCount = 18;
+    const waveStartX = WIDTH * 0.05;
+    const waveWidth = WIDTH * 0.38;
 
     const loop = () => {
       if (!visibleRef.current) {
@@ -324,115 +139,202 @@ export function FaceGearMorph() {
         return;
       }
 
-      time++;
-      ctx.clearRect(0, 0, SIZE, SIZE);
+      time += 0.016;
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-      // Update morph
-      if (holdTimer > 0) {
-        holdTimer--;
-      } else {
-        morphProgress += morphSpeed * morphDirection;
-        if (morphProgress >= 1) {
-          morphProgress = 1;
-          morphDirection = -1;
-          holdTimer = holdDuration;
-        } else if (morphProgress <= 0) {
-          morphProgress = 0;
-          morphDirection = 1;
-          holdTimer = holdDuration;
-        }
-      }
+      // === LEFT SIDE: Organic voice shapes ===
 
-      // Smooth easing
-      const ease = morphProgress < 0.5
-        ? 4 * morphProgress * morphProgress * morphProgress
-        : 1 - Math.pow(-2 * morphProgress + 2, 3) / 2;
-
-      // Gear rotation (only when in gear mode)
-      gearRotation += ease * 0.003;
-
-      // Update particles
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const p = particles[i];
-        const face = faceTargets[i];
-        const gear = gearTargets[i];
-
-        // Rotate gear target around center
-        const gx = gear.x - CENTER;
-        const gy = gear.y - CENTER;
-        const cos = Math.cos(gearRotation);
-        const sin = Math.sin(gearRotation);
-        const rotatedGearX = CENTER + gx * cos - gy * sin;
-        const rotatedGearY = CENTER + gx * sin + gy * cos;
-
-        // Lerp target
-        const targetX = face.x * (1 - ease) + rotatedGearX * ease;
-        const targetY = face.y * (1 - ease) + rotatedGearY * ease;
-
-        // Organic sway (only in face mode)
-        const sway = (1 - ease) * Math.sin(time * 0.02 + p.swayPhase) * p.swayAmp;
-
-        // Spring physics toward target
-        const dx = targetX + sway - p.x;
-        const dy = targetY + sway * 0.7 - p.y;
-        p.vx += dx * 0.08;
-        p.vy += dy * 0.08;
-        p.vx *= 0.85;
-        p.vy *= 0.85;
-        p.x += p.vx;
-        p.y += p.vy;
-      }
-
-      // Draw connections (fade in with gear mode)
-      if (ease > 0.1) {
-        ctx.strokeStyle = `rgba(139, 111, 71, ${ease * 0.15})`;
-        ctx.lineWidth = 0.5;
+      // Flowing blobs with noise deformation
+      for (const blob of blobs) {
+        ctx.save();
+        const points = 80;
         ctx.beginPath();
-        for (const [a, b] of connections) {
-          ctx.moveTo(particles[a].x, particles[a].y);
-          ctx.lineTo(particles[b].x, particles[b].y);
+        for (let i = 0; i <= points; i++) {
+          const angle = (i / points) * Math.PI * 2;
+          const n = noise(
+            Math.cos(angle) * 1.5 + blob.offset,
+            Math.sin(angle) * 1.5 + time * blob.speed * 60
+          );
+          const r = blob.r + n * 18;
+          const x = blob.cx + Math.cos(angle) * r;
+          const y = blob.cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
-        ctx.stroke();
+        ctx.closePath();
+
+        const grad = ctx.createRadialGradient(blob.cx, blob.cy, 0, blob.cx, blob.cy, blob.r * 1.3);
+        grad.addColorStop(0, blob.color1 + '60');
+        grad.addColorStop(0.6, blob.color2 + '35');
+        grad.addColorStop(1, blob.color2 + '00');
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.restore();
       }
 
-      // Draw particles
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const p = particles[i];
+      // Voice waveform visualization
+      ctx.save();
+      for (let i = 0; i < waveCount; i++) {
+        const x = waveStartX + (i / (waveCount - 1)) * waveWidth;
+        const baseHeight = 15 + Math.sin(i * 0.5 + time * 2) * 12;
+        const noiseVal = noise(i * 0.3, time * 1.5);
+        const h = baseHeight + noiseVal * 20;
+        const alpha = 0.2 + (h / 50) * 0.4;
 
-        // Color shifts: warm brown for face, golden for gear
-        const r = Math.round(139 + ease * 30);
-        const g = Math.round(111 + ease * 10);
-        const b = Math.round(71 - ease * 10);
+        const barGrad = ctx.createLinearGradient(x, HEIGHT / 2 - h, x, HEIGHT / 2 + h);
+        barGrad.addColorStop(0, `rgba(196, 149, 106, ${alpha})`);
+        barGrad.addColorStop(0.5, `rgba(139, 111, 71, ${alpha + 0.15})`);
+        barGrad.addColorStop(1, `rgba(196, 149, 106, ${alpha})`);
 
-        // Size: slightly larger in gear mode for mechanical feel
-        const size = p.size * (1 + ease * 0.4);
-
-        // Shape: round for face, slightly square for gear
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha * (0.6 + ease * 0.4)})`;
-
-        if (ease > 0.6) {
-          // Square-ish particles in gear mode
-          const squareness = (ease - 0.6) * 2.5; // 0 to 1
-          const s = size * (1 + squareness * 0.3);
-          const cornerRadius = s * (1 - squareness * 0.7);
-          ctx.beginPath();
-          ctx.roundRect(p.x - s, p.y - s, s * 2, s * 2, cornerRadius);
-          ctx.fill();
-        } else {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.fillStyle = barGrad;
+        const barW = (waveWidth / waveCount) * 0.5;
+        ctx.beginPath();
+        ctx.roundRect(x - barW / 2, HEIGHT / 2 - h, barW, h * 2, barW / 2);
+        ctx.fill();
       }
+      ctx.restore();
 
-      // Glow effect at center
-      const gradient = ctx.createRadialGradient(CENTER, CENTER, 0, CENTER, CENTER, 30);
-      gradient.addColorStop(0, `rgba(139, 111, 71, ${0.08 + ease * 0.08})`);
-      gradient.addColorStop(1, 'rgba(139, 111, 71, 0)');
-      ctx.fillStyle = gradient;
+      // Floating organic particles on left
+      ctx.save();
+      for (let i = 0; i < 25; i++) {
+        const px = WIDTH * 0.05 + noise(i * 0.7, time * 0.3) * WIDTH * 0.35;
+        const py = HEIGHT * 0.15 + noise(i * 0.7 + 100, time * 0.3) * HEIGHT * 0.7;
+        const size = 1 + noise(i * 0.5, time * 0.2) * 2;
+        const alpha = 0.15 + noise(i * 0.3, time * 0.5) * 0.25;
+        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // === CENTER BLEND: gradient fade ===
+      const blendGrad = ctx.createLinearGradient(WIDTH * 0.38, 0, WIDTH * 0.55, 0);
+      blendGrad.addColorStop(0, 'rgba(250, 248, 243, 0)');
+      blendGrad.addColorStop(0.4, 'rgba(250, 248, 243, 0.6)');
+      blendGrad.addColorStop(0.6, 'rgba(250, 248, 243, 0.6)');
+      blendGrad.addColorStop(1, 'rgba(250, 248, 243, 0)');
+      ctx.fillStyle = blendGrad;
+      ctx.fillRect(WIDTH * 0.38, 0, WIDTH * 0.17, HEIGHT);
+
+      // Center divider line (subtle)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(139, 111, 71, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 6]);
       ctx.beginPath();
-      ctx.arc(CENTER, CENTER, 30, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.moveTo(WIDTH * 0.48, HEIGHT * 0.1);
+      ctx.lineTo(WIDTH * 0.48, HEIGHT * 0.9);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // === RIGHT SIDE: Circuit grid ===
+
+      // Grid connections
+      ctx.save();
+      for (let i = 0; i < gridNodes.length; i++) {
+        const node = gridNodes[i];
+        for (const ci of node.connections) {
+          const target = gridNodes[ci];
+          // Fade based on x position (more visible toward right)
+          const avgX = (node.x + target.x) / 2;
+          const fadeIn = Math.min(1, Math.max(0, (avgX - WIDTH * 0.5) / (WIDTH * 0.3)));
+          ctx.strokeStyle = `rgba(139, 111, 71, ${0.08 + fadeIn * 0.12})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(node.x, node.y);
+          ctx.lineTo(target.x, target.y);
+          ctx.stroke();
+        }
+      }
+
+      // Grid nodes with pulse
+      for (let i = 0; i < gridNodes.length; i++) {
+        const node = gridNodes[i];
+        const fadeIn = Math.min(1, Math.max(0, (node.x - WIDTH * 0.5) / (WIDTH * 0.3)));
+        const pulse = Math.sin(time * 2 + node.pulsePhase) * 0.5 + 0.5;
+        const size = node.size * (0.8 + pulse * 0.4);
+        const alpha = (0.2 + fadeIn * 0.5) * (0.6 + pulse * 0.4);
+
+        // Glow
+        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, size * 3);
+        glow.addColorStop(0, `rgba(200, 160, 100, ${alpha * 0.3})`);
+        glow.addColorStop(1, 'rgba(200, 160, 100, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node dot
+        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright center
+        ctx.fillStyle = `rgba(220, 190, 140, ${alpha * 0.6})`;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, size * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Traveling pulses along connections
+      if (Math.random() < 0.08) {
+        const startIdx = Math.floor(Math.random() * gridNodes.length);
+        const node = gridNodes[startIdx];
+        if (node.connections.length > 0) {
+          const toIdx = node.connections[Math.floor(Math.random() * node.connections.length)];
+          pulses.push({
+            fromNode: startIdx,
+            toNode: toIdx,
+            progress: 0,
+            speed: 0.01 + Math.random() * 0.02,
+            color: pulseColors[Math.floor(Math.random() * pulseColors.length)],
+          });
+        }
+      }
+
+      ctx.save();
+      pulses = pulses.filter(p => {
+        p.progress += p.speed;
+        if (p.progress >= 1) return false;
+        const from = gridNodes[p.fromNode];
+        const to = gridNodes[p.toNode];
+        const x = from.x + (to.x - from.x) * p.progress;
+        const y = from.y + (to.y - from.y) * p.progress;
+        const alpha = Math.sin(p.progress * Math.PI);
+
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, 6);
+        glow.addColorStop(0, p.color);
+        glow.addColorStop(1, 'rgba(139, 111, 71, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255, 230, 180, ${alpha * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        return true;
+      });
+      ctx.restore();
+
+      // Data text fragments floating on right side
+      ctx.save();
+      ctx.font = '9px monospace';
+      const dataTexts = ['01', '10', '>>>', '...', '110', '0x4F', 'ACK'];
+      for (let i = 0; i < 8; i++) {
+        const px = WIDTH * 0.6 + noise(i * 1.3, time * 0.15) * WIDTH * 0.35;
+        const py = HEIGHT * 0.1 + noise(i * 1.3 + 50, time * 0.15) * HEIGHT * 0.8;
+        const alpha = 0.06 + noise(i * 0.8, time * 0.3) * 0.08;
+        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
+        ctx.fillText(dataTexts[i % dataTexts.length], px, py);
+      }
+      ctx.restore();
 
       animRef.current = requestAnimationFrame(loop);
     };
@@ -445,13 +347,10 @@ export function FaceGearMorph() {
     if (!canvas) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        visibleRef.current = entry.isIntersecting;
-      },
+      ([entry]) => { visibleRef.current = entry.isIntersecting; },
       { threshold: 0.2 }
     );
     observer.observe(canvas);
-
     draw();
 
     return () => {
@@ -461,11 +360,10 @@ export function FaceGearMorph() {
   }, [draw]);
 
   return (
-    <div className="flex justify-center mt-8 mb-4">
+    <div className="flex justify-center my-6 w-full">
       <canvas
         ref={canvasRef}
-        style={{ width: SIZE, height: SIZE }}
-        className="opacity-80"
+        style={{ width: WIDTH, height: HEIGHT, maxWidth: '100%' }}
       />
     </div>
   );
