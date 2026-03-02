@@ -89,7 +89,7 @@ describe('Landing Page', () => {
   it('has pricing info', () => {
     render(<LandingPage />);
     expect(screen.getByText(/per agent/)).toBeInTheDocument();
-    expect(screen.getByText(/100 minutes of calls included/)).toBeInTheDocument();
+    expect(screen.getByText(/100 minutes included/)).toBeInTheDocument();
   });
 
   it('has Get Started Free CTA', () => {
@@ -156,9 +156,9 @@ describe('Landing Page', () => {
 
   it('has how it works section', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Tell us about your business')).toBeInTheDocument();
+    expect(screen.getByText('Describe your business')).toBeInTheDocument();
     expect(screen.getByText('Connect your calendar')).toBeInTheDocument();
-    expect(screen.getByText('Calls start answering')).toBeInTheDocument();
+    expect(screen.getByText('Your phone answers')).toBeInTheDocument();
   });
 
   it('targets small businesses in hero copy', () => {
