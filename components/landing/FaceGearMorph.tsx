@@ -1,370 +1,284 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+
+const vp = { once: true, margin: '-50px' as const };
 
 /**
- * HumanMachineVisual: Bold split graphic.
- * Left: warm organic flowing shapes (human/voice).
- * Right: precise geometric circuit grid (machine).
- * They blend in the center. Rich gradients, large, eye-catching.
+ * Two side-by-side visual cards:
+ * LEFT — "Human" — animated voice waveform bars with warm gradient
+ * RIGHT — "Machine" — circuit grid with animated traveling pulses
+ * Both glass-morphic with rich color. Clear, bold, no ambiguity.
  */
 
-const WIDTH = 600;
-const HEIGHT = 220;
+function VoiceWaveCard() {
+  const barCount = 32;
+  const [bars, setBars] = useState<number[]>(() =>
+    Array.from({ length: barCount }, () => 0.2 + Math.random() * 0.6)
+  );
 
-// Perlin-ish noise for organic shapes
-function createNoise() {
-  const perm = new Uint8Array(512);
-  const p = new Uint8Array(256);
-  for (let i = 0; i < 256; i++) p[i] = i;
-  for (let i = 255; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [p[i], p[j]] = [p[j], p[i]];
-  }
-  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+  useEffect(() => {
+    let frame: number;
+    let t = 0;
+    const animate = () => {
+      t += 0.06;
+      setBars(prev =>
+        prev.map((_, i) => {
+          const base = Math.sin(t + i * 0.3) * 0.35 + 0.5;
+          const secondary = Math.sin(t * 1.7 + i * 0.5) * 0.15;
+          const tertiary = Math.sin(t * 0.4 + i * 0.8) * 0.1;
+          return Math.max(0.08, Math.min(1, base + secondary + tertiary));
+        })
+      );
+      frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
-  const fade = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
-  const lerp = (a: number, b: number, t: number) => a + t * (b - a);
-  const grad = (hash: number, x: number, y: number) => {
-    const h = hash & 3;
-    const u = h < 2 ? x : y;
-    const v = h < 2 ? y : x;
-    return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
-  };
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -30 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={vp}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex-1 min-w-[260px] max-w-[340px] aspect-square rounded-3xl overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #D4A574 0%, #8B6F47 50%, #6B5535 100%)',
+      }}
+    >
+      {/* Glass overlay */}
+      <div className="absolute inset-0 rounded-3xl" style={{
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%)',
+      }} />
 
-  return (x: number, y: number) => {
-    const X = Math.floor(x) & 255;
-    const Y = Math.floor(y) & 255;
-    const xf = x - Math.floor(x);
-    const yf = y - Math.floor(y);
-    const u = fade(xf);
-    const v = fade(yf);
-    const aa = perm[perm[X] + Y];
-    const ab = perm[perm[X] + Y + 1];
-    const ba = perm[perm[X + 1] + Y];
-    const bb = perm[perm[X + 1] + Y + 1];
-    return lerp(lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u), lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u), v);
-  };
+      {/* Label */}
+      <div className="absolute top-5 left-6 z-10">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-medium">Voice</span>
+      </div>
+
+      {/* Waveform bars */}
+      <div className="absolute inset-0 flex items-center justify-center px-6">
+        <div className="flex items-center gap-[3px] h-[55%] w-full">
+          {bars.map((h, i) => (
+            <div
+              key={i}
+              className="flex-1 rounded-full transition-[height] duration-100"
+              style={{
+                height: `${h * 100}%`,
+                background: `linear-gradient(180deg, rgba(255,255,255,${0.5 + h * 0.3}) 0%, rgba(255,255,255,0.1) 100%)`,
+                alignSelf: 'center',
+                minHeight: '4px',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Floating text */}
+      <div className="absolute bottom-5 left-6 right-6 z-10">
+        <p className="text-white/90 text-sm font-medium">Natural conversation</p>
+        <p className="text-white/40 text-xs mt-0.5">Warm, responsive, adaptive</p>
+      </div>
+    </motion.div>
+  );
 }
 
-export function FaceGearMorph() {
+function CircuitCard() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const visibleRef = useRef(false);
   const animRef = useRef<number>(0);
 
-  const draw = useCallback(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    canvas.width = WIDTH * dpr;
-    canvas.height = HEIGHT * dpr;
+    const size = 340;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
     ctx.scale(dpr, dpr);
 
-    const noise = createNoise();
+    // Grid of circuit nodes
+    const cols = 8;
+    const rows = 8;
+    const padding = 35;
+    const spacingX = (size - padding * 2) / (cols - 1);
+    const spacingY = (size - padding * 2) / (rows - 1);
+
+    interface Node { x: number; y: number; connections: number[] }
+    const nodes: Node[] = [];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = padding + c * spacingX;
+        const y = padding + r * spacingY;
+        const idx = r * cols + c;
+        const connections: number[] = [];
+        // Right connection
+        if (c < cols - 1 && Math.random() > 0.2) connections.push(idx + 1);
+        // Down connection
+        if (r < rows - 1 && Math.random() > 0.2) connections.push(idx + cols);
+        // Diagonal
+        if (c < cols - 1 && r < rows - 1 && Math.random() > 0.7) connections.push(idx + cols + 1);
+        nodes.push({ x, y, connections });
+      }
+    }
+
+    // Pulses
+    interface Pulse { from: number; to: number; progress: number; speed: number }
+    let pulses: Pulse[] = [];
     let time = 0;
 
-    // Pre-generate circuit grid points
-    const gridCols = 12;
-    const gridRows = 5;
-    const gridStartX = WIDTH * 0.52;
-    const gridW = WIDTH * 0.44;
-    const gridH = HEIGHT * 0.75;
-    const gridOffY = HEIGHT * 0.12;
-
-    interface GridNode {
-      x: number;
-      y: number;
-      connections: number[];
-      pulsePhase: number;
-      size: number;
-    }
-
-    const gridNodes: GridNode[] = [];
-    for (let r = 0; r < gridRows; r++) {
-      for (let c = 0; c < gridCols; c++) {
-        const x = gridStartX + (c / (gridCols - 1)) * gridW;
-        const y = gridOffY + (r / (gridRows - 1)) * gridH;
-        const connections: number[] = [];
-        const idx = r * gridCols + c;
-        if (c > 0) connections.push(idx - 1);
-        if (r > 0) connections.push(idx - gridCols);
-        // Some diagonal connections for visual interest
-        if (c > 0 && r > 0 && Math.random() > 0.6) connections.push(idx - gridCols - 1);
-        if (c < gridCols - 1 && r > 0 && Math.random() > 0.7) connections.push(idx - gridCols + 1);
-        gridNodes.push({
-          x, y,
-          connections,
-          pulsePhase: Math.random() * Math.PI * 2,
-          size: 2 + Math.random() * 2,
-        });
-      }
-    }
-
-    // Pulse particles traveling along connections
-    interface Pulse {
-      fromNode: number;
-      toNode: number;
-      progress: number;
-      speed: number;
-      color: string;
-    }
-    let pulses: Pulse[] = [];
-    const pulseColors = [
-      'rgba(139, 111, 71, 0.9)',
-      'rgba(166, 122, 91, 0.9)',
-      'rgba(200, 160, 100, 0.8)',
-      'rgba(220, 180, 120, 0.7)',
-    ];
-
-    // Organic blobs config
-    const blobs = [
-      { cx: WIDTH * 0.18, cy: HEIGHT * 0.4, r: 55, color1: '#C4956A', color2: '#8B6F47', speed: 0.008, offset: 0 },
-      { cx: WIDTH * 0.12, cy: HEIGHT * 0.55, r: 40, color1: '#D4A574', color2: '#A67A5B', speed: 0.01, offset: 2 },
-      { cx: WIDTH * 0.28, cy: HEIGHT * 0.35, r: 35, color1: '#B8956E', color2: '#7A6040', speed: 0.012, offset: 4 },
-      { cx: WIDTH * 0.22, cy: HEIGHT * 0.65, r: 30, color1: '#DEB887', color2: '#8B6F47', speed: 0.009, offset: 6 },
-      { cx: WIDTH * 0.08, cy: HEIGHT * 0.35, r: 28, color1: '#C9A882', color2: '#9B7B52', speed: 0.011, offset: 8 },
-    ];
-
-    // Voice waveform bars
-    const waveCount = 18;
-    const waveStartX = WIDTH * 0.05;
-    const waveWidth = WIDTH * 0.38;
-
     const loop = () => {
-      if (!visibleRef.current) {
-        animRef.current = requestAnimationFrame(loop);
-        return;
-      }
-
       time += 0.016;
-      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      ctx.clearRect(0, 0, size, size);
 
-      // === LEFT SIDE: Organic voice shapes ===
-
-      // Flowing blobs with noise deformation
-      for (const blob of blobs) {
-        ctx.save();
-        const points = 80;
-        ctx.beginPath();
-        for (let i = 0; i <= points; i++) {
-          const angle = (i / points) * Math.PI * 2;
-          const n = noise(
-            Math.cos(angle) * 1.5 + blob.offset,
-            Math.sin(angle) * 1.5 + time * blob.speed * 60
-          );
-          const r = blob.r + n * 18;
-          const x = blob.cx + Math.cos(angle) * r;
-          const y = blob.cy + Math.sin(angle) * r;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-
-        const grad = ctx.createRadialGradient(blob.cx, blob.cy, 0, blob.cx, blob.cy, blob.r * 1.3);
-        grad.addColorStop(0, blob.color1 + '60');
-        grad.addColorStop(0.6, blob.color2 + '35');
-        grad.addColorStop(1, blob.color2 + '00');
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // Voice waveform visualization
-      ctx.save();
-      for (let i = 0; i < waveCount; i++) {
-        const x = waveStartX + (i / (waveCount - 1)) * waveWidth;
-        const baseHeight = 15 + Math.sin(i * 0.5 + time * 2) * 12;
-        const noiseVal = noise(i * 0.3, time * 1.5);
-        const h = baseHeight + noiseVal * 20;
-        const alpha = 0.2 + (h / 50) * 0.4;
-
-        const barGrad = ctx.createLinearGradient(x, HEIGHT / 2 - h, x, HEIGHT / 2 + h);
-        barGrad.addColorStop(0, `rgba(196, 149, 106, ${alpha})`);
-        barGrad.addColorStop(0.5, `rgba(139, 111, 71, ${alpha + 0.15})`);
-        barGrad.addColorStop(1, `rgba(196, 149, 106, ${alpha})`);
-
-        ctx.fillStyle = barGrad;
-        const barW = (waveWidth / waveCount) * 0.5;
-        ctx.beginPath();
-        ctx.roundRect(x - barW / 2, HEIGHT / 2 - h, barW, h * 2, barW / 2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // Floating organic particles on left
-      ctx.save();
-      for (let i = 0; i < 25; i++) {
-        const px = WIDTH * 0.05 + noise(i * 0.7, time * 0.3) * WIDTH * 0.35;
-        const py = HEIGHT * 0.15 + noise(i * 0.7 + 100, time * 0.3) * HEIGHT * 0.7;
-        const size = 1 + noise(i * 0.5, time * 0.2) * 2;
-        const alpha = 0.15 + noise(i * 0.3, time * 0.5) * 0.25;
-        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(px, py, size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // === CENTER BLEND: gradient fade ===
-      const blendGrad = ctx.createLinearGradient(WIDTH * 0.38, 0, WIDTH * 0.55, 0);
-      blendGrad.addColorStop(0, 'rgba(250, 248, 243, 0)');
-      blendGrad.addColorStop(0.4, 'rgba(250, 248, 243, 0.6)');
-      blendGrad.addColorStop(0.6, 'rgba(250, 248, 243, 0.6)');
-      blendGrad.addColorStop(1, 'rgba(250, 248, 243, 0)');
-      ctx.fillStyle = blendGrad;
-      ctx.fillRect(WIDTH * 0.38, 0, WIDTH * 0.17, HEIGHT);
-
-      // Center divider line (subtle)
-      ctx.save();
-      ctx.strokeStyle = 'rgba(139, 111, 71, 0.12)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 6]);
-      ctx.beginPath();
-      ctx.moveTo(WIDTH * 0.48, HEIGHT * 0.1);
-      ctx.lineTo(WIDTH * 0.48, HEIGHT * 0.9);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
-
-      // === RIGHT SIDE: Circuit grid ===
-
-      // Grid connections
-      ctx.save();
-      for (let i = 0; i < gridNodes.length; i++) {
-        const node = gridNodes[i];
+      // Draw connections
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         for (const ci of node.connections) {
-          const target = gridNodes[ci];
-          // Fade based on x position (more visible toward right)
-          const avgX = (node.x + target.x) / 2;
-          const fadeIn = Math.min(1, Math.max(0, (avgX - WIDTH * 0.5) / (WIDTH * 0.3)));
-          ctx.strokeStyle = `rgba(139, 111, 71, ${0.08 + fadeIn * 0.12})`;
-          ctx.lineWidth = 0.8;
+          const target = nodes[ci];
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+          ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(node.x, node.y);
-          ctx.lineTo(target.x, target.y);
+          // L-shaped paths (circuit board style)
+          if (Math.abs(target.x - node.x) > 1 && Math.abs(target.y - node.y) > 1) {
+            ctx.lineTo(target.x, node.y);
+            ctx.lineTo(target.x, target.y);
+          } else {
+            ctx.lineTo(target.x, target.y);
+          }
           ctx.stroke();
         }
       }
 
-      // Grid nodes with pulse
-      for (let i = 0; i < gridNodes.length; i++) {
-        const node = gridNodes[i];
-        const fadeIn = Math.min(1, Math.max(0, (node.x - WIDTH * 0.5) / (WIDTH * 0.3)));
-        const pulse = Math.sin(time * 2 + node.pulsePhase) * 0.5 + 0.5;
-        const size = node.size * (0.8 + pulse * 0.4);
-        const alpha = (0.2 + fadeIn * 0.5) * (0.6 + pulse * 0.4);
+      // Draw nodes
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const pulse = Math.sin(time * 2 + i * 0.5) * 0.5 + 0.5;
 
         // Glow
-        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, size * 3);
-        glow.addColorStop(0, `rgba(200, 160, 100, ${alpha * 0.3})`);
-        glow.addColorStop(1, 'rgba(200, 160, 100, 0)');
+        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 8);
+        glow.addColorStop(0, `rgba(255, 230, 180, ${0.15 + pulse * 0.15})`);
+        glow.addColorStop(1, 'rgba(255, 230, 180, 0)');
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, size * 3, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, 8, 0, Math.PI * 2);
         ctx.fill();
 
-        // Node dot
-        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
+        // Dot
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + pulse * 0.35})`;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bright center
-        ctx.fillStyle = `rgba(220, 190, 140, ${alpha * 0.6})`;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, size * 0.4, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.restore();
 
-      // Traveling pulses along connections
-      if (Math.random() < 0.08) {
-        const startIdx = Math.floor(Math.random() * gridNodes.length);
-        const node = gridNodes[startIdx];
+      // Spawn pulses
+      if (Math.random() < 0.12) {
+        const startIdx = Math.floor(Math.random() * nodes.length);
+        const node = nodes[startIdx];
         if (node.connections.length > 0) {
           const toIdx = node.connections[Math.floor(Math.random() * node.connections.length)];
-          pulses.push({
-            fromNode: startIdx,
-            toNode: toIdx,
-            progress: 0,
-            speed: 0.01 + Math.random() * 0.02,
-            color: pulseColors[Math.floor(Math.random() * pulseColors.length)],
-          });
+          pulses.push({ from: startIdx, to: toIdx, progress: 0, speed: 0.015 + Math.random() * 0.02 });
         }
       }
 
-      ctx.save();
+      // Draw pulses
       pulses = pulses.filter(p => {
         p.progress += p.speed;
         if (p.progress >= 1) return false;
-        const from = gridNodes[p.fromNode];
-        const to = gridNodes[p.toNode];
-        const x = from.x + (to.x - from.x) * p.progress;
-        const y = from.y + (to.y - from.y) * p.progress;
+        const from = nodes[p.from];
+        const to = nodes[p.to];
         const alpha = Math.sin(p.progress * Math.PI);
 
-        const glow = ctx.createRadialGradient(x, y, 0, x, y, 6);
-        glow.addColorStop(0, p.color);
-        glow.addColorStop(1, 'rgba(139, 111, 71, 0)');
+        let x: number, y: number;
+        // L-shaped interpolation
+        if (Math.abs(to.x - from.x) > 1 && Math.abs(to.y - from.y) > 1) {
+          if (p.progress < 0.5) {
+            const t = p.progress * 2;
+            x = from.x + (to.x - from.x) * t;
+            y = from.y;
+          } else {
+            const t = (p.progress - 0.5) * 2;
+            x = to.x;
+            y = from.y + (to.y - from.y) * t;
+          }
+        } else {
+          x = from.x + (to.x - from.x) * p.progress;
+          y = from.y + (to.y - from.y) * p.progress;
+        }
+
+        // Bright pulse
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, 10);
+        glow.addColorStop(0, `rgba(255, 220, 150, ${alpha * 0.8})`);
+        glow.addColorStop(0.5, `rgba(255, 180, 100, ${alpha * 0.3})`);
+        glow.addColorStop(1, 'rgba(255, 180, 100, 0)');
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(255, 230, 180, ${alpha * 0.8})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
         ctx.beginPath();
         ctx.arc(x, y, 2, 0, Math.PI * 2);
         ctx.fill();
 
         return true;
       });
-      ctx.restore();
-
-      // Data text fragments floating on right side
-      ctx.save();
-      ctx.font = '9px monospace';
-      const dataTexts = ['01', '10', '>>>', '...', '110', '0x4F', 'ACK'];
-      for (let i = 0; i < 8; i++) {
-        const px = WIDTH * 0.6 + noise(i * 1.3, time * 0.15) * WIDTH * 0.35;
-        const py = HEIGHT * 0.1 + noise(i * 1.3 + 50, time * 0.15) * HEIGHT * 0.8;
-        const alpha = 0.06 + noise(i * 0.8, time * 0.3) * 0.08;
-        ctx.fillStyle = `rgba(139, 111, 71, ${alpha})`;
-        ctx.fillText(dataTexts[i % dataTexts.length], px, py);
-      }
-      ctx.restore();
 
       animRef.current = requestAnimationFrame(loop);
     };
 
     animRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animRef.current);
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => { visibleRef.current = entry.isIntersecting; },
-      { threshold: 0.2 }
-    );
-    observer.observe(canvas);
-    draw();
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(animRef.current);
-    };
-  }, [draw]);
-
   return (
-    <div className="flex justify-center my-6 w-full">
+    <motion.div
+      initial={{ opacity: 0, x: 30 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={vp}
+      transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex-1 min-w-[260px] max-w-[340px] aspect-square rounded-3xl overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #5C4A35 0%, #3D3425 50%, #2A2318 100%)',
+      }}
+    >
+      {/* Glass overlay */}
+      <div className="absolute inset-0 rounded-3xl" style={{
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%)',
+      }} />
+
+      {/* Label */}
+      <div className="absolute top-5 left-6 z-10">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-medium">Logic</span>
+      </div>
+
+      {/* Circuit canvas */}
       <canvas
         ref={canvasRef}
-        style={{ width: WIDTH, height: HEIGHT, maxWidth: '100%' }}
+        className="absolute inset-0 w-full h-full"
+        style={{ width: '100%', height: '100%' }}
       />
+
+      {/* Floating text */}
+      <div className="absolute bottom-5 left-6 right-6 z-10">
+        <p className="text-white/80 text-sm font-medium">Precision processing</p>
+        <p className="text-white/35 text-xs mt-0.5">Fast, reliable, structured</p>
+      </div>
+    </motion.div>
+  );
+}
+
+export function FaceGearMorph() {
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-5 my-8 w-full max-w-[720px] mx-auto px-4">
+      <VoiceWaveCard />
+      <CircuitCard />
     </div>
   );
 }
