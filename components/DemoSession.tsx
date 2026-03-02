@@ -168,6 +168,13 @@ export function useDemoSession(): UseDemoSessionReturn {
       dcRef.current = dc;
 
       dc.onopen = () => {
+        // Enable audio transcription so we get response.audio_transcript.delta events
+        dc.send(JSON.stringify({
+          type: 'session.update',
+          session: {
+            output_audio_transcription: { model: 'whisper-1' },
+          },
+        }));
         // Trigger greeting
         dc.send(JSON.stringify({
           type: 'response.create',
