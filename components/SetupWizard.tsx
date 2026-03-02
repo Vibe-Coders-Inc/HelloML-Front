@@ -18,7 +18,9 @@ import {
   PenLine,
   MessageCircle,
   LogOut,
-  Clock
+  Clock,
+  Wand2,
+  Briefcase
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +43,7 @@ interface WizardData {
   address: string;
   areaCode: string;
   agentName: string;
+  businessDescription: string;
   systemPrompt: string;
   greeting: string;
   goodbye: string;
@@ -53,11 +56,18 @@ const initialData: WizardData = {
   address: '',
   areaCode: '',
   agentName: '',
+  businessDescription: '',
   systemPrompt: '',
   greeting: 'Hello! Thank you for calling. How can I help you today?',
   goodbye: 'Thank you for calling. Have a great day!',
   integrations: [],
 };
+
+function generatePromptFromDescription(description: string, businessName: string): string {
+  const desc = description.trim();
+  if (!desc) return '';
+  return `You are a friendly, professional phone agent for ${businessName || 'the business'}. ${desc.endsWith('.') ? desc : desc + '.'} Answer calls warmly, help callers with questions about the business, take messages when needed, and schedule appointments if requested. Be concise, helpful, and polite at all times.`;
+}
 
 const steps = [
   { id: 1, title: 'Business' },
@@ -68,11 +78,7 @@ const steps = [
   { id: 6, title: 'Review' },
 ];
 
-const promptTemplates = [
-  { name: 'Receptionist', emoji: '👋', prompt: 'You are a friendly and professional receptionist. Help callers with general inquiries, transfer calls to the appropriate department, and take messages when needed. Always maintain a warm and welcoming tone.' },
-  { name: 'Scheduler', emoji: '📅', prompt: 'You are an efficient appointment scheduler. Help callers book, reschedule, or cancel appointments. Confirm all details including date, time, and purpose. Be courteous and ensure accuracy.' },
-  { name: 'Support', emoji: '🛠️', prompt: 'You are a helpful customer support agent. Assist callers with questions about products or services, troubleshoot issues, and escalate complex problems when necessary. Be patient and solution-oriented.' },
-];
+// Prompt templates removed in favor of smart auto-generation
 
 const validateAreaCode = (code: string): { valid: boolean; message?: string } => {
   if (!code) return { valid: false, message: 'Area code is required' };
@@ -257,11 +263,10 @@ export function SetupWizard({ isOpen, onClose, onComplete }: SetupWizardProps) {
       case 1:
         if (!data.businessName.trim()) newErrors.businessName = 'Required';
         else if (data.businessName.length < 2) newErrors.businessName = 'Too short';
-        if (!data.businessEmail.trim()) newErrors.businessEmail = 'Required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.businessEmail)) newErrors.businessEmail = 'Invalid email';
+        if (data.businessEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.businessEmail)) newErrors.businessEmail = 'Invalid email';
         break;
       case 2:
-        if (!data.address.trim()) newErrors.address = 'Required';
+        // Address is optional
         break;
       case 3:
         const v = validateAreaCode(data.areaCode);
@@ -500,7 +505,7 @@ function Step1({ data, updateData, errors, touched, markTouched, onNext }: { dat
         </div>
 
         <div>
-          <Label className="text-[#5D4E37] font-medium">Business Email</Label>
+          <Label className="text-[#5D4E37] font-medium">Business Email <span className="text-[#A67A5B]/40 font-normal">(optional)</span></Label>
           <Input
             type="email"
             value={data.businessEmail}
@@ -529,7 +534,7 @@ function Step2({ data, updateData, errors, onNext, onBack }: { data: WizardData;
       <StepHeader stepNumber={2} title="Location" subtitle="Where is your business located?" />
 
       <div>
-        <Label className="text-[#5D4E37] font-medium">Business Address</Label>
+        <Label className="text-[#5D4E37] font-medium">Business Address <span className="text-[#A67A5B]/40 font-normal">(optional)</span></Label>
         <AddressAutocomplete
           value={data.address}
           onSelect={(address) => updateData({ address })}
@@ -633,44 +638,51 @@ function Step3({ data, updateData, touched, markTouched, onNext, onBack }: { dat
   );
 }
 
-// Step 4: Agent Config with clear layout
+// Step 4: Agent Config with smart prompt generation
 function Step4({ data, updateData, errors, onNext, onBack }: { data: WizardData; updateData: (u: Partial<WizardData>) => void; errors: Partial<Record<keyof WizardData, string>>; onNext: () => void; onBack: () => void }) {
+  const handleGenerate = () => {
+    const prompt = generatePromptFromDescription(data.businessDescription, data.businessName);
+    if (prompt) updateData({ systemPrompt: prompt });
+  };
+
   return (
     <div>
       <StepHeader stepNumber={4} title="Agent Personality" subtitle="How should your agent behave?" />
 
-      {/* Templates - responsive grid */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
-        {promptTemplates.map(t => (
-          <button
-            key={t.name}
-            onClick={() => updateData({ systemPrompt: t.prompt })}
-            className={`p-3 sm:p-4 rounded-xl border-2 text-center transition-all ${data.systemPrompt === t.prompt ? 'border-[#8B6F47] bg-[#8B6F47]/5 shadow-md' : 'border-[#E8DCC8] hover:border-[#A67A5B] bg-white'}`}
-          >
-            <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">{t.emoji}</div>
-            <div className="text-xs sm:text-sm font-medium text-[#5D4E37]">{t.name}</div>
-          </button>
-        ))}
+      {/* Business description for smart generation */}
+      <div className="p-3 sm:p-4 bg-white rounded-xl border-2 border-[#E8DCC8] mb-5">
+        <Label className="text-[#5D4E37] font-semibold text-sm flex items-center gap-2 mb-2 sm:mb-3">
+          <Briefcase className="w-4 h-4 text-[#8B6F47]" />
+          What does your business do?
+        </Label>
+        <Textarea
+          value={data.businessDescription}
+          onChange={(e) => updateData({ businessDescription: e.target.value })}
+          placeholder="e.g. We're a plumbing company in Bakersfield that handles residential and commercial jobs"
+          rows={2}
+          className="bg-[#FDFCFA] border border-[#E8DCC8] rounded-lg text-[#2D2416] placeholder:text-[#A67A5B]/40 resize-none"
+        />
+        <button
+          onClick={handleGenerate}
+          disabled={!data.businessDescription.trim()}
+          className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-[#8B6F47] text-white text-sm font-medium hover:bg-[#6B5D4D] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Wand2 className="w-4 h-4" />
+          Generate prompt
+        </button>
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-4 my-6">
-        <div className="flex-1 h-px bg-[#E8DCC8]" />
-        <span className="text-sm text-[#A67A5B]/60 font-medium">or</span>
-        <div className="flex-1 h-px bg-[#E8DCC8]" />
-      </div>
-
-      {/* Custom prompt - responsive padding */}
+      {/* Editable prompt */}
       <div className="p-3 sm:p-4 bg-white rounded-xl border-2 border-[#E8DCC8]">
         <Label className="text-[#5D4E37] font-semibold text-sm flex items-center gap-2 mb-2 sm:mb-3">
           <PenLine className="w-4 h-4 text-[#8B6F47]" />
-          Custom Instructions
+          System Prompt
         </Label>
         <Textarea
           value={data.systemPrompt}
           onChange={(e) => updateData({ systemPrompt: e.target.value })}
-          placeholder="Describe how your agent should talk to callers..."
-          rows={3}
+          placeholder="Describe how your agent should talk to callers, or use the generator above..."
+          rows={4}
           className={`bg-[#FDFCFA] border rounded-lg text-[#2D2416] placeholder:text-[#A67A5B]/40 resize-none ${errors.systemPrompt ? 'border-red-400' : 'border-[#E8DCC8]'}`}
         />
         {errors.systemPrompt && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.systemPrompt}</p>}
