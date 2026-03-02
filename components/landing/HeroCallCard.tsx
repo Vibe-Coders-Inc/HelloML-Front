@@ -34,9 +34,12 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
   const [elapsed, setElapsed] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Timer
+  // Stopwatch timer — counts steadily, independent of conversation
+  const startTime = useRef(Date.now());
   useEffect(() => {
-    const t = setInterval(() => setElapsed(e => e + 1), 1000);
+    const t = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime.current) / 1000));
+    }, 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -46,7 +49,6 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
         setMessages([]);
         setCurrentMsg(0);
         setCurrentChar(0);
-        setElapsed(0);
       }, RESTART_DELAY);
       return () => clearTimeout(t);
     }
@@ -111,16 +113,16 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
             <p className="text-sm font-semibold text-[#3D3425]">HelloML Agent</p>
             <p className="text-xs text-green-600 font-medium">Live call in progress</p>
           </div>
-          {/* Live waveform bars */}
+          {/* Live waveform bars — steady tempo, no jitter */}
           <div className="flex items-end gap-[2px] h-6 mr-2">
-            {Array.from({ length: 7 }, (_, i) => (
+            {[14, 8, 18, 10, 16, 6, 12].map((h, i) => (
               <div
                 key={i}
                 className="w-[3px] rounded-full bg-[#8B6F47]/60"
                 style={{
-                  height: 6 + Math.random() * 14,
+                  height: h,
                   transformOrigin: 'bottom',
-                  animation: `voiceBar ${0.3 + i * 0.08}s ${i * 0.04}s ease-in-out infinite alternate`,
+                  animation: `voiceBar 0.8s ${i * 0.12}s ease-in-out infinite alternate`,
                 }}
               />
             ))}

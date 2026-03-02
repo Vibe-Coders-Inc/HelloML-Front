@@ -403,9 +403,9 @@ export function FaceGearMorph() {
 
     let morphProgress = 0;
     let morphDir = 1;
-    let holdTimer = 0;
-    const holdFrames = 120;
-    const morphSpeed = 0.005;
+    let holdTimer = 180; // Start by holding on face for 3 seconds so user sees it
+    const holdFrames = 150; // Hold 2.5s at each state
+    const morphSpeed = 0.003; // Slower morph (~5.5s transition)
     let gearAngle = 0;
     let time = 0;
 

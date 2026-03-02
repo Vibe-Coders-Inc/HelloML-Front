@@ -158,47 +158,7 @@ export default function LandingPage() {
         </div>
       </Slide>
 
-      {/* ═══ 3. BOLD STATEMENT ═══ */}
-      <Slide className="bg-[#FAF8F3]">
-        <div className="max-w-6xl mx-auto w-full">
-          <div className="flex flex-col items-center gap-2 md:gap-4">
-            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeLeft} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
-            </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
-            <FaceGearMorph />
-            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
-            </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
-          </div>
-        </div>
-      </Slide>
-
-      {/* ═══ 4. DASHBOARD ═══ */}
-      <Slide className="bg-[#F5F0E8]">
-        <div className="max-w-5xl mx-auto w-full">
-          <motion.h2 {...fadeUp} className="text-3xl md:text-5xl font-bold text-[#8B6F47] text-center mb-4">
-            Every call. Every transcript. Every booking.
-          </motion.h2>
-          <motion.p {...fadeUp} className="text-center text-[#8B7355] mb-8 text-base md:text-lg max-w-2xl mx-auto">
-            A real-time dashboard that shows every conversation, booking, and insight.
-          </motion.p>
-          <motion.div {...scaleIn} className="relative rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10 bg-white">
-            <div className="bg-[#F5EFE6] px-3 md:px-4 py-2 md:py-3 flex items-center gap-2 border-b border-[#E8DCC8]/60">
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]" />
-              <div className="flex-1 mx-4 md:mx-12"><div className="bg-white/60 rounded py-1 px-3 text-center"><span className="text-[8px] md:text-[10px] text-[#8B7355]/50 font-medium">helloml.app/dashboard</span></div></div>
-            </div>
-            <Image src="/dashboard-preview.png" alt="HelloML dashboard showing call logs, transcripts, and bookings" width={1600} height={1000} className="w-full h-auto block" priority />
-          </motion.div>
-        </div>
-      </Slide>
-
-      {/* ═══ 5. HOW IT WORKS — horizontal timeline redesign ═══ */}
+      {/* ═══ 3. HOW IT WORKS — right after problem, shows the fix ═══ */}
       <Slide className="bg-[#FAF8F3]">
         <div className="max-w-5xl mx-auto w-full">
           <motion.h2 {...fadeUp} className="text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-16">
@@ -299,6 +259,46 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        </div>
+      </Slide>
+
+      {/* ═══ 4. BOLD STATEMENT — credibility builder ═══ */}
+      <Slide className="bg-[#FAF8F3]">
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="flex flex-col items-center gap-2 md:gap-4">
+            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
+              <motion.span {...fadeLeft} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+            </div>
+            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
+            <FaceGearMorph />
+            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
+              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+            </div>
+            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
+          </div>
+        </div>
+      </Slide>
+
+      {/* ═══ 5. DASHBOARD — proof ═══ */}
+      <Slide className="bg-[#F5F0E8]">
+        <div className="max-w-5xl mx-auto w-full">
+          <motion.h2 {...fadeUp} className="text-3xl md:text-5xl font-bold text-[#8B6F47] text-center mb-4">
+            Every call. Every transcript. Every booking.
+          </motion.h2>
+          <motion.p {...fadeUp} className="text-center text-[#8B7355] mb-8 text-base md:text-lg max-w-2xl mx-auto">
+            A real-time dashboard that shows every conversation, booking, and insight.
+          </motion.p>
+          <motion.div {...scaleIn} className="relative rounded-2xl overflow-hidden border border-[#E8DCC8]/50 shadow-2xl shadow-[#8B6F47]/10 bg-white">
+            <div className="bg-[#F5EFE6] px-3 md:px-4 py-2 md:py-3 flex items-center gap-2 border-b border-[#E8DCC8]/60">
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]" />
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]" />
+              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]" />
+              <div className="flex-1 mx-4 md:mx-12"><div className="bg-white/60 rounded py-1 px-3 text-center"><span className="text-[8px] md:text-[10px] text-[#8B7355]/50 font-medium">helloml.app/dashboard</span></div></div>
+            </div>
+            <Image src="/dashboard-preview.png" alt="HelloML dashboard showing call logs, transcripts, and bookings" width={1600} height={1000} className="w-full h-auto block" priority />
+          </motion.div>
         </div>
       </Slide>
 
