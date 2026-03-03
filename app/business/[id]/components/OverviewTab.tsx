@@ -234,13 +234,43 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
         )}
       </div>
 
+      {/* Website & Auto-fill */}
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
+        <CardHeader>
+          <CardTitle className="text-[#8B6F47]">Website</CardTitle>
+          <CardDescription className="text-[#A67A5B]">
+            Add your website to auto-fill business details and help your agent answer questions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {business.website && (
+            <div className="mb-4 p-3 bg-[#8B6F47]/5 rounded-lg flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#8B6F47]" />
+              <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#8B6F47] hover:underline font-medium">
+                {business.website}
+              </a>
+            </div>
+          )}
+          <WebsiteExtractor
+            initialUrl={business.website || ''}
+            onExtracted={(info: ExtractedWebsiteInfo, url: string) => {
+              const updates: Record<string, string | undefined> = { website: url };
+              if (info.business_email) updates.business_email = info.business_email;
+              if (info.address) updates.address = info.address;
+              if (info.phone_number) updates.phone_number = info.phone_number;
+              updateBusiness.mutate({ businessId: business.id, data: updates });
+            }}
+          />
+        </CardContent>
+      </Card>
+
       {/* Business Info */}
       <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
         <CardHeader>
           <CardTitle className="text-[#8B6F47]">Business Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h4 className="font-medium text-sm text-[#A67A5B]">Business Name</h4>
               <p className="text-sm text-[#8B6F47]">{business.name}</p>
@@ -254,35 +284,10 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
               <p className="text-sm text-[#8B6F47]">{business.address || 'Not provided'}</p>
             </div>
             <div>
-              <h4 className="font-medium text-sm text-[#A67A5B]">Website</h4>
-              {business.website ? (
-                <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#8B6F47] hover:underline flex items-center gap-1">
-                  <Globe className="w-3 h-3" />
-                  {business.website}
-                </a>
-              ) : (
-                <p className="text-sm text-[#A67A5B]/50">Not provided</p>
-              )}
-            </div>
-            <div>
               <h4 className="font-medium text-sm text-[#A67A5B]">Created</h4>
               <p className="text-sm text-[#8B6F47]">{formatDate(business.created_at)}</p>
             </div>
           </div>
-
-          {/* Website auto-fill */}
-          {!business.website && (
-            <div className="pt-4 border-t border-[#E8DCC8]/40">
-              <WebsiteExtractor
-                onExtracted={(info: ExtractedWebsiteInfo, url: string) => {
-                  const updates: Record<string, string | undefined> = { website: url };
-                  if (info.business_email && !business.business_email) updates.business_email = info.business_email;
-                  if (info.address && !business.address) updates.address = info.address;
-                  updateBusiness.mutate({ businessId: business.id, data: updates });
-                }}
-              />
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

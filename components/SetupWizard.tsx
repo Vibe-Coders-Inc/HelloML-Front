@@ -491,13 +491,13 @@ function StepHeader({ stepNumber, title, subtitle }: { stepNumber: number; title
 // Step 1: Business Details
 function Step1({ data, updateData, errors, touched, markTouched, onNext }: { data: WizardData; updateData: (u: Partial<WizardData>) => void; errors: Partial<Record<keyof WizardData, string>>; touched: Partial<Record<keyof WizardData, boolean>>; markTouched: (f: keyof WizardData) => void; onNext: () => void }) {
   const handleWebsiteExtracted = (info: ExtractedWebsiteInfo, url: string) => {
+    // Always overwrite fields when extracting (even on re-extract with different URL)
     const updates: Partial<WizardData> = { website: url };
-    if (info.business_name && !data.businessName) updates.businessName = info.business_name;
-    if (info.business_email && !data.businessEmail) updates.businessEmail = info.business_email;
-    if (info.address && !data.address) updates.address = info.address;
+    if (info.business_name) updates.businessName = info.business_name;
+    if (info.business_email) updates.businessEmail = info.business_email;
+    if (info.address) updates.address = info.address;
     if (info.description) {
       updates.businessDescription = info.description;
-      // Also auto-generate the system prompt
       const services = info.services?.length ? ` Services include: ${info.services.join(', ')}.` : '';
       const hours = info.hours ? ` Business hours: ${info.hours}.` : '';
       updates.systemPrompt = `You are a friendly, professional phone agent for ${info.business_name || data.businessName || 'the business'}. ${info.description}${services}${hours} Answer calls warmly, help callers with questions about the business, take messages when needed, and schedule appointments if requested. Be concise, helpful, and polite at all times.`;
