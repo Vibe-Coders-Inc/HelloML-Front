@@ -100,7 +100,7 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
 
   return (
     <div className={`relative ${className}`}>
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/15 overflow-hidden" style={{ width: 520, maxWidth: '94vw' }}>
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-[#E8DCC8] shadow-2xl shadow-[#8B6F47]/15 overflow-hidden w-full max-w-[520px]">
         {/* Call header */}
         <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[#E8DCC8]/50 bg-[#FAF8F3]">
           <div className="relative">
@@ -131,7 +131,7 @@ export function HeroCallCard({ className = '' }: { className?: string }) {
         </div>
 
         {/* Transcript area */}
-        <div ref={containerRef} className="px-5 py-4 space-y-3 min-h-[300px] max-h-[360px] overflow-y-auto">
+        <div ref={containerRef} className="px-3 sm:px-5 py-3 sm:py-4 space-y-3 min-h-[220px] sm:min-h-[300px] max-h-[280px] sm:max-h-[360px] overflow-y-auto">
           {messages.map((msg, i) => (
             <div
               key={i}

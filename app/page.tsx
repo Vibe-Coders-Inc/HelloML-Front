@@ -89,7 +89,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 50, scale: 0.95, filter: 'blur(12px)' }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
               transition={{ duration: 1.2, ease }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 leading-[1.05]"
+              className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 leading-[1.05]"
             >
               <span className="text-[#8B6F47]/40">AI that </span>
               <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
@@ -143,7 +143,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <motion.div {...scaleIn}>
             <div className="mb-8">
-              <span className="text-[120px] sm:text-[160px] md:text-[200px] font-bold text-[#8B6F47] leading-none tracking-tighter block">
+              <span className="text-[72px] sm:text-[120px] md:text-[160px] lg:text-[200px] font-bold text-[#8B6F47] leading-none tracking-tighter block">
                 <CountUp target={80} suffix="%" />
               </span>
             </div>
@@ -161,14 +161,14 @@ export default function LandingPage() {
       {/* ═══ 3. HOW IT WORKS — right after problem, shows the fix ═══ */}
       <Slide className="bg-[#FAF8F3]">
         <div className="max-w-5xl mx-auto w-full">
-          <motion.h2 {...fadeUp} className="text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-16">
+          <motion.h2 {...fadeUp} className="text-3xl sm:text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-10 md:mb-16">
             Up and running in{' '}<span style={{ fontFamily: 'Borel, cursive' }}>two minutes.</span>
           </motion.h2>
 
           {/* Horizontal connected steps */}
           <div className="relative">
             {/* Connecting line */}
-            <div className="hidden md:block absolute top-[60px] left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-[#8B6F47]/20 via-[#8B6F47]/40 to-[#8B6F47]/20" />
+            <div className="hidden md:block absolute top-[40px] md:top-[60px] left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-[#8B6F47]/20 via-[#8B6F47]/40 to-[#8B6F47]/20" />
 
             <div className="grid md:grid-cols-3 gap-12 md:gap-8">
               {[
@@ -248,8 +248,8 @@ export default function LandingPage() {
                   className="text-center"
                 >
                   {/* Number circle */}
-                  <div className="relative z-10 inline-flex items-center justify-center w-[120px] h-[120px] rounded-full bg-gradient-to-br from-[#8B6F47] to-[#6B5235] text-white mb-6 shadow-xl shadow-[#8B6F47]/20">
-                    <span className="text-5xl font-bold">{step.num}</span>
+                  <div className="relative z-10 inline-flex items-center justify-center w-20 h-20 md:w-[120px] md:h-[120px] rounded-full bg-gradient-to-br from-[#8B6F47] to-[#6B5235] text-white mb-6 shadow-xl shadow-[#8B6F47]/20">
+                    <span className="text-3xl md:text-5xl font-bold">{step.num}</span>
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold text-[#8B6F47] mb-2">{step.title}</h3>
                   <p className="text-sm text-[#8B7355] leading-relaxed mb-2">{step.desc}</p>
@@ -267,16 +267,16 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto w-full">
           <div className="flex flex-col items-center gap-2 md:gap-4">
             <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeLeft} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+              <motion.span {...fadeLeft} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-lg sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
+            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
             <FaceGearMorph />
             <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-5xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
+            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
           </div>
         </div>
       </Slide>
@@ -309,8 +309,8 @@ export default function LandingPage() {
             Everything you need.{' '}<span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]/50">Nothing you don&apos;t.</span>
           </motion.h2>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            <motion.div {...fadeUp} className="col-span-2 lg:col-span-2 p-6 md:p-8 rounded-2xl bg-white/80 border border-[#E8DCC8]/40 hover:border-[#8B6F47]/20 hover:shadow-xl hover:shadow-[#8B6F47]/8 transition-all duration-300 relative overflow-hidden group">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+            <motion.div {...fadeUp} className="sm:col-span-2 lg:col-span-2 p-6 md:p-8 rounded-2xl bg-white/80 border border-[#E8DCC8]/40 hover:border-[#8B6F47]/20 hover:shadow-xl hover:shadow-[#8B6F47]/8 transition-all duration-300 relative overflow-hidden group">
               <div className="relative z-10">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#8B6F47]/10 text-[#8B6F47] mb-4"><CalendarIcon /></div>
                 <h3 className="text-xl md:text-2xl font-bold text-[#8B6F47] mb-2">Books appointments automatically</h3>
@@ -339,7 +339,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            <motion.div {...fadeUp} className="col-span-2 p-6 md:p-8 rounded-2xl bg-white/80 border border-[#E8DCC8]/40 hover:border-[#8B6F47]/20 hover:shadow-xl hover:shadow-[#8B6F47]/8 transition-all duration-300 relative overflow-hidden">
+            <motion.div {...fadeUp} className="sm:col-span-2 p-6 md:p-8 rounded-2xl bg-white/80 border border-[#E8DCC8]/40 hover:border-[#8B6F47]/20 hover:shadow-xl hover:shadow-[#8B6F47]/8 transition-all duration-300 relative overflow-hidden">
               <div className="grid md:grid-cols-2 gap-6 items-center">
                 <div>
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#8B6F47]/10 text-[#8B6F47] mb-4"><DocumentIcon /></div>
@@ -407,7 +407,7 @@ export default function LandingPage() {
           {/* Giant price as the hero element */}
           <div className="mb-8">
             <div className="flex items-baseline justify-center gap-2">
-              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[100px] sm:text-[130px] md:text-[160px] font-bold text-[#8B6F47] leading-none">$29</span>
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[64px] sm:text-[100px] md:text-[130px] lg:text-[160px] font-bold text-[#8B6F47] leading-none">$29</span>
               <div className="text-left">
                 <span className="block text-xl text-[#8B7355]">per agent</span>
                 <span className="block text-xl text-[#8B7355]">per month</span>
@@ -455,7 +455,7 @@ export default function LandingPage() {
       <footer className="py-10 px-6 border-t border-[#E8DCC8]/30 bg-[#F0EBE1]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Logo size="small" lightMode />
-          <div className="flex items-center gap-6 text-sm text-[#8B7355]">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-[#8B7355]">
             <Link href="/demo" className="hover:text-[#8B6F47] transition-colors">Demo</Link>
             <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
