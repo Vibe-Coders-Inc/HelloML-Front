@@ -88,12 +88,16 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
 
   if (isHidden) return null;
 
-  // Build Street View URL if address exists
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
   const hasAddress = !!business.address;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+  // Try Street View first, fall back to static map, then gradient
   const streetViewUrl = hasAddress && apiKey
     ? `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${encodeURIComponent(business.address)}&fov=90&pitch=5&key=${apiKey}`
     : null;
+  const staticMapUrl = hasAddress && apiKey
+    ? `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(business.address)}&zoom=15&size=600x300&scale=2&maptype=roadmap&style=feature:all|saturation:-80&style=feature:road|color:0xE8DCC8&style=feature:water|color:0xC9D6C9&markers=color:0x8B6F47%7C${encodeURIComponent(business.address)}&key=${apiKey}`
+    : null;
+  const mapsLink = hasAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address)}` : null;
 
   const phoneStr = getPhoneDisplay();
   const hasPhone = phoneStr !== 'No agent' && phoneStr !== 'No number' && phoneStr !== 'Loading...' && phoneStr !== 'Provisioning...';
@@ -119,7 +123,7 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
         <div
           className={`relative bg-white rounded-2xl overflow-hidden border border-[#E8DCC8]/60 shadow-sm group-hover:shadow-lg group-hover:border-[#E8DCC8] transition-all duration-300 ${isExploding ? 'pointer-events-none' : ''}`}
         >
-          {/* Header — Street View image or gradient fallback */}
+          {/* Header — Street View / Static Map / Gradient fallback */}
           <div className="relative h-[140px] overflow-hidden">
             {streetViewUrl ? (
               <>
@@ -130,28 +134,50 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
-                {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3D3425]/90 via-[#3D3425]/40 to-transparent" />
               </>
+            ) : staticMapUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={staticMapUrl}
+                  alt={`Map of ${business.name}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3D3425]/85 via-[#3D3425]/30 to-[#3D3425]/10" />
+              </>
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#8B6F47] to-[#A67A5B]">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3D3425]/60 to-transparent" />
-                {/* Subtle pattern */}
-                <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+              /* Warm gradient fallback with large initial */
+              <div className="w-full h-full bg-gradient-to-br from-[#C9A86C]/30 via-[#E8DCC8]/40 to-[#F5F0E8]">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[72px] font-bold text-[#8B6F47]/[0.08] select-none leading-none">
+                    {business.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent" />
               </div>
             )}
 
             {/* Business name on the image */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
-              <h3 className="text-lg font-semibold text-white truncate">{business.name}</h3>
+              <h3 className={`text-lg font-semibold truncate ${streetViewUrl || staticMapUrl ? 'text-white' : 'text-[#5D4E37]'}`}>
+                {business.name}
+              </h3>
               {business.business_email && (
-                <p className="text-xs text-white/60 truncate mt-0.5">{business.business_email}</p>
+                <p className={`text-xs truncate mt-0.5 ${streetViewUrl || staticMapUrl ? 'text-white/60' : 'text-[#8B7355]'}`}>
+                  {business.business_email}
+                </p>
               )}
             </div>
 
             {/* Delete button — top right corner */}
             <motion.button
-              className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/20 backdrop-blur-sm hover:bg-red-500/80 text-white/70 hover:text-white flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100"
+              className={`absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100 ${
+                streetViewUrl || staticMapUrl
+                  ? 'bg-black/20 backdrop-blur-sm hover:bg-red-500/80 text-white/70 hover:text-white'
+                  : 'bg-[#8B6F47]/10 hover:bg-red-500/10 text-[#8B6F47]/40 hover:text-red-500'
+              }`}
               onClick={handleDeleteClick}
               disabled={isDeleting || isExploding}
               whileTap={{ scale: 0.9 }}
@@ -163,10 +189,16 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
           {/* Details row */}
           <div className="p-4 space-y-2.5">
             {hasAddress && (
-              <div className="flex items-center gap-2.5 text-sm text-[#6B5D4D]">
-                <MapPin className="w-3.5 h-3.5 text-[#8B6F47]/50 flex-shrink-0" />
-                <span className="truncate">{business.address}</span>
-              </div>
+              <a
+                href={mapsLink!}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-2.5 text-sm text-[#6B5D4D] hover:text-[#8B6F47] transition-colors group/addr"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#8B6F47]/50 group-hover/addr:text-[#8B6F47] flex-shrink-0 transition-colors" />
+                <span className="truncate underline decoration-[#E8DCC8] underline-offset-2 group-hover/addr:decoration-[#8B6F47]/40">{business.address}</span>
+              </a>
             )}
 
             <div className="flex items-center gap-2.5 text-sm">
