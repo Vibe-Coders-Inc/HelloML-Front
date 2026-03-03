@@ -1217,14 +1217,28 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       size="sm"
                       onClick={async () => {
                         if (isAgentEditing && websiteUrl.trim() && agent) {
-                          // Save website URL to business
+                          let url = websiteUrl.trim();
+                          // Auto-add https
+                          if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                            url = 'https://' + url;
+                            setWebsiteUrl(url);
+                          }
+                          // Basic URL validation
+                          const urlPattern = /^https?:\/\/[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+/;
+                          if (!urlPattern.test(url)) {
+                            setWebsiteError('Please enter a valid website URL');
+                            setIsAgentEditing(false);
+                            return;
+                          }
+                          setWebsiteError(null);
                           try {
-                            await apiClient.updateBusiness(businessId, { website: websiteUrl.trim() });
+                            await apiClient.updateBusiness(businessId, { website: url });
                             // Auto-index in background
                             setIsIndexingWebsite(true);
-                            apiClient.indexWebsite(agent.id, websiteUrl.trim())
+                            setWebsiteResult(null);
+                            apiClient.indexWebsite(agent.id, url)
                               .then(() => setWebsiteResult({ pages: 0, chunks: 0 }))
-                              .catch(() => {})
+                              .catch((err) => setWebsiteError(err instanceof Error ? err.message : 'Could not read website'))
                               .finally(() => setIsIndexingWebsite(false));
                           } catch {}
                         }
@@ -1289,40 +1303,77 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       />
                     </div>
                     <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
-                      <p className="text-xs text-[#8B7355] mb-2">Website</p>
+                      <p className="text-xs text-[#8B7355] mb-1">Website</p>
+                      <p className="text-[10px] text-[#A67A5B]/60 mb-2">Your agent learns from this site to answer caller questions</p>
                       {isAgentEditing ? (
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            value={websiteUrl}
-                            onChange={(e) => setWebsiteUrl(e.target.value)}
-                            placeholder="www.yourbusiness.com"
-                            className="flex-1 h-8 px-2 text-sm rounded-md border border-[#D8CBA9] bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:outline-none focus:ring-1 focus:ring-[#8B6F47]/30"
-                          />
-                        </div>
+                        <input
+                          value={websiteUrl}
+                          onChange={(e) => { setWebsiteUrl(e.target.value); setWebsiteError(null); }}
+                          placeholder="www.yourbusiness.com"
+                          className="w-full h-8 px-2 text-sm rounded-md border border-[#D8CBA9] bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:outline-none focus:ring-1 focus:ring-[#8B6F47]/30"
+                        />
                       ) : websiteUrl ? (
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-[#5D4E37] truncate max-w-[140px]">{websiteUrl.replace(/^https?:\/\//, '')}</p>
-                          <button
-                            onClick={async () => {
-                              if (!agent || !websiteUrl.trim()) return;
-                              setIsIndexingWebsite(true);
-                              setWebsiteError(null);
-                              setWebsiteResult(null);
-                              try {
-                                await apiClient.indexWebsite(agent.id, websiteUrl.trim());
-                                setWebsiteResult({ pages: 0, chunks: 0 });
-                              } catch (err) {
-                                setWebsiteError(err instanceof Error ? err.message : 'Failed to refresh');
-                              } finally {
-                                setIsIndexingWebsite(false);
-                              }
-                            }}
-                            disabled={isIndexingWebsite}
-                            className="text-xs text-[#8B6F47] hover:text-[#5D4E37] hover:underline transition-colors flex items-center gap-1"
-                          >
-                            {isIndexingWebsite ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                            {isIndexingWebsite ? 'Refreshing' : 'Refresh'}
-                          </button>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <a
+                              href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-medium text-[#8B6F47] hover:text-[#5D4E37] underline underline-offset-2 truncate max-w-[140px] transition-colors"
+                            >
+                              {websiteUrl.replace(/^https?:\/\//, '')}
+                            </a>
+                            <button
+                              onClick={async () => {
+                                if (!agent || !websiteUrl.trim() || isIndexingWebsite) return;
+                                // Rate limit: 2 min cooldown
+                                const now = Date.now();
+                                const lastRefresh = (window as unknown as Record<string, number>).__lastWebsiteRefresh;
+                                if (lastRefresh && now - lastRefresh < 120000) {
+                                  setWebsiteError(`Wait ${Math.ceil((120000 - (now - lastRefresh)) / 1000)}s before refreshing again`);
+                                  return;
+                                }
+                                (window as unknown as Record<string, number>).__lastWebsiteRefresh = now;
+                                setIsIndexingWebsite(true);
+                                setWebsiteError(null);
+                                setWebsiteResult(null);
+                                setWebsiteProgress(0);
+                                const interval = setInterval(() => {
+                                  setWebsiteProgress(prev => Math.min(prev + (0.5 + Math.random() * 1.5), 92));
+                                }, 120);
+                                try {
+                                  await apiClient.indexWebsite(agent.id, websiteUrl.trim());
+                                  clearInterval(interval);
+                                  setWebsiteProgress(100);
+                                  setWebsiteResult({ pages: 0, chunks: 0 });
+                                  setTimeout(() => setWebsiteProgress(0), 2000);
+                                } catch (err) {
+                                  clearInterval(interval);
+                                  setWebsiteProgress(0);
+                                  setWebsiteError(err instanceof Error ? err.message : 'Could not read website');
+                                } finally {
+                                  setIsIndexingWebsite(false);
+                                }
+                              }}
+                              disabled={isIndexingWebsite}
+                              className="text-[11px] text-[#8B6F47] hover:text-[#5D4E37] transition-colors flex items-center gap-1 shrink-0 disabled:opacity-50"
+                            >
+                              <RefreshCw className={`w-3 h-3 ${isIndexingWebsite ? 'animate-spin' : ''}`} />
+                            </button>
+                          </div>
+                          {(isIndexingWebsite || websiteProgress > 0) && (
+                            <div className="h-1 bg-[#E8DCC8]/40 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-[#8B6F47] to-[#C9A86C] rounded-full transition-all duration-200 ease-out"
+                                style={{ width: `${websiteProgress}%` }}
+                              />
+                            </div>
+                          )}
+                          {websiteResult && !isIndexingWebsite && websiteProgress === 0 && (
+                            <p className="text-[10px] text-emerald-600 flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Up to date
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <p className="text-sm text-[#8B7355]/50 italic">Not set</p>
