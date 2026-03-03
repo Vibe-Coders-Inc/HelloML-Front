@@ -863,16 +863,16 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
             {/* Welcome Banner */}
             <motion.div
-              className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F5F0E8] to-white border border-[#E8DCC8]/50"
+              className="relative overflow-hidden rounded-2xl bg-white border border-[#E8DCC8]/50"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="relative px-8 py-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#5D4E37]">
-                  Welcome back! 👋
+              <div className="relative px-6 py-6 sm:px-8 sm:py-7">
+                <h1 className="text-xl md:text-2xl font-semibold text-[#5D4E37]">
+                  {business.name}
                 </h1>
-                <p className="text-base text-[#8B7355] mt-2">
-                  Manage <span className="font-semibold text-[#8B6F47]">{business.name}</span> settings and monitor call activity.
+                <p className="text-sm text-[#8B7355] mt-1">
+                  Overview and settings
                 </p>
               </div>
             </motion.div>
@@ -938,15 +938,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <h3 className="text-sm font-semibold text-[#5D4E37] mb-2">Performance</h3>
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <span
-                    className="font-black bg-clip-text text-transparent drop-shadow-sm"
+                    className="font-bold text-[#5D4E37]"
                     style={{
-                      fontSize: 'clamp(5rem, 12vw, 8rem)',
+                      fontSize: 'clamp(4rem, 10vw, 6rem)',
                       lineHeight: 1,
-                      WebkitBackgroundClip: 'text',
-                      background: 'linear-gradient(45deg, #8B6F47 0%, #C9A86C 50%, #8B6F47 100%)',
-                      backgroundClip: 'text',
-                      backgroundSize: '200% 200%',
-                      animation: 'shimmer 3s ease-in-out infinite',
                     }}
                   >
                     {totalCalls}
@@ -987,8 +982,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] flex items-center justify-center">
-                    <CreditCard className="w-6 h-6 text-white" />
+                  <div className="w-11 h-11 rounded-xl bg-[#F5F0E8] flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-[#8B6F47]" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-[#5D4E37]">Subscription</h3>
@@ -1171,8 +1166,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B6F47] to-[#A67A5B] flex items-center justify-center">
-                        <Bot className="w-6 h-6 text-white" />
+                      <div className="w-11 h-11 rounded-xl bg-[#F5F0E8] flex items-center justify-center">
+                        <Bot className="w-5 h-5 text-[#8B6F47]" />
                       </div>
                       <div>
                         {isAgentEditing ? (
