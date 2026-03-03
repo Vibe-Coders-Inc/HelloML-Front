@@ -272,11 +272,11 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.includes('pdf')) return 'PDF';
-    if (fileType.includes('text') || fileType.includes('txt')) return 'TXT';
-    if (fileType.includes('word') || fileType.includes('doc')) return 'DOC';
-    if (fileType.includes('excel') || fileType.includes('csv')) return 'CSV';
-    return 'FILE';
+    if (fileType.includes('pdf')) return '📄';
+    if (fileType.includes('text') || fileType.includes('txt')) return '📝';
+    if (fileType.includes('word') || fileType.includes('doc')) return '📄';
+    if (fileType.includes('excel') || fileType.includes('csv')) return '📊';
+    return '📁';
   };
 
 
@@ -466,15 +466,13 @@ export default function DocumentsTab({ agentId }: DocumentsTabProps) {
                     }`}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="relative">
+                      <div className="text-2xl relative">
                         {isProcessing ? (
-                          <div className="w-10 h-10 flex items-center justify-center">
-                            <Loader2 className="w-5 h-5 text-[#8B6F47] animate-spin" />
+                          <div className="w-8 h-8 flex items-center justify-center">
+                            <Loader2 className="w-6 h-6 text-[#8B6F47] animate-spin" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-[#F5F0E8] flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-[#8B6F47] tracking-wide">{getFileIcon(document.file_type)}</span>
-                          </div>
+                          getFileIcon(document.file_type)
                         )}
                       </div>
                       <div>

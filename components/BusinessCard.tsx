@@ -115,7 +115,7 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
         initial="hidden"
         animate={isExploding ? { opacity: 0, scale: 0.8, transition: { duration: 0.3 } } : 'visible'}
         exit="exit"
-        whileHover={!isExploding ? { y: -2 } : {}}
+        whileHover={!isExploding ? { y: -6, scale: 1.02 } : {}}
         transition={{ type: 'spring' as const, stiffness: 400, damping: 25 }}
         className="group relative cursor-pointer"
         style={{ overflow: 'visible' }}
@@ -124,11 +124,36 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
         <DeleteBurst isActive={isExploding} onComplete={handleBurstComplete} />
 
         <div
-          className={`relative bg-white rounded-2xl border border-[#E8DCC8]/60 shadow-sm hover:shadow-md hover:border-[#E8DCC8] transition-all duration-200 ${isExploding ? 'pointer-events-none' : ''}`}
-          style={{ overflow: 'visible' }}
+          className={`relative bg-white rounded-2xl transition-all duration-300 ${isExploding ? 'pointer-events-none' : ''}`}
+          style={{
+            overflow: 'visible',
+            boxShadow: `
+              0 1px 2px rgba(139,111,71,0.04),
+              0 4px 8px rgba(139,111,71,0.06),
+              0 8px 16px rgba(139,111,71,0.06),
+              0 0 0 1px rgba(232,220,200,0.5)
+            `,
+          }}
         >
-          <div className="relative">
-            <div className="relative p-6">
+          {/* Hover glow ring */}
+          <div
+            className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{
+              background: 'linear-gradient(135deg, rgba(139,111,71,0.15), rgba(166,122,91,0.1), rgba(201,183,144,0.15))',
+              filter: 'blur(1px)',
+            }}
+          />
+
+          {/* Inner card with slight inset effect */}
+          <div className="relative bg-white rounded-2xl">
+            {/* Accent bar at top */}
+            <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#8B6F47]/40 to-transparent" />
+
+            {/* Subtle top highlight for depth */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#FDFCFA] to-transparent rounded-t-2xl pointer-events-none" />
+
+            {/* Content */}
+            <div className="relative p-6 pt-5">
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1 min-w-0">
