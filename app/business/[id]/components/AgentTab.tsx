@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
-import { Bot, Phone, Play, Pause, Trash2, Edit, Loader2 } from 'lucide-react';
+import { Bot, Phone, Play, Pause, Trash2, Edit, Loader2, Globe, Check } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { apiClient } from '@/lib/api-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateAgent, useUpdateAgent, useDeleteAgent } from '@/lib/hooks/use-agents';
@@ -73,6 +74,12 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [provisionAreaCode, setProvisionAreaCode] = useState('555');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [isIndexing, setIsIndexing] = useState(false);
+  const [indexProgress, setIndexProgress] = useState(0);
+  const [indexStatus, setIndexStatus] = useState('');
+  const [indexResult, setIndexResult] = useState<{ pages: number; chunks: number } | null>(null);
+  const [indexError, setIndexError] = useState<string | null>(null);
 
   const createAgentMutation = useCreateAgent();
   const updateAgentMutation = useUpdateAgent();
@@ -715,6 +722,125 @@ export default function AgentTab({ businessId, agent }: AgentTabProps) {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Website Knowledge Base */}
+      <Card className="bg-gradient-to-br from-white via-[#FAF8F3] to-[#F5EFE6] border-0 shadow-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-[#8B6F47]">
+            <Globe className="h-5 w-5" />
+            <span>Website Knowledge Base</span>
+          </CardTitle>
+          <CardDescription className="text-[#8B6F47]">
+            Index your website so your agent can answer questions about your business during calls
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Input
+              value={websiteUrl}
+              onChange={(e) => {
+                setWebsiteUrl(e.target.value);
+                setIndexResult(null);
+                setIndexError(null);
+              }}
+              placeholder="www.yourbusiness.com"
+              className="flex-1 bg-white border-[#D8CBA9] h-11 rounded-xl text-[#8B6F47] placeholder:text-[#A67A5B]/40"
+              disabled={isIndexing}
+            />
+            <Button
+              onClick={async () => {
+                if (!agent || !websiteUrl.trim()) return;
+                setIsIndexing(true);
+                setIndexError(null);
+                setIndexResult(null);
+                setIndexProgress(0);
+
+                // Simulate progress
+                const stages = [
+                  { at: 5, text: 'Fetching homepage...' },
+                  { at: 20, text: 'Discovering subpages...' },
+                  { at: 40, text: 'Crawling pages...' },
+                  { at: 60, text: 'Extracting content...' },
+                  { at: 75, text: 'Generating embeddings...' },
+                  { at: 90, text: 'Storing in knowledge base...' },
+                ];
+                let stageIdx = 0;
+                setIndexStatus(stages[0].text);
+                const interval = setInterval(() => {
+                  setIndexProgress(prev => {
+                    const next = prev + (0.4 + Math.random() * 1.2);
+                    if (stageIdx < stages.length - 1 && next >= stages[stageIdx + 1].at) {
+                      stageIdx++;
+                      setIndexStatus(stages[stageIdx].text);
+                    }
+                    return Math.min(next, 92);
+                  });
+                }, 100);
+
+                try {
+                  const result = await apiClient.indexWebsite(agent.id, websiteUrl.trim());
+                  clearInterval(interval);
+                  setIndexProgress(100);
+                  setIndexStatus('Complete');
+                  setIndexResult({ pages: result.pages_crawled, chunks: result.chunks_created });
+                } catch (err) {
+                  clearInterval(interval);
+                  setIndexProgress(0);
+                  setIndexError(err instanceof Error ? err.message : 'Failed to index website');
+                } finally {
+                  setIsIndexing(false);
+                }
+              }}
+              disabled={isIndexing || !websiteUrl.trim() || !agent}
+              className="h-11 px-5 bg-gradient-to-r from-[#8B6F47] via-[#A67A5B] to-[#C9B790] hover:from-[#8B6F47]/90 hover:via-[#A67A5B]/90 hover:to-[#C9B790]/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 whitespace-nowrap"
+            >
+              {isIndexing ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Indexing
+                </span>
+              ) : indexResult ? (
+                <span className="flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  Re-index
+                </span>
+              ) : (
+                'Index Website'
+              )}
+            </Button>
+          </div>
+
+          {/* Progress bar */}
+          {isIndexing && (
+            <div className="mt-3">
+              <div className="h-1.5 bg-[#E8DCC8]/50 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#8B6F47] to-[#C9A86C] rounded-full transition-all duration-150"
+                  style={{ width: `${indexProgress}%` }}
+                />
+              </div>
+              <p className="text-[11px] text-[#8B6F47]/60 mt-1">{indexStatus}</p>
+            </div>
+          )}
+
+          {indexResult && !isIndexing && (
+            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700 flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                Indexed {indexResult.pages} pages into {indexResult.chunks} knowledge chunks. Your agent can now answer questions from your website.
+              </p>
+            </div>
+          )}
+
+          {indexError && (
+            <p className="mt-2 text-sm text-red-500">{indexError}</p>
+          )}
+
+          <p className="text-xs text-[#A67A5B]/50 mt-3">
+            Your agent will use this content to answer caller questions. Re-index anytime to update.
+          </p>
         </CardContent>
       </Card>
 

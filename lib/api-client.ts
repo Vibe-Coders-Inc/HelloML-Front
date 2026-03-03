@@ -126,6 +126,13 @@ class ApiClient {
     });
   }
 
+  async indexWebsite(agentId: number, url: string): Promise<{ success: boolean; document_id: number; chunks_created: number; pages_crawled: number }> {
+    return this.fetch('/rag/documents/website', {
+      method: 'POST',
+      body: JSON.stringify({ agent_id: agentId, url }),
+    });
+  }
+
   async extractWebsiteInfo(url: string): Promise<ExtractedWebsiteInfo> {
     return this.fetch<ExtractedWebsiteInfo>('/extract/website', {
       method: 'POST',
