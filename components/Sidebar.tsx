@@ -34,10 +34,10 @@ function SidebarButton({ icon, label, onClick, variant = 'default', isActive, is
         ${isExpanded ? 'w-full px-3' : 'w-10 justify-center'}
         h-10 rounded-xl
         ${variant === 'accent'
-          ? 'bg-[#5D4E37] text-white hover:bg-[#4A3E2C]'
+          ? 'bg-[#8B6F47] text-white hover:bg-[#7A6240]'
           : isActive
-            ? 'bg-[#5D4E37]/10 text-[#5D4E37]'
-            : 'text-[#8B7355] hover:text-[#5D4E37] hover:bg-[#5D4E37]/5'
+            ? 'bg-[#8B6F47]/10 text-[#8B6F47]'
+            : 'text-[#8B7355] hover:text-[#8B6F47] hover:bg-[#8B6F47]/5'
         }
       `}
       onClick={onClick}
@@ -84,8 +84,8 @@ function SidebarLink({ icon, label, href, isActive, isExpanded, tutorialId }: {
         ${isExpanded ? 'w-full px-3' : 'w-10 justify-center'}
         h-10 rounded-xl text-sm
         ${isActive
-          ? 'bg-[#5D4E37]/10 text-[#5D4E37] font-medium'
-          : 'text-[#8B7355] hover:text-[#5D4E37] hover:bg-[#5D4E37]/5'
+          ? 'bg-[#8B6F47]/10 text-[#8B6F47] font-medium'
+          : 'text-[#8B7355] hover:text-[#8B6F47] hover:bg-[#8B6F47]/5'
         }
       `}
       onClick={handleClick}
@@ -155,7 +155,7 @@ function LogoMark({ isExpanded }: { isExpanded: boolean }) {
       `}
       onClick={() => router.push('/')}
     >
-      <div className="w-8 h-8 rounded-lg bg-[#5D4E37] flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-lg bg-[#8B6F47] flex items-center justify-center flex-shrink-0">
         <Phone className="w-4 h-4 text-white" strokeWidth={2.5} />
       </div>
       <AnimatePresence>
