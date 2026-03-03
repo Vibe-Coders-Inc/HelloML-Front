@@ -204,24 +204,28 @@ export function BusinessCard({ business, onDelete, isDeleting, index }: Business
             </motion.button>
           </div>
 
-          {/* Info rows */}
-          <div className="p-4 space-y-2">
-            {hasAddress && (
-              <a
-                href={mapsLink!}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-2.5 text-sm text-[#6B5D4D] hover:text-[#8B6F47] transition-colors group/addr"
-              >
-                <MapPin className="w-3.5 h-3.5 text-[#8B6F47]/50 group-hover/addr:text-[#8B6F47] flex-shrink-0 transition-colors" />
-                <span className="truncate underline decoration-[#E8DCC8] underline-offset-2 group-hover/addr:decoration-[#8B6F47]/40">{business.address}</span>
-              </a>
-            )}
+          {/* Info rows — fixed height so cards align in grid */}
+          <div className="p-4 space-y-2 min-h-[104px]">
+            <div className="flex items-center gap-2.5 text-sm">
+              <MapPin className="w-3.5 h-3.5 text-[#8B6F47]/50 flex-shrink-0" />
+              {hasAddress ? (
+                <a
+                  href={mapsLink!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="truncate text-[#6B5D4D] hover:text-[#8B6F47] underline decoration-[#E8DCC8] underline-offset-2 hover:decoration-[#8B6F47]/40 transition-colors"
+                >
+                  {business.address}
+                </a>
+              ) : (
+                <span className="text-[#A67A5B]/40">No address</span>
+              )}
+            </div>
 
             <div className="flex items-center gap-2.5 text-sm">
               <Phone className="w-3.5 h-3.5 text-[#8B6F47]/50 flex-shrink-0" />
-              <span className={hasPhone ? 'text-[#5D4E37] font-medium' : 'text-[#A67A5B]/50'}>{phoneStr}</span>
+              <span className={hasPhone ? 'text-[#5D4E37] font-medium' : 'text-[#A67A5B]/40'}>{phoneStr}</span>
             </div>
 
             <div className="flex items-center gap-2.5 text-sm text-[#A67A5B]/50">

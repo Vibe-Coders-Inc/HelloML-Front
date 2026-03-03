@@ -12,8 +12,19 @@ export interface Business {
   phone_number?: string;
   business_email?: string;
   address: string;
+  website?: string;
   stripe_customer_id?: string;
   created_at: string;
+}
+
+export interface ExtractedWebsiteInfo {
+  business_name?: string | null;
+  business_email?: string | null;
+  phone_number?: string | null;
+  address?: string | null;
+  description?: string | null;
+  services?: string[] | null;
+  hours?: string | null;
 }
 
 export interface Agent {
@@ -180,6 +191,7 @@ export interface CreateBusinessRequest {
   address: string;
   phone_number?: string;
   business_email?: string;
+  website?: string;
 }
 
 export interface UpdateBusinessRequest {
@@ -187,6 +199,7 @@ export interface UpdateBusinessRequest {
   address?: string;
   phone_number?: string;
   business_email?: string;
+  website?: string;
 }
 
 export interface CreateAgentRequest {

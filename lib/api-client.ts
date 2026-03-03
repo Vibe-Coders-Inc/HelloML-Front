@@ -21,6 +21,7 @@ import type {
   PortalResponse,
   UsageResponse,
   ToolConnection,
+  ExtractedWebsiteInfo,
 } from './types';
 import { createClient } from './supabase/client';
 
@@ -122,6 +123,13 @@ class ApiClient {
     return this.fetch<Business>(`/business/${businessId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    });
+  }
+
+  async extractWebsiteInfo(url: string): Promise<ExtractedWebsiteInfo> {
+    return this.fetch<ExtractedWebsiteInfo>('/extract/website', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
     });
   }
 

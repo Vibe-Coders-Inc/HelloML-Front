@@ -27,9 +27,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { GlowButton } from '@/components/ui/glow-button';
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
+import { WebsiteExtractor } from '@/components/WebsiteExtractor';
 import { useApp } from '@/lib/context';
 import { useCreateBusiness } from '@/lib/hooks/use-businesses';
 import { useCreateAgent } from '@/lib/hooks/use-agents';
+import type { ExtractedWebsiteInfo } from '@/lib/types';
 
 interface SetupWizardProps {
   isOpen: boolean;
@@ -41,6 +43,7 @@ interface WizardData {
   businessName: string;
   businessEmail: string;
   address: string;
+  website: string;
   areaCode: string;
   agentName: string;
   businessDescription: string;
@@ -54,6 +57,7 @@ const initialData: WizardData = {
   businessName: '',
   businessEmail: '',
   address: '',
+  website: '',
   areaCode: '',
   agentName: '',
   businessDescription: '',
@@ -291,7 +295,7 @@ export function SetupWizard({ isOpen, onClose, onComplete }: SetupWizardProps) {
     setShowLaunchBurst(true);
 
     try {
-      const business = await createBusinessMutation.mutateAsync({ name: data.businessName, business_email: data.businessEmail, address: data.address });
+      const business = await createBusinessMutation.mutateAsync({ name: data.businessName, business_email: data.businessEmail, address: data.address, website: data.website || undefined });
       await createAgentMutation.mutateAsync({ business_id: business.id, area_code: data.areaCode, name: data.agentName || `${data.businessName} Agent`, prompt: data.systemPrompt, greeting: data.greeting, goodbye: data.goodbye });
 
       // Wait for burst animation
@@ -486,11 +490,37 @@ function StepHeader({ stepNumber, title, subtitle }: { stepNumber: number; title
 
 // Step 1: Business Details
 function Step1({ data, updateData, errors, touched, markTouched, onNext }: { data: WizardData; updateData: (u: Partial<WizardData>) => void; errors: Partial<Record<keyof WizardData, string>>; touched: Partial<Record<keyof WizardData, boolean>>; markTouched: (f: keyof WizardData) => void; onNext: () => void }) {
+  const handleWebsiteExtracted = (info: ExtractedWebsiteInfo, url: string) => {
+    const updates: Partial<WizardData> = { website: url };
+    if (info.business_name && !data.businessName) updates.businessName = info.business_name;
+    if (info.business_email && !data.businessEmail) updates.businessEmail = info.business_email;
+    if (info.address && !data.address) updates.address = info.address;
+    if (info.description) {
+      updates.businessDescription = info.description;
+      // Also auto-generate the system prompt
+      const services = info.services?.length ? ` Services include: ${info.services.join(', ')}.` : '';
+      const hours = info.hours ? ` Business hours: ${info.hours}.` : '';
+      updates.systemPrompt = `You are a friendly, professional phone agent for ${info.business_name || data.businessName || 'the business'}. ${info.description}${services}${hours} Answer calls warmly, help callers with questions about the business, take messages when needed, and schedule appointments if requested. Be concise, helpful, and polite at all times.`;
+    }
+    updateData(updates);
+  };
+
   return (
     <div>
       <StepHeader stepNumber={1} title="Business Details" subtitle="Tell us about your business" />
 
       <div className="space-y-5">
+        {/* Website extractor — the magic auto-fill */}
+        <div className="p-4 bg-gradient-to-r from-[#8B6F47]/5 to-[#C9A86C]/5 rounded-xl border border-[#E8DCC8]/80">
+          <WebsiteExtractor
+            onExtracted={handleWebsiteExtracted}
+            initialUrl={data.website}
+          />
+          <p className="text-[11px] text-[#A67A5B]/50 mt-2">
+            Enter your website and we will auto-fill your business details
+          </p>
+        </div>
+
         <div>
           <Label className="text-[#5D4E37] font-medium">Business Name</Label>
           <Input
@@ -781,7 +811,7 @@ function Step6({ data, onEdit, onBack, onSubmit, isSubmitting, launchButtonRef }
       <StepHeader stepNumber={6} title="Review & Launch" subtitle="Make sure everything looks good" />
 
       <div className="space-y-3">
-        <ReviewRow icon={Building2} label="Business" value={data.businessName} sub={data.businessEmail} onEdit={() => onEdit(1)} />
+        <ReviewRow icon={Building2} label="Business" value={data.businessName} sub={[data.businessEmail, data.website].filter(Boolean).join(' | ') || undefined} onEdit={() => onEdit(1)} />
         <ReviewRow icon={MapPin} label="Location" value={data.address} onEdit={() => onEdit(2)} />
         <ReviewRow icon={Phone} label="Phone" value={`(${data.areaCode}) XXX-XXXX`} sub="Will be provisioned" onEdit={() => onEdit(3)} />
         <ReviewRow icon={Bot} label="Agent" value={data.systemPrompt.length > 60 ? data.systemPrompt.slice(0, 60) + '...' : data.systemPrompt} onEdit={() => onEdit(4)} />

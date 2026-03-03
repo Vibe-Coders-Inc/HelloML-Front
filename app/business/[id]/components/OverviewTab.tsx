@@ -2,10 +2,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Phone, Activity, TrendingUp, Bot, PhoneCall } from 'lucide-react';
+import { Phone, Activity, TrendingUp, Bot, PhoneCall, Globe } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useConversationStats, useConversationsByAgent } from '@/lib/hooks/use-conversations';
-import type { Business, AgentWithPhone, Conversation } from '@/lib/types';
+import { useUpdateBusiness } from '@/lib/hooks/use-businesses';
+import { WebsiteExtractor } from '@/components/WebsiteExtractor';
+import type { Business, AgentWithPhone, Conversation, ExtractedWebsiteInfo } from '@/lib/types';
 
 interface OverviewTabProps {
   business: Business;
@@ -21,6 +23,7 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
     { limit: 1000, offset: 0 }
   );
 
+  const updateBusiness = useUpdateBusiness();
   const phoneNumber = agent?.phone_number;
   const totalCalls = stats?.total_conversations || 0;
   const completedCalls = stats?.completed || 0;
@@ -237,7 +240,7 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
           <CardTitle className="text-[#8B6F47]">Business Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <h4 className="font-medium text-sm text-[#A67A5B]">Business Name</h4>
               <p className="text-sm text-[#8B6F47]">{business.name}</p>
@@ -248,13 +251,38 @@ export default function OverviewTab({ business, agent }: OverviewTabProps) {
             </div>
             <div>
               <h4 className="font-medium text-sm text-[#A67A5B]">Address</h4>
-              <p className="text-sm text-[#8B6F47]">{business.address}</p>
+              <p className="text-sm text-[#8B6F47]">{business.address || 'Not provided'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-sm text-[#A67A5B]">Website</h4>
+              {business.website ? (
+                <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#8B6F47] hover:underline flex items-center gap-1">
+                  <Globe className="w-3 h-3" />
+                  {business.website}
+                </a>
+              ) : (
+                <p className="text-sm text-[#A67A5B]/50">Not provided</p>
+              )}
             </div>
             <div>
               <h4 className="font-medium text-sm text-[#A67A5B]">Created</h4>
               <p className="text-sm text-[#8B6F47]">{formatDate(business.created_at)}</p>
             </div>
           </div>
+
+          {/* Website auto-fill */}
+          {!business.website && (
+            <div className="pt-4 border-t border-[#E8DCC8]/40">
+              <WebsiteExtractor
+                onExtracted={(info: ExtractedWebsiteInfo, url: string) => {
+                  const updates: Record<string, string | undefined> = { website: url };
+                  if (info.business_email && !business.business_email) updates.business_email = info.business_email;
+                  if (info.address && !business.address) updates.address = info.address;
+                  updateBusiness.mutate({ businessId: business.id, data: updates });
+                }}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
