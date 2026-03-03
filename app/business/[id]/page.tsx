@@ -1346,7 +1346,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                   clearInterval(interval);
                                   setWebsiteProgress(100);
                                   setWebsiteResult({ pages: 0, chunks: 0 });
-                                  setTimeout(() => setWebsiteProgress(0), 2000);
+                                  setTimeout(() => { setWebsiteProgress(0); setWebsiteResult(null); }, 2500);
                                 } catch (err) {
                                   clearInterval(interval);
                                   setWebsiteProgress(0);
@@ -1356,23 +1356,22 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 }
                               }}
                               disabled={isIndexingWebsite}
+                              title="Fetch latest content from website"
                               className="text-[11px] text-[#8B6F47] hover:text-[#5D4E37] transition-colors flex items-center gap-1 shrink-0 disabled:opacity-50"
                             >
                               <RefreshCw className={`w-3 h-3 ${isIndexingWebsite ? 'animate-spin' : ''}`} />
                             </button>
                           </div>
-                          {(isIndexingWebsite || websiteProgress > 0) && (
-                            <div className="h-1 bg-[#E8DCC8]/40 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-[#8B6F47] to-[#C9A86C] rounded-full transition-all duration-200 ease-out"
-                                style={{ width: `${websiteProgress}%` }}
-                              />
+                          {isIndexingWebsite && (
+                            <div className="space-y-1">
+                              <div className="h-1 bg-[#E8DCC8]/40 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-[#8B6F47] to-[#C9A86C] rounded-full transition-all duration-200 ease-out"
+                                  style={{ width: `${websiteProgress}%` }}
+                                />
+                              </div>
+                              <p className="text-[10px] text-[#8B6F47]/60">Fetching latest content...</p>
                             </div>
-                          )}
-                          {websiteResult && !isIndexingWebsite && websiteProgress === 0 && (
-                            <p className="text-[10px] text-emerald-600 flex items-center gap-1">
-                              <Check className="w-3 h-3" /> Up to date
-                            </p>
                           )}
                         </div>
                       ) : (
