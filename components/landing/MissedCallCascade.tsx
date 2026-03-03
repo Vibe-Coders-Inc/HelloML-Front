@@ -81,7 +81,7 @@ export function MissedCallCascade() {
   }
 
   return (
-    <div ref={containerRef} className="flex items-center justify-center gap-2 sm:gap-3 max-w-[600px] mx-auto mt-8">
+    <div ref={containerRef} className="flex flex-wrap items-center justify-center gap-3 sm:gap-3 max-w-[320px] sm:max-w-[600px] mx-auto mt-8">
       {Array.from({ length: 10 }).map((_, i) => {
         const isKept = i === 4 || i === 8;
         return (
@@ -91,13 +91,13 @@ export function MissedCallCascade() {
             className="relative flex items-center justify-center"
           >
             <div
-              className="phone-icon w-8 h-8 sm:w-10 sm:h-10"
+              className="phone-icon w-10 h-10 sm:w-10 sm:h-10"
               style={{ color: isKept ? '#8B6F47' : '#8B6F47' }}
             >
               <PhoneSVG />
             </div>
             <svg
-              className="phone-x absolute inset-0 w-8 h-8 sm:w-10 sm:h-10 opacity-0"
+              className="phone-x absolute inset-0 w-10 h-10 sm:w-10 sm:h-10 opacity-0"
               viewBox="0 0 32 32"
               fill="none"
             >

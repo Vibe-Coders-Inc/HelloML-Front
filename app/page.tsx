@@ -20,7 +20,7 @@ import { FaceGearMorph } from '@/components/landing/FaceGearMorph';
 
 function Slide({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`min-h-screen flex items-center justify-center px-6 overflow-hidden relative ${className}`}>
+    <section className={`min-h-[100svh] flex items-center justify-center px-4 sm:px-6 py-16 md:py-20 overflow-hidden relative ${className}`}>
       {children}
     </section>
   );
@@ -68,7 +68,7 @@ export default function LandingPage() {
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F3]/80 backdrop-blur-xl border-b border-[#E8DCC8]/30">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-3 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity shrink-0">
             <div className="scale-[0.65] sm:scale-[0.8] md:scale-100 origin-left"><Logo size="small" lightMode /></div>
           </Link>
@@ -82,14 +82,14 @@ export default function LandingPage() {
       </nav>
 
       {/* ═══ 1. HERO ═══ */}
-      <Slide className="bg-[#FAF8F3] pt-20">
+      <Slide className="bg-[#FAF8F3] !pt-24 sm:!pt-28 md:!pt-20">
         <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 50, scale: 0.95, filter: 'blur(12px)' }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
               transition={{ duration: 1.2, ease }}
-              className="text-[2.5rem] sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 leading-[1.05]"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5 leading-[1.05]"
             >
               <span className="text-[#8B6F47]/40">AI that </span>
               <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]">answers</span>
@@ -98,19 +98,19 @@ export default function LandingPage() {
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8, ease }}
-              className="text-lg md:text-xl text-[#8B7355] mb-6 max-w-lg mx-auto lg:mx-0">
-              Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47] text-2xl">$29</span>/mo.
+              className="text-base sm:text-lg md:text-xl text-[#8B7355] mb-6 max-w-lg mx-auto lg:mx-0">
+              Built for contractors, clinics, and small businesses. Starting at <span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47] text-xl sm:text-2xl">$29</span>/mo.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6, ease }}
-              className="flex flex-col sm:flex-row items-center lg:items-start gap-3 mb-3">
-              <Link href="/demo">
-                <Button size="lg" className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-6 text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
+              className="flex flex-col sm:flex-row items-center lg:items-start gap-3 mb-3 w-full sm:w-auto">
+              <Link href="/demo" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 sm:py-6 text-base sm:text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
                   Hear It Live <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link href="/auth?mode=signup">
-                <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">Start Free</Button>
+              <Link href="/auth?mode=signup" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-8 py-5 sm:py-6 text-base sm:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">Start Free</Button>
               </Link>
             </motion.div>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-xs text-[#A67A5B]/50">No credit card required</motion.p>
@@ -118,10 +118,10 @@ export default function LandingPage() {
             {/* Social proof — DARKER */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-8 pt-5 border-t border-[#E8DCC8]/40">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#8B6F47]/70 font-semibold mb-3">Built by engineers from</p>
-              <div className="flex items-center justify-center lg:justify-start gap-8">
-                <svg className="h-5 w-auto opacity-40" viewBox="0 0 170 170" fill="#8B6F47"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.28 2.13-9.54 3.24-12.8 3.35-4.92.21-9.84-1.96-14.75-6.52-3.13-2.73-7.04-7.41-11.75-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.2-5.21-20.07-5.21-29.59 0-10.95 2.36-20.4 7.09-28.32a41.66 41.66 0 0 1 14.84-15.07 39.82 39.82 0 0 1 20.07-5.65c3.92 0 9.06 1.21 15.43 3.59 6.35 2.39 10.42 3.6 12.22 3.6 1.35 0 5.92-1.42 13.67-4.24 7.32-2.62 13.5-3.7 18.56-3.27 13.71 1.11 24.02 6.52 30.86 16.27-12.27 7.44-18.33 17.86-18.2 31.22.12 10.41 3.89 19.07 11.28 25.94 3.35 3.18 7.1 5.64 11.25 7.39-.9 2.62-1.85 5.13-2.87 7.54zM119.04 7.01c0 8.16-2.98 15.78-8.92 22.82-7.17 8.4-15.85 13.25-25.25 12.49a25.4 25.4 0 0 1-.19-3.09c0-7.84 3.41-16.22 9.47-23.08 3.02-3.47 6.87-6.35 11.55-8.64 4.66-2.26 9.07-3.51 13.23-3.73.12 1.08.17 2.16.17 3.23h-.06z"/></svg>
+              <div className="flex items-center justify-center lg:justify-start gap-5 sm:gap-8">
+                <svg className="h-4 sm:h-5 w-auto opacity-40" viewBox="0 0 170 170" fill="#8B6F47"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.28 2.13-9.54 3.24-12.8 3.35-4.92.21-9.84-1.96-14.75-6.52-3.13-2.73-7.04-7.41-11.75-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.2-5.21-20.07-5.21-29.59 0-10.95 2.36-20.4 7.09-28.32a41.66 41.66 0 0 1 14.84-15.07 39.82 39.82 0 0 1 20.07-5.65c3.92 0 9.06 1.21 15.43 3.59 6.35 2.39 10.42 3.6 12.22 3.6 1.35 0 5.92-1.42 13.67-4.24 7.32-2.62 13.5-3.7 18.56-3.27 13.71 1.11 24.02 6.52 30.86 16.27-12.27 7.44-18.33 17.86-18.2 31.22.12 10.41 3.89 19.07 11.28 25.94 3.35 3.18 7.1 5.64 11.25 7.39-.9 2.62-1.85 5.13-2.87 7.54zM119.04 7.01c0 8.16-2.98 15.78-8.92 22.82-7.17 8.4-15.85 13.25-25.25 12.49a25.4 25.4 0 0 1-.19-3.09c0-7.84 3.41-16.22 9.47-23.08 3.02-3.47 6.87-6.35 11.55-8.64 4.66-2.26 9.07-3.51 13.23-3.73.12 1.08.17 2.16.17 3.23h-.06z"/></svg>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/disney-logo.svg" alt="Disney" className="h-5 w-auto opacity-40" loading="lazy" style={{ filter: 'sepia(1) saturate(3) brightness(0.4) hue-rotate(350deg)' }} />
+                <img src="/disney-logo.svg" alt="Disney" className="h-4 sm:h-5 w-auto opacity-40" loading="lazy" style={{ filter: 'sepia(1) saturate(3) brightness(0.4) hue-rotate(350deg)' }} />
                 <div className="flex flex-col items-center opacity-40">
                   <span className="text-[8px] font-bold tracking-wider text-[#8B6F47] leading-tight">LAWRENCE LIVERMORE</span>
                   <span className="text-[6px] font-medium tracking-widest text-[#8B6F47] leading-tight">NATIONAL LABORATORY</span>
@@ -130,10 +130,10 @@ export default function LandingPage() {
             </motion.div>
           </div>
 
-          <motion.div initial={{ opacity: 0, x: 60, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }}
+          <motion.div initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1, delay: 0.3, ease }} className="relative flex items-center justify-center">
-            <div className="absolute w-96 h-96 bg-[#8B6F47]/8 rounded-full blur-[100px]" />
-            <div className="relative z-10"><HeroCallCard /></div>
+            <div className="absolute w-64 h-64 sm:w-96 sm:h-96 bg-[#8B6F47]/8 rounded-full blur-[100px]" />
+            <div className="relative z-10 w-full max-w-[520px]"><HeroCallCard /></div>
           </motion.div>
         </div>
       </Slide>
@@ -147,10 +147,10 @@ export default function LandingPage() {
                 <CountUp target={80} suffix="%" />
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#8B6F47] mb-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#8B6F47] mb-3 sm:mb-4">
               of callers won&apos;t leave a voicemail.
             </h2>
-            <p className="text-lg md:text-xl text-[#8B7355] max-w-xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-[#8B7355] max-w-xl mx-auto">
               They call your competitor instead. Every missed call is lost revenue.
             </p>
             <MissedCallCascade />
@@ -159,9 +159,9 @@ export default function LandingPage() {
       </Slide>
 
       {/* ═══ 3. HOW IT WORKS — right after problem, shows the fix ═══ */}
-      <Slide className="bg-[#FAF8F3]">
+      <Slide className="bg-[#FAF8F3] !min-h-0 md:!min-h-[100svh]">
         <div className="max-w-5xl mx-auto w-full">
-          <motion.h2 {...fadeUp} className="text-3xl sm:text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-10 md:mb-16">
+          <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-[#8B6F47] text-center mb-8 md:mb-16">
             Up and running in{' '}<span style={{ fontFamily: 'Borel, cursive' }}>two minutes.</span>
           </motion.h2>
 
@@ -170,7 +170,7 @@ export default function LandingPage() {
             {/* Connecting line */}
             <div className="hidden md:block absolute top-[40px] md:top-[60px] left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-[#8B6F47]/20 via-[#8B6F47]/40 to-[#8B6F47]/20" />
 
-            <div className="grid md:grid-cols-3 gap-12 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
               {[
                 {
                   num: '1',
@@ -265,18 +265,18 @@ export default function LandingPage() {
       {/* ═══ 4. BOLD STATEMENT — credibility builder ═══ */}
       <Slide className="bg-[#FAF8F3]">
         <div className="max-w-6xl mx-auto w-full">
-          <div className="flex flex-col items-center gap-2 md:gap-4">
-            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeLeft} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-lg sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+          <div className="flex flex-col items-center gap-1 sm:gap-2 md:gap-4">
+            <div className="flex items-baseline gap-2 sm:gap-6 md:gap-10">
+              <motion.span {...fadeLeft} className="text-[2.5rem] sm:text-6xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">Talks</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.3, duration: 0.8 }} className="text-base sm:text-2xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
+            <motion.span {...fadeUp} transition={{ delay: 0.15, duration: 0.7, ease }} className="text-[2.5rem] sm:text-6xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">human.</motion.span>
             <FaceGearMorph />
-            <div className="flex items-baseline gap-3 sm:gap-6 md:gap-10">
-              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
-              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-lg sm:text-3xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
+            <div className="flex items-baseline gap-2 sm:gap-6 md:gap-10">
+              <motion.span {...fadeRight} transition={{ delay: 0.3, duration: 0.7, ease }} className="text-[2.5rem] sm:text-6xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47]/25 leading-none tracking-tight">Works</motion.span>
+              <motion.span initial={{ opacity: 0 }} whileInView={{ opacity: 0.35 }} viewport={vp} transition={{ delay: 0.5, duration: 0.8 }} className="text-base sm:text-2xl md:text-4xl lg:text-5xl text-[#8B6F47] leading-none" style={{ fontFamily: 'Borel, cursive' }}>like a</motion.span>
             </div>
-            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-4xl sm:text-7xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
+            <motion.span {...fadeUp} transition={{ delay: 0.45, duration: 0.7, ease }} className="text-[2.5rem] sm:text-6xl md:text-[110px] lg:text-[140px] font-bold text-[#8B6F47] leading-none tracking-tight">machine.</motion.span>
           </div>
         </div>
       </Slide>
@@ -284,7 +284,7 @@ export default function LandingPage() {
       {/* ═══ 5. DASHBOARD — proof ═══ */}
       <Slide className="bg-[#F5F0E8]">
         <div className="max-w-5xl mx-auto w-full">
-          <motion.h2 {...fadeUp} className="text-3xl md:text-5xl font-bold text-[#8B6F47] text-center mb-4">
+          <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl md:text-5xl font-bold text-[#8B6F47] text-center mb-4">
             Every call. Every transcript. Every booking.
           </motion.h2>
           <motion.p {...fadeUp} className="text-center text-[#8B7355] mb-8 text-base md:text-lg max-w-2xl mx-auto">
@@ -303,9 +303,9 @@ export default function LandingPage() {
       </Slide>
 
       {/* ═══ 6. FEATURES — bento grid ═══ */}
-      <Slide className="bg-[#F0EBE1]">
+      <Slide className="bg-[#F0EBE1] !min-h-0 md:!min-h-[100svh]">
         <div className="max-w-5xl mx-auto w-full">
-          <motion.h2 {...fadeUp} className="text-4xl md:text-6xl font-bold text-[#8B6F47] text-center mb-12">
+          <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-[#8B6F47] text-center mb-8 md:mb-12">
             Everything you need.{' '}<span style={{ fontFamily: 'Borel, cursive' }} className="text-[#8B6F47]/50">Nothing you don&apos;t.</span>
           </motion.h2>
 
@@ -362,18 +362,18 @@ export default function LandingPage() {
       </Slide>
 
       {/* ═══ 7. DARK SECTION ═══ */}
-      <section className="min-h-screen flex items-center justify-center px-6 bg-[#1a1a1a] relative overflow-hidden">
+      <section className="min-h-[100svh] flex items-center justify-center px-4 sm:px-6 py-16 md:py-20 bg-[#1a1a1a] relative overflow-hidden">
         <NoiseOverlay opacity={0.06} />
         <div className="max-w-5xl mx-auto w-full relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div>
-              <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#FAF8F3] mb-4 leading-tight">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+            <div className="text-center lg:text-left">
+              <motion.h2 {...fadeUp} className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-[#FAF8F3] mb-4 leading-tight">
                 Works with the tools you{' '}<span style={{ fontFamily: 'Borel, cursive' }} className="text-[#D4A96A]">already</span>{' '}use.
               </motion.h2>
               <motion.p {...fadeUp} className="text-base md:text-lg text-[#FAF8F3]/40 mb-10">
                 Connects to your calendar, docs, and workflows in seconds.
               </motion.p>
-              <motion.div {...scaleIn} className="flex items-center gap-6 md:gap-10">
+              <motion.div {...scaleIn} className="flex items-center justify-center lg:justify-start gap-6 md:gap-10">
                 {integrations.map((logo, i) => (
                   <motion.div key={i} {...fadeUp} className="flex flex-col items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -391,7 +391,7 @@ export default function LandingPage() {
               ].map((s, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={vp}
                   transition={{ delay: i * 0.15, duration: 0.6, ease }} className="border-l-2 border-[#D4A96A]/30 pl-6">
-                  <div className="text-4xl md:text-5xl font-bold text-[#FAF8F3]">{s.val}</div>
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#FAF8F3]">{s.val}</div>
                   <div className="text-sm text-[#FAF8F3]/60 font-medium mt-1">{s.label}</div>
                   <div className="text-xs text-[#FAF8F3]/30 mt-0.5">{s.desc}</div>
                 </motion.div>
@@ -407,17 +407,17 @@ export default function LandingPage() {
           {/* Giant price as the hero element */}
           <div className="mb-8">
             <div className="flex items-baseline justify-center gap-2">
-              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[64px] sm:text-[100px] md:text-[130px] lg:text-[160px] font-bold text-[#8B6F47] leading-none">$29</span>
+              <span style={{ fontFamily: 'Borel, cursive' }} className="text-[56px] sm:text-[80px] md:text-[130px] lg:text-[160px] font-bold text-[#8B6F47] leading-none">$29</span>
               <div className="text-left">
-                <span className="block text-xl text-[#8B7355]">per agent</span>
-                <span className="block text-xl text-[#8B7355]">per month</span>
+                <span className="block text-base sm:text-lg md:text-xl text-[#8B7355]">per agent</span>
+                <span className="block text-base sm:text-lg md:text-xl text-[#8B7355]">per month</span>
               </div>
             </div>
             <p className="text-sm uppercase tracking-[0.25em] text-[#8B6F47]/50 font-semibold mt-8">One plan. Everything included.</p>
           </div>
 
           {/* Feature pills */}
-          <motion.div {...fadeUp} className="flex flex-wrap items-center justify-center gap-3 mb-10">
+          <motion.div {...fadeUp} className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
             {[
               '200 minutes included',
               '$0.10/min after',
@@ -427,7 +427,7 @@ export default function LandingPage() {
               'Custom voices',
               'No contracts',
             ].map((item) => (
-              <span key={item} className="inline-flex items-center gap-1.5 px-4 py-2 bg-white rounded-full border border-[#E8DCC8] text-sm text-[#3D3425] shadow-sm">
+              <span key={item} className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-white rounded-full border border-[#E8DCC8] text-xs sm:text-sm text-[#3D3425] shadow-sm">
                 <Check className="w-3.5 h-3.5 text-[#8B6F47]" />
                 {item}
               </span>
@@ -435,14 +435,14 @@ export default function LandingPage() {
           </motion.div>
 
           {/* CTA */}
-          <motion.div {...fadeUp} className="flex flex-col sm:flex-row items-center gap-3 justify-center">
-            <Link href="/auth?mode=signup">
-              <Button size="lg" className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-10 py-6 text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
+          <motion.div {...fadeUp} className="flex flex-col sm:flex-row items-center gap-3 justify-center w-full sm:w-auto">
+            <Link href="/auth?mode=signup" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-10 py-6 text-base sm:text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
                 Start Free <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/demo">
-              <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">
+            <Link href="/demo" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-10 py-6 text-base sm:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">
                 Try the Live Demo
               </Button>
             </Link>
@@ -452,8 +452,8 @@ export default function LandingPage() {
       </Slide>
 
       {/* ── FOOTER ── */}
-      <footer className="py-10 px-6 border-t border-[#E8DCC8]/30 bg-[#F0EBE1]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="py-8 sm:py-10 px-4 sm:px-6 border-t border-[#E8DCC8]/30 bg-[#F0EBE1]">
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 md:flex-row md:justify-between">
           <Logo size="small" lightMode />
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-[#8B7355]">
             <Link href="/demo" className="hover:text-[#8B6F47] transition-colors">Demo</Link>
