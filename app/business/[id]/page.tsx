@@ -162,8 +162,6 @@ const integrations = [
   { id: 'google-calendar', name: 'Google Calendar', description: 'Schedule appointments', connected: false },
   { id: 'outlook-calendar', name: 'Outlook', description: 'Sync with Microsoft 365', connected: false },
   { id: 'google-drive', name: 'Google Drive', description: 'Access docs and FAQs', connected: false },
-  { id: 'notion', name: 'Notion', description: 'Pull from workspace', connected: false },
-  { id: 'dropbox', name: 'Dropbox', description: 'Access shared files', connected: false },
   { id: 'knowledge-base', name: 'Knowledge Base', description: 'Upload documents', connected: true, isInternal: true },
 ];
 
@@ -171,8 +169,6 @@ const integrationLogos: Record<string, string> = {
   'google-calendar': 'https://img.icons8.com/color/96/google-calendar--v1.png',
   'outlook-calendar': 'https://img.icons8.com/color/96/microsoft-outlook-2019--v2.png',
   'google-drive': 'https://img.icons8.com/color/96/google-drive--v1.png',
-  'notion': 'https://img.icons8.com/ios-filled/100/000000/notion.png',
-  'dropbox': 'https://img.icons8.com/color/96/dropbox.png',
   'knowledge-base': '', // Uses custom icon
 };
 
@@ -1324,108 +1320,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   </div>
                 </div>
 
-                {/* Connected Tools */}
-                <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
-                  <h3 className="text-sm font-semibold text-[#5D4E37] mb-1">Connected Tools</h3>
-                  <p className="text-xs text-[#8B7355] mb-4">Connect tools to help your agent assist customers better</p>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {integrations.map((int) => {
-                      const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
-                      const isOAuthSupported = int.id === 'google-calendar';
-                      const connectionInfo = connectionsByProvider[int.id];
-
-                      return (
-                        <div
-                          key={int.id}
-                          className={`p-4 rounded-xl border text-center transition-colors ${
-                            isConnected
-                              ? 'border-emerald-200 bg-emerald-50/50'
-                              : isOAuthSupported
-                                ? 'border-[#E8DCC8] bg-[#FDFCFA] hover:border-[#8B6F47]/50 cursor-pointer'
-                                : 'border-[#E8DCC8] bg-[#FDFCFA] opacity-60'
-                          }`}
-                          onClick={() => {
-                            if (int.id === 'knowledge-base') {
-                              window.history.pushState(null, '', '#documents');
-                              window.dispatchEvent(new HashChangeEvent('hashchange'));
-                            }
-                          }}
-                        >
-                          {int.id === 'knowledge-base' ? (
-                            <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
-                              <BookOpen className="w-5 h-5 text-[#8B6F47]" />
-                            </div>
-                          ) : (
-                            <img
-                              src={integrationLogos[int.id]}
-                              alt={int.name}
-                              className="w-10 h-10 mx-auto mb-2"
-                            />
-                          )}
-                          <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
-                          <p className="text-[10px] text-[#8B7355] mt-0.5 mb-3">
-                            {isConnected && connectionInfo?.account_email
-                              ? connectionInfo.account_email
-                              : int.description}
-                          </p>
-                          {isConnected ? (
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-center gap-1 text-xs text-emerald-600 font-medium">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                Connected
-                              </div>
-                              {!int.isInternal && (
-                                <div className="flex items-center justify-center gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openToolSettings(int.id);
-                                    }}
-                                    className="text-[10px] text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-0.5"
-                                  >
-                                    <Settings2 className="w-3 h-3" />
-                                    Settings
-                                  </button>
-                                  <span className="text-[#E8DCC8]">|</span>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setDisconnectProvider(int.id);
-                                    }}
-                                    className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
-                                  >
-                                    Disconnect
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          ) : isOAuthSupported ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full h-7 text-xs"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, 'google');
-                                  window.location.href = auth_url;
-                                } catch (err) {
-                                  console.error('Failed to get auth URL:', err);
-                                }
-                              }}
-                            >
-                              Connect
-                            </Button>
-                          ) : (
-                            <span className="text-[10px] text-[#8B7355]">Coming Soon</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 {/* Website Knowledge Base */}
                 <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
                   <div className="flex items-center gap-3 mb-1">
@@ -1540,6 +1434,109 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     Your agent will search this content to answer caller questions. Re-index anytime to update.
                   </p>
                 </div>
+
+                {/* Connected Tools */}
+                <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
+                  <h3 className="text-sm font-semibold text-[#5D4E37] mb-1">Connected Tools</h3>
+                  <p className="text-xs text-[#8B7355] mb-4">Connect tools to help your agent assist customers better</p>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {integrations.map((int) => {
+                      const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
+                      const isOAuthSupported = int.id === 'google-calendar';
+                      const connectionInfo = connectionsByProvider[int.id];
+
+                      return (
+                        <div
+                          key={int.id}
+                          className={`p-4 rounded-xl border text-center transition-colors ${
+                            isConnected
+                              ? 'border-emerald-200 bg-emerald-50/50'
+                              : isOAuthSupported
+                                ? 'border-[#E8DCC8] bg-[#FDFCFA] hover:border-[#8B6F47]/50 cursor-pointer'
+                                : 'border-[#E8DCC8] bg-[#FDFCFA] opacity-60'
+                          }`}
+                          onClick={() => {
+                            if (int.id === 'knowledge-base') {
+                              window.history.pushState(null, '', '#documents');
+                              window.dispatchEvent(new HashChangeEvent('hashchange'));
+                            }
+                          }}
+                        >
+                          {int.id === 'knowledge-base' ? (
+                            <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
+                              <BookOpen className="w-5 h-5 text-[#8B6F47]" />
+                            </div>
+                          ) : (
+                            <img
+                              src={integrationLogos[int.id]}
+                              alt={int.name}
+                              className="w-10 h-10 mx-auto mb-2"
+                            />
+                          )}
+                          <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
+                          <p className="text-[10px] text-[#8B7355] mt-0.5 mb-3">
+                            {isConnected && connectionInfo?.account_email
+                              ? connectionInfo.account_email
+                              : int.description}
+                          </p>
+                          {isConnected ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-center gap-1 text-xs text-emerald-600 font-medium">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Connected
+                              </div>
+                              {!int.isInternal && (
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openToolSettings(int.id);
+                                    }}
+                                    className="text-[10px] text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-0.5"
+                                  >
+                                    <Settings2 className="w-3 h-3" />
+                                    Settings
+                                  </button>
+                                  <span className="text-[#E8DCC8]">|</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setDisconnectProvider(int.id);
+                                    }}
+                                    className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
+                                  >
+                                    Disconnect
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ) : isOAuthSupported ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full h-7 text-xs"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, 'google');
+                                  window.location.href = auth_url;
+                                } catch (err) {
+                                  console.error('Failed to get auth URL:', err);
+                                }
+                              }}
+                            >
+                              Connect
+                            </Button>
+                          ) : (
+                            <span className="text-[10px] text-[#8B7355]">Coming Soon</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </>
             ) : (
               <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-12 text-center">

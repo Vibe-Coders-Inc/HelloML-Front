@@ -95,8 +95,6 @@ const integrations = [
   { id: 'google-calendar', name: 'Google Calendar', description: 'Schedule appointments and check availability' },
   { id: 'outlook-calendar', name: 'Outlook', description: 'Sync with Microsoft 365 calendar' },
   { id: 'google-drive', name: 'Google Drive', description: 'Access docs, FAQs, and files' },
-  { id: 'notion', name: 'Notion', description: 'Pull from your workspace' },
-  { id: 'dropbox', name: 'Dropbox', description: 'Access shared documents' },
   { id: 'custom-docs', name: 'Upload Files', description: 'PDFs, Word docs, text files' },
 ];
 
@@ -120,20 +118,6 @@ const BrandLogos: Record<string, ReactNode> = {
     <img
       src="https://img.icons8.com/color/96/google-drive--v1.png"
       alt="Google Drive"
-      className="w-10 h-10"
-    />
-  ),
-  'notion': (
-    <img
-      src="https://img.icons8.com/ios-filled/100/000000/notion.png"
-      alt="Notion"
-      className="w-10 h-10"
-    />
-  ),
-  'dropbox': (
-    <img
-      src="https://img.icons8.com/color/96/dropbox.png"
-      alt="Dropbox"
       className="w-10 h-10"
     />
   ),
