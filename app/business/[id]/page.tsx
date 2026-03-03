@@ -9,7 +9,7 @@ import {
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
   BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2,
-  Volume2, Square, Globe
+  Volume2, Square, Globe, RefreshCw
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -352,6 +352,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [isChangingPhone, setIsChangingPhone] = useState(false);
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month' | 'all'>('week');
   const [websiteUrl, setWebsiteUrl] = useState('');
+  const [websiteUrlInitialized, setWebsiteUrlInitialized] = useState(false);
   const [isIndexingWebsite, setIsIndexingWebsite] = useState(false);
   const [websiteProgress, setWebsiteProgress] = useState(0);
   const [websiteStatus, setWebsiteStatus] = useState('');
@@ -412,6 +413,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     }
     return map;
   }, [connectionsData]);
+
+  // Initialize website URL from business data
+  useEffect(() => {
+    if (business?.website && !websiteUrlInitialized) {
+      setWebsiteUrl(business.website);
+      setWebsiteUrlInitialized(true);
+    }
+  }, [business?.website, websiteUrlInitialized]);
 
   // Handle checkout success/canceled from URL params
   useEffect(() => {
@@ -1206,7 +1215,21 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setIsAgentEditing(!isAgentEditing)}
+                      onClick={async () => {
+                        if (isAgentEditing && websiteUrl.trim() && agent) {
+                          // Save website URL to business
+                          try {
+                            await apiClient.updateBusiness(businessId, { website: websiteUrl.trim() });
+                            // Auto-index in background
+                            setIsIndexingWebsite(true);
+                            apiClient.indexWebsite(agent.id, websiteUrl.trim())
+                              .then(() => setWebsiteResult({ pages: 0, chunks: 0 }))
+                              .catch(() => {})
+                              .finally(() => setIsIndexingWebsite(false));
+                          } catch {}
+                        }
+                        setIsAgentEditing(!isAgentEditing);
+                      }}
                     >
                       {isAgentEditing ? (
                         <>
@@ -1265,7 +1288,47 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         disabled={!isAgentEditing}
                       />
                     </div>
-                    {/* Temperature hidden — defaulted to 0.7 for reliability */}
+                    <div className="p-4 bg-[#F5F0E8]/30 rounded-xl">
+                      <p className="text-xs text-[#8B7355] mb-2">Website</p>
+                      {isAgentEditing ? (
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            value={websiteUrl}
+                            onChange={(e) => setWebsiteUrl(e.target.value)}
+                            placeholder="www.yourbusiness.com"
+                            className="flex-1 h-8 px-2 text-sm rounded-md border border-[#D8CBA9] bg-white text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:outline-none focus:ring-1 focus:ring-[#8B6F47]/30"
+                          />
+                        </div>
+                      ) : websiteUrl ? (
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-[#5D4E37] truncate max-w-[140px]">{websiteUrl.replace(/^https?:\/\//, '')}</p>
+                          <button
+                            onClick={async () => {
+                              if (!agent || !websiteUrl.trim()) return;
+                              setIsIndexingWebsite(true);
+                              setWebsiteError(null);
+                              setWebsiteResult(null);
+                              try {
+                                await apiClient.indexWebsite(agent.id, websiteUrl.trim());
+                                setWebsiteResult({ pages: 0, chunks: 0 });
+                              } catch (err) {
+                                setWebsiteError(err instanceof Error ? err.message : 'Failed to refresh');
+                              } finally {
+                                setIsIndexingWebsite(false);
+                              }
+                            }}
+                            disabled={isIndexingWebsite}
+                            className="text-xs text-[#8B6F47] hover:text-[#5D4E37] hover:underline transition-colors flex items-center gap-1"
+                          >
+                            {isIndexingWebsite ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            {isIndexingWebsite ? 'Refreshing' : 'Refresh'}
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-[#8B7355]/50 italic">Not set</p>
+                      )}
+                      {websiteError && <p className="text-[10px] text-red-500 mt-1">{websiteError}</p>}
+                    </div>
                   </div>
 
                   {/* Greeting */}
@@ -1318,121 +1381,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       </p>
                     )}
                   </div>
-                </div>
-
-                {/* Website Knowledge Base */}
-                <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
-                  <div className="flex items-center gap-3 mb-1">
-                    <Globe className="w-5 h-5 text-[#8B6F47]" />
-                    <h3 className="text-sm font-semibold text-[#5D4E37]">Website Knowledge Base</h3>
-                  </div>
-                  <p className="text-xs text-[#8B7355] mb-4">
-                    Index your website so your agent can answer questions about your business during calls
-                  </p>
-
-                  <div className="flex gap-2">
-                    <input
-                      value={websiteUrl}
-                      onChange={(e) => {
-                        setWebsiteUrl(e.target.value);
-                        setWebsiteResult(null);
-                        setWebsiteError(null);
-                      }}
-                      placeholder="www.yourbusiness.com"
-                      className="flex-1 h-10 px-3 rounded-lg border border-[#E8DCC8] bg-white text-sm text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:outline-none focus:ring-2 focus:ring-[#8B6F47]/20 focus:border-[#8B6F47]"
-                      disabled={isIndexingWebsite}
-                    />
-                    <Button
-                      onClick={async () => {
-                        if (!agent || !websiteUrl.trim()) return;
-                        setIsIndexingWebsite(true);
-                        setWebsiteError(null);
-                        setWebsiteResult(null);
-                        setWebsiteProgress(0);
-
-                        const stages = [
-                          { at: 5, text: 'Fetching homepage...' },
-                          { at: 20, text: 'Discovering subpages...' },
-                          { at: 40, text: 'Crawling pages...' },
-                          { at: 60, text: 'Extracting content...' },
-                          { at: 75, text: 'Generating embeddings...' },
-                          { at: 90, text: 'Storing in knowledge base...' },
-                        ];
-                        let stageIdx = 0;
-                        setWebsiteStatus(stages[0].text);
-                        websiteProgressInterval.current = setInterval(() => {
-                          setWebsiteProgress(prev => {
-                            const next = prev + (0.4 + Math.random() * 1.2);
-                            if (stageIdx < stages.length - 1 && next >= stages[stageIdx + 1].at) {
-                              stageIdx++;
-                              setWebsiteStatus(stages[stageIdx].text);
-                            }
-                            return Math.min(next, 92);
-                          });
-                        }, 100);
-
-                        try {
-                          const result = await apiClient.indexWebsite(agent.id, websiteUrl.trim());
-                          if (websiteProgressInterval.current) clearInterval(websiteProgressInterval.current);
-                          setWebsiteProgress(100);
-                          setWebsiteStatus('Complete');
-                          setWebsiteResult({ pages: result.pages_crawled, chunks: result.chunks_created });
-                        } catch (err) {
-                          if (websiteProgressInterval.current) clearInterval(websiteProgressInterval.current);
-                          setWebsiteProgress(0);
-                          setWebsiteError(err instanceof Error ? err.message : 'Failed to index website');
-                        } finally {
-                          setIsIndexingWebsite(false);
-                        }
-                      }}
-                      disabled={isIndexingWebsite || !websiteUrl.trim()}
-                      size="sm"
-                      className="h-10 px-4 bg-[#8B6F47] text-white hover:bg-[#6B5D4D] whitespace-nowrap"
-                    >
-                      {isIndexingWebsite ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          Indexing
-                        </span>
-                      ) : websiteResult ? (
-                        <span className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5" />
-                          Re-index
-                        </span>
-                      ) : (
-                        'Index Website'
-                      )}
-                    </Button>
-                  </div>
-
-                  {isIndexingWebsite && (
-                    <div className="mt-3">
-                      <div className="h-1.5 bg-[#E8DCC8]/50 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#8B6F47] to-[#C9A86C] rounded-full transition-all duration-150"
-                          style={{ width: `${websiteProgress}%` }}
-                        />
-                      </div>
-                      <p className="text-[11px] text-[#8B6F47]/60 mt-1">{websiteStatus}</p>
-                    </div>
-                  )}
-
-                  {websiteResult && !isIndexingWebsite && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-700 flex items-center gap-2">
-                        <Check className="w-4 h-4 flex-shrink-0" />
-                        Indexed {websiteResult.pages} pages into {websiteResult.chunks} knowledge chunks. Your agent can now answer questions from your website.
-                      </p>
-                    </div>
-                  )}
-
-                  {websiteError && (
-                    <p className="mt-2 text-sm text-red-500">{websiteError}</p>
-                  )}
-
-                  <p className="text-[11px] text-[#A67A5B]/50 mt-3">
-                    Your agent will search this content to answer caller questions. Re-index anytime to update.
-                  </p>
                 </div>
 
                 {/* Connected Tools */}
