@@ -376,6 +376,11 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     business_hours_start: '09:00',
     business_hours_end: '17:00',
   });
+  const [driveFolders, setDriveFolders] = useState<Array<{ id: string; name: string }>>([]);
+  const [calendarList, setCalendarList] = useState<Array<{ id: string; name: string; primary: boolean }>>([]);
+  const [selectedDriveFolder, setSelectedDriveFolder] = useState<string>('root');
+  const [selectedCalendar, setSelectedCalendar] = useState<string>('primary');
+  const [loadingSettings, setLoadingSettings] = useState(false);
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -571,10 +576,13 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     }
   };
 
-  const openToolSettings = (provider: string) => {
+  const openToolSettings = async (provider: string) => {
     setSettingsProvider(provider);
+    setLoadingSettings(true);
+    setSettingsDialogOpen(true);
     const existingSettings = connectionsByProvider[provider]?.settings || {};
-    if (provider === 'google-calendar') {
+
+    if (provider === 'google-calendar' || provider === 'outlook-calendar') {
       setCalendarSettings({
         default_duration: (existingSettings.default_duration as number) ?? 30,
         allow_conflicts: (existingSettings.allow_conflicts as boolean) ?? false,
@@ -582,14 +590,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         business_hours_start: (existingSettings.business_hours_start as string) ?? '09:00',
         business_hours_end: (existingSettings.business_hours_end as string) ?? '17:00',
       });
+      setSelectedCalendar((existingSettings.calendar_id as string) ?? 'primary');
+      try {
+        const { calendars } = await apiClient.listCalendars(businessId);
+        setCalendarList(calendars);
+      } catch (err) {
+        console.error('Failed to list calendars:', err);
+        setCalendarList([]);
+      }
+    } else if (provider === 'google-drive') {
+      setSelectedDriveFolder((existingSettings.folder_id as string) ?? 'root');
+      try {
+        const { folders } = await apiClient.listDriveFolders(businessId);
+        setDriveFolders(folders);
+      } catch (err) {
+        console.error('Failed to list Drive folders:', err);
+        setDriveFolders([]);
+      }
     }
-    setSettingsDialogOpen(true);
+    setLoadingSettings(false);
   };
 
   const handleSaveSettings = () => {
     if (!settingsProvider) return;
+    let settings: Record<string, unknown> = {};
+    if (settingsProvider === 'google-calendar' || settingsProvider === 'outlook-calendar') {
+      settings = { ...calendarSettings, calendar_id: selectedCalendar };
+    } else if (settingsProvider === 'google-drive') {
+      const folder = driveFolders.find(f => f.id === selectedDriveFolder);
+      settings = { folder_id: selectedDriveFolder, folder_name: folder?.name ?? 'All files' };
+    }
     updateToolSettings.mutate(
-      { businessId, provider: settingsProvider, settings: calendarSettings as Record<string, unknown> },
+      { businessId, provider: settingsProvider, settings },
       {
         onSuccess: () => {
           toast.success('Settings saved');
@@ -2054,11 +2086,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
         <DialogContent className="max-w-md bg-white">
           <DialogHeader>
             <DialogTitle className="text-[#5D4E37]">
-              {settingsProvider === 'google-calendar' ? 'Google Calendar Settings' : 'Tool Settings'}
+              {settingsProvider === 'google-calendar' ? 'Google Calendar Settings'
+                : settingsProvider === 'outlook-calendar' ? 'Outlook Calendar Settings'
+                : settingsProvider === 'google-drive' ? 'Google Drive Settings'
+                : 'Tool Settings'}
             </DialogTitle>
           </DialogHeader>
-          {settingsProvider === 'google-calendar' && (
+          {loadingSettings ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-[#8B6F47]" />
+              <span className="ml-2 text-sm text-[#8B7355]">Loading settings...</span>
+            </div>
+          ) : (settingsProvider === 'google-calendar' || settingsProvider === 'outlook-calendar') ? (
             <div className="space-y-5 py-2">
+              {/* Calendar Selection */}
+              {calendarList.length > 0 && (
+                <div>
+                  <label className="block text-xs text-[#8B7355] mb-2">Calendar</label>
+                  <select
+                    className={`w-full h-10 rounded-md border px-3 ${inputStyles}`}
+                    value={selectedCalendar}
+                    onChange={(e) => setSelectedCalendar(e.target.value)}
+                  >
+                    {calendarList.map((cal) => (
+                      <option key={cal.id} value={cal.id}>
+                        {cal.name}{cal.primary ? ' (Primary)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-[#8B7355]/70 mt-1">Which calendar your agent uses for scheduling</p>
+                </div>
+              )}
+
               {/* Default Duration */}
               <div>
                 <label className="block text-xs text-[#8B7355] mb-2">Default Appointment Duration</label>
@@ -2129,7 +2188,32 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 <p className="text-[10px] text-[#8B7355]/70 mt-1">Appointments can only be scheduled during these hours</p>
               </div>
             </div>
-          )}
+          ) : settingsProvider === 'google-drive' ? (
+            <div className="space-y-5 py-2">
+              {/* Folder Selection */}
+              <div>
+                <label className="block text-xs text-[#8B7355] mb-2">Folder to Index</label>
+                <select
+                  className={`w-full h-10 rounded-md border px-3 ${inputStyles}`}
+                  value={selectedDriveFolder}
+                  onChange={(e) => setSelectedDriveFolder(e.target.value)}
+                >
+                  {driveFolders.map((folder) => (
+                    <option key={folder.id} value={folder.id}>
+                      {folder.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-[#8B7355]/70 mt-1">Your agent will search documents in this folder to answer caller questions</p>
+              </div>
+
+              <div className="bg-[#F5F0E8] rounded-lg p-3">
+                <p className="text-xs text-[#5D4E37]">
+                  Documents are automatically indexed when you connect Google Drive. Change the folder and save to re-index from a different location.
+                </p>
+              </div>
+            </div>
+          ) : null}
           <DialogFooter className="gap-2">
             <Button
               variant="outline"

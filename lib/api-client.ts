@@ -453,6 +453,14 @@ class ApiClient {
       }
     );
   }
+
+  async listDriveFolders(businessId: number): Promise<{ folders: Array<{ id: string; name: string }> }> {
+    return this.fetch<{ folders: Array<{ id: string; name: string }> }>(`/integrations/${businessId}/google-drive/folders`);
+  }
+
+  async listCalendars(businessId: number): Promise<{ calendars: Array<{ id: string; name: string; primary: boolean }> }> {
+    return this.fetch<{ calendars: Array<{ id: string; name: string; primary: boolean }> }>(`/integrations/${businessId}/calendars`);
+  }
 }
 
 export const apiClient = new ApiClient();
