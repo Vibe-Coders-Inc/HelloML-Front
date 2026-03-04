@@ -958,7 +958,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
             >
               <div className="relative px-8 py-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-[#5D4E37]">
-                  Welcome back! 👋
+                  Welcome back!
                 </h1>
                 <p className="text-base text-[#8B7355] mt-2">
                   Manage <span className="font-semibold text-[#8B6F47]">{business.name}</span> settings and monitor call activity.
@@ -1535,7 +1535,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         }`}>
                           {/* Tool Header Row */}
                           <div
-                            className={`flex items-center justify-between px-4 py-3 ${isConnected ? 'cursor-pointer' : ''}`}
+                            className={`flex flex-wrap items-center justify-between gap-2 px-4 py-3 ${isConnected ? 'cursor-pointer' : ''}`}
                             onClick={() => {
                               if (!isConnected) return;
                               if (int.isInternal) {
@@ -1546,7 +1546,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               }
                             }}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
                               {int.id === 'knowledge-base' ? (
                                 <div className="w-8 h-8 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
                                   <BookOpen className="w-4 h-4 text-[#8B6F47]" />
@@ -1554,9 +1554,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               ) : (
                                 <img src={integrationLogos[int.id]} alt={int.name} className="w-8 h-8 flex-shrink-0" />
                               )}
-                              <div>
+                              <div className="min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
+                                  <p className="text-sm font-medium text-[#5D4E37] truncate">{int.name}</p>
                                   {isConnected && (
                                     <span className="text-[10px] text-emerald-600 font-medium">Connected</span>
                                   )}
@@ -1576,7 +1576,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-shrink-0">
                               {isConnected && !int.isInternal ? (
                                 <>
                                   <Button
