@@ -2182,7 +2182,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   {/* File List */}
                   {documents.length > 0 && (() => {
                     const filteredDocs = docSearch.trim()
-                      ? documents.filter((d: { filename: string }) => d.filename.toLowerCase().includes(docSearch.toLowerCase()))
+                      ? documents.filter((d: { filename: string }) => {
+                          const name = d.filename?.startsWith('drive:') ? d.filename.slice(6) : d.filename;
+                          return name.toLowerCase().includes(docSearch.toLowerCase());
+                        })
                       : documents;
                     const totalPages = Math.ceil(filteredDocs.length / DOCS_PER_PAGE);
                     const safePage = Math.min(docPage, Math.max(0, totalPages - 1));
@@ -2260,6 +2263,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       ) : paginatedDocs.map((doc) => {
                         const isSelected = selectedDocs.has(doc.id);
                         const sizeStr = doc.file_size ? (doc.file_size > 1024 * 1024 ? `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(doc.file_size / 1024)} KB`) : null;
+                        // Detect source: use DB source, or infer from filename prefix / file_type
+                        const docSource = doc.source && doc.source !== 'upload'
+                          ? doc.source
+                          : doc.filename?.startsWith('drive:') ? 'google-drive'
+                          : doc.filename?.startsWith('website-') || doc.file_type === 'text/html' ? 'website'
+                          : 'upload';
+                        // Clean display name: strip "drive:" prefix
+                        const displayName = doc.filename?.startsWith('drive:') ? doc.filename.slice(6) : doc.filename;
                         return (
                         <motion.div
                           key={doc.id}
@@ -2290,20 +2301,40 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                             <div className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-sm transition-all ${isSelected ? 'bg-[#8B6F47] text-white' : 'bg-white'}`}>
                               {isSelected ? (
                                 <Check className="w-5 h-5" />
-                              ) : doc.source === 'google-drive' ? (
+                              ) : docSource === 'google-drive' ? (
                                 <DriveIcon />
-                              ) : doc.source === 'website' ? (
+                              ) : docSource === 'website' ? (
                                 <Globe className="w-5 h-5 text-emerald-500" />
                               ) : (
                                 <Upload className="w-5 h-5 text-[#8B6F47]" />
                               )}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-[#5D4E37]">{doc.filename}</p>
+                              <p className="text-sm font-medium text-[#5D4E37]">{displayName}</p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-xs text-[#8B7355]">
-                                  {doc.source === 'google-drive' ? 'Google Drive' : doc.source === 'website' ? 'Website' : 'Uploaded'}
-                                </span>
+                                {docSource === 'google-drive' ? (
+                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
+                                    <svg width="12" height="12" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                                      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                                      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-20.4 35.3c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/>
+                                      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 13.95z" fill="#ea4335"/>
+                                      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                                      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                                      <path d="m73.4 26.5-10.1-17.5c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 23.8h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                                    </svg>
+                                    Google Drive
+                                  </span>
+                                ) : docSource === 'website' ? (
+                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
+                                    <Globe className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                                    Website
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
+                                    <Upload className="w-3 h-3 text-[#8B6F47] flex-shrink-0" />
+                                    Uploaded
+                                  </span>
+                                )}
                                 {sizeStr && (
                                   <>
                                     <span className="text-[#C9B790]">·</span>
