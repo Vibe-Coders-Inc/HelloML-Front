@@ -1441,7 +1441,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {integrations.map((int) => {
                       const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
-                      const isOAuthSupported = int.id === 'google-calendar';
+                      const isOAuthSupported = ['google-calendar', 'outlook-calendar', 'google-drive'].includes(int.id);
                       const connectionInfo = connectionsByProvider[int.id];
 
                       return (
@@ -1517,7 +1517,13 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
-                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, 'google');
+                                  const providerMap: Record<string, string> = {
+                                    'google-calendar': 'google',
+                                    'outlook-calendar': 'outlook',
+                                    'google-drive': 'google-drive',
+                                  };
+                                  const provider = providerMap[int.id] || 'google';
+                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, provider);
                                   window.location.href = auth_url;
                                 } catch (err) {
                                   console.error('Failed to get auth URL:', err);
