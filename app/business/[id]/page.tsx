@@ -9,7 +9,7 @@ import {
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
   BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2,
-  Volume2, Square, Globe, RefreshCw
+  Volume2, Square, Globe, RefreshCw, Search, HardDrive
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -388,7 +388,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
   const [lastSelectedDoc, setLastSelectedDoc] = useState<number | null>(null);
   const [docPage, setDocPage] = useState(0);
-  const DOCS_PER_PAGE = 20;
+  const [docSearch, setDocSearch] = useState('');
+  const DOCS_PER_PAGE = 5;
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -1948,17 +1949,19 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         {!call.is_read && (
                           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" title="Unread" />
                         )}
-                        {/* Mark unread on hover — text link, no outline */}
+                        {/* Mark unread on hover */}
                         {call.is_read && (
-                          <button
-                            className="opacity-0 group-hover/call:opacity-100 transition-opacity text-xs text-[#8B7355] hover:text-[#5D4E37] flex-shrink-0"
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="opacity-0 group-hover/call:opacity-100 transition-opacity h-7 px-2 text-xs border-[#E8DCC8] text-[#8B7355] hover:text-[#5D4E37] hover:bg-[#F5F0E8] flex-shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               markRead.mutate({ conversationId: call.id, isRead: false });
                             }}
                           >
                             Mark unread
-                          </button>
+                          </Button>
                         )}
                       </motion.div>
                     ))}
@@ -2172,27 +2175,59 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
                   {/* File List */}
                   {documents.length > 0 && (() => {
-                    const totalPages = Math.ceil(documents.length / DOCS_PER_PAGE);
-                    const paginatedDocs = documents.slice(docPage * DOCS_PER_PAGE, (docPage + 1) * DOCS_PER_PAGE);
+                    const filteredDocs = docSearch.trim()
+                      ? documents.filter((d: { filename: string }) => d.filename.toLowerCase().includes(docSearch.toLowerCase()))
+                      : documents;
+                    const totalPages = Math.ceil(filteredDocs.length / DOCS_PER_PAGE);
+                    const safePage = Math.min(docPage, Math.max(0, totalPages - 1));
+                    const paginatedDocs = filteredDocs.slice(safePage * DOCS_PER_PAGE, (safePage + 1) * DOCS_PER_PAGE);
+
+                    // Google Drive SVG icon
+                    const DriveIcon = () => (
+                      <svg width="18" height="18" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                        <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-20.4 35.3c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/>
+                        <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 13.95z" fill="#ea4335"/>
+                        <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                        <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                        <path d="m73.4 26.5-10.1-17.5c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 23.8h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                      </svg>
+                    );
+
                     return (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      {/* Search bar */}
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B7355]" />
+                        <input
+                          type="text"
+                          placeholder="Search documents..."
+                          value={docSearch}
+                          onChange={(e) => { setDocSearch(e.target.value); setDocPage(0); }}
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E8DCC8] bg-white text-sm text-[#5D4E37] placeholder-[#C9B790] focus:outline-none focus:ring-2 focus:ring-[#8B6F47]/30 focus:border-[#8B6F47] transition-all"
+                        />
+                      </div>
+
+                      {/* Header row */}
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-medium text-[#5D4E37]">
-                          {documents.length} file{documents.length !== 1 ? 's' : ''}
-                          {selectedDocs.size > 0 && <span className="text-[#8B6F47] ml-2">({selectedDocs.size} selected)</span>}
+                          {filteredDocs.length} file{filteredDocs.length !== 1 ? 's' : ''}
+                          {docSearch && filteredDocs.length !== documents.length && <span className="text-[#8B7355]"> (filtered)</span>}
+                          {selectedDocs.size > 0 && <span className="text-[#8B6F47] ml-2">· {selectedDocs.size} selected</span>}
                         </p>
                         {selectedDocs.size > 0 && (
                           <div className="flex items-center gap-2">
-                            <button
-                              className="text-xs text-[#8B7355] hover:text-[#5D4E37] transition-colors"
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-sm border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
                               onClick={() => setSelectedDocs(new Set())}
                             >
-                              Clear selection
-                            </button>
+                              Clear
+                            </Button>
                             <Button
-                              variant="ghost"
                               size="sm"
-                              className="text-red-500 hover:text-red-600 hover:bg-red-50 h-7 text-xs"
+                              className="h-8 text-sm bg-red-500 hover:bg-red-600 text-white"
                               onClick={() => {
                                 const ids = Array.from(selectedDocs);
                                 bulkDeleteDocs.mutate(ids, {
@@ -2204,27 +2239,31 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               }}
                               disabled={bulkDeleteDocs.isPending}
                             >
-                              <Trash2 className="w-3.5 h-3.5 mr-1" />
-                              Delete selected
+                              <Trash2 className="w-4 h-4 mr-1.5" />
+                              Delete {selectedDocs.size}
                             </Button>
                           </div>
                         )}
                       </div>
-                      {paginatedDocs.map((doc) => {
+
+                      {/* Document rows */}
+                      {paginatedDocs.length === 0 && docSearch ? (
+                        <div className="text-center py-6">
+                          <p className="text-sm text-[#8B7355]">No documents match &ldquo;{docSearch}&rdquo;</p>
+                        </div>
+                      ) : paginatedDocs.map((doc) => {
                         const isSelected = selectedDocs.has(doc.id);
-                        const sourceLabel = doc.source === 'google-drive' ? 'Google Drive' : doc.source === 'website' ? 'Website' : 'Uploaded';
                         const sizeStr = doc.file_size ? (doc.file_size > 1024 * 1024 ? `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(doc.file_size / 1024)} KB`) : null;
                         return (
                         <motion.div
                           key={doc.id}
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className={`flex items-center justify-between p-3 rounded-xl transition-colors group cursor-pointer ${
-                            isSelected ? 'bg-[#8B6F47]/10 ring-1 ring-[#8B6F47]/30' : 'bg-[#F5F0E8]/30 hover:bg-[#F5F0E8]/50'
+                          className={`flex items-center justify-between p-4 rounded-xl transition-all group cursor-pointer ${
+                            isSelected ? 'bg-[#8B6F47]/10 ring-1 ring-[#8B6F47]/30' : 'bg-[#F5F0E8]/30 hover:bg-[#F5F0E8]/60'
                           }`}
                           onClick={(e) => {
                             if (e.shiftKey && lastSelectedDoc !== null) {
-                              // Shift-click: select range
                               const allIds = paginatedDocs.map(d => d.id);
                               const startIdx = allIds.indexOf(lastSelectedDoc);
                               const endIdx = allIds.indexOf(doc.id);
@@ -2233,7 +2272,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               for (let i = from; i <= to; i++) newSet.add(allIds[i]);
                               setSelectedDocs(newSet);
                             } else {
-                              // Regular click: toggle
                               const newSet = new Set(selectedDocs);
                               if (isSelected) newSet.delete(doc.id); else newSet.add(doc.id);
                               setSelectedDocs(newSet);
@@ -2242,28 +2280,41 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${isSelected ? 'bg-[#8B6F47] text-white' : 'bg-white'}`}>
+                            {/* Checkbox / Source icon */}
+                            <div className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-sm transition-all ${isSelected ? 'bg-[#8B6F47] text-white' : 'bg-white'}`}>
                               {isSelected ? (
                                 <Check className="w-5 h-5" />
+                              ) : doc.source === 'google-drive' ? (
+                                <DriveIcon />
+                              ) : doc.source === 'website' ? (
+                                <Globe className="w-5 h-5 text-emerald-500" />
                               ) : (
-                                <FileText className={`w-5 h-5 ${doc.source === 'google-drive' ? 'text-blue-500' : doc.source === 'website' ? 'text-emerald-500' : 'text-[#8B6F47]'}`} />
+                                <Upload className="w-5 h-5 text-[#8B6F47]" />
                               )}
                             </div>
                             <div>
                               <p className="text-sm font-medium text-[#5D4E37]">{doc.filename}</p>
-                              <p className="text-xs text-[#8B7355]">
-                                {sourceLabel}{sizeStr ? ` · ${sizeStr}` : ''}
-                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-[#8B7355]">
+                                  {doc.source === 'google-drive' ? 'Google Drive' : doc.source === 'website' ? 'Website' : 'Uploaded'}
+                                </span>
+                                {sizeStr && (
+                                  <>
+                                    <span className="text-[#C9B790]">·</span>
+                                    <span className="text-xs text-[#8B7355]">{sizeStr}</span>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); window.open(doc.storage_url); }}>
-                              <Download className="w-4 h-4" />
+                          <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="outline" size="sm" className="h-9 w-9 p-0 border-[#E8DCC8]" onClick={(e) => { e.stopPropagation(); window.open(doc.storage_url); }}>
+                              <Download className="w-4 h-4 text-[#8B6F47]" />
                             </Button>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              className="h-9 w-9 p-0 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
                               onClick={(e) => { e.stopPropagation(); deleteDocument.mutate(doc.id); }}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2272,32 +2323,33 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         </motion.div>
                         );
                       })}
+
                       {/* Pagination */}
                       {totalPages > 1 && (
-                        <div className="flex items-center justify-between pt-3 border-t border-[#E8DCC8]/30">
-                          <p className="text-xs text-[#8B7355]">
-                            Showing {docPage * DOCS_PER_PAGE + 1}-{Math.min((docPage + 1) * DOCS_PER_PAGE, documents.length)} of {documents.length}
+                        <div className="flex items-center justify-between pt-4 border-t border-[#E8DCC8]/30">
+                          <p className="text-sm text-[#8B7355]">
+                            Page {safePage + 1} of {totalPages}
                           </p>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1.5">
                             <Button
-                              variant="ghost" size="sm" className="h-7 px-2 text-xs"
-                              disabled={docPage === 0}
+                              variant="outline" size="sm" className="h-9 px-3 text-sm border-[#E8DCC8]"
+                              disabled={safePage === 0}
                               onClick={() => setDocPage(p => p - 1)}
                             >
                               Previous
                             </Button>
                             {Array.from({ length: totalPages }, (_, i) => (
                               <Button
-                                key={i} variant={i === docPage ? 'default' : 'ghost'} size="sm"
-                                className={`h-7 w-7 p-0 text-xs ${i === docPage ? 'bg-[#8B6F47] text-white hover:bg-[#7A5F3A]' : ''}`}
+                                key={i} variant={i === safePage ? 'default' : 'outline'} size="sm"
+                                className={`h-9 w-9 p-0 text-sm ${i === safePage ? 'bg-[#8B6F47] text-white hover:bg-[#7A5F3A]' : 'border-[#E8DCC8]'}`}
                                 onClick={() => setDocPage(i)}
                               >
                                 {i + 1}
                               </Button>
                             ))}
                             <Button
-                              variant="ghost" size="sm" className="h-7 px-2 text-xs"
-                              disabled={docPage >= totalPages - 1}
+                              variant="outline" size="sm" className="h-9 px-3 text-sm border-[#E8DCC8]"
+                              disabled={safePage >= totalPages - 1}
                               onClick={() => setDocPage(p => p + 1)}
                             >
                               Next
