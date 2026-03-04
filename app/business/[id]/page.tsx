@@ -1438,7 +1438,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   <h3 className="text-sm font-semibold text-[#5D4E37] mb-1">Connected Tools</h3>
                   <p className="text-xs text-[#8B7355] mb-4">Connect tools to help your agent assist customers better</p>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {integrations.map((int) => {
                       const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
                       const isOAuthSupported = int.id === 'google-calendar';
