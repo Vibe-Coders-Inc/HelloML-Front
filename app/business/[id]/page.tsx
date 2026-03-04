@@ -1570,32 +1570,38 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                             <div className="flex items-center gap-2">
                               {isConnected && !int.isInternal ? (
                                 <>
-                                  <button
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs px-3 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
                                     onClick={(e) => { e.stopPropagation(); toggleToolExpanded(int.id); }}
-                                    className="text-xs text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#F5F0E8]"
                                   >
-                                    <Settings2 className="w-3.5 h-3.5" />
+                                    <Settings2 className="w-3.5 h-3.5 mr-1.5" />
                                     {isExpanded ? 'Hide' : 'Settings'}
-                                  </button>
-                                  <button
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs px-3 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
                                     onClick={(e) => { e.stopPropagation(); setDisconnectProvider(int.id); }}
-                                    className="text-xs text-[#8B7355] hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50"
                                   >
                                     Disconnect
-                                  </button>
+                                  </Button>
                                 </>
                               ) : isConnected && int.isInternal ? (
-                                <button
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 text-xs px-3 border-[#E8DCC8] text-[#8B6F47] hover:bg-[#F5F0E8]"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.history.pushState(null, '', '#documents');
                                     window.dispatchEvent(new HashChangeEvent('hashchange'));
                                   }}
-                                  className="text-xs text-[#8B6F47] hover:text-[#5D4E37] transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#F5F0E8]"
                                 >
-                                  <Upload className="w-3.5 h-3.5" />
+                                  <Upload className="w-3.5 h-3.5 mr-1.5" />
                                   Manage Files
-                                </button>
+                                </Button>
                               ) : isOAuthSupported ? (
                                 <Button
                                   variant="outline"
