@@ -14,6 +14,9 @@ export interface Business {
   address: string;
   website?: string;
   stripe_customer_id?: string;
+  business_hours_start?: string;
+  business_hours_end?: string;
+  business_timezone?: string;
   created_at: string;
 }
 
@@ -38,6 +41,9 @@ export interface Agent {
   greeting: string;
   goodbye: string;
   status: 'inactive' | 'active' | 'paused';
+  forwarding_number?: string;
+  forwarding_enabled?: boolean;
+  forwarding_urgency?: 'low' | 'medium' | 'high';
   created_at: string;
   updated_at: string;
 }
@@ -225,6 +231,9 @@ export interface UpdateAgentRequest {
   goodbye?: string;
   voice_model?: string;
   status?: 'inactive' | 'active' | 'paused';
+  forwarding_number?: string;
+  forwarding_enabled?: boolean;
+  forwarding_urgency?: string;
 }
 
 export interface UploadTextDocumentRequest {

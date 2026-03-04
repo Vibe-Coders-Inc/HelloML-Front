@@ -9,7 +9,7 @@ import {
   Plus, Loader2, User, MessageSquare, Copy,
   CheckCircle2, MapPin, Building2, Mail, Edit3, Check, X,
   BookOpen, CreditCard, ExternalLink, Clock, AlertTriangle, Settings2,
-  Volume2, Square, Globe, RefreshCw, Search, HardDrive
+  Volume2, Square, Globe, RefreshCw, Search, HardDrive, PhoneForwarded, Shield
 } from 'lucide-react';
 import { useApp } from '@/lib/context';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -384,6 +384,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
   const [loadingToolData, setLoadingToolData] = useState(false);
+  const [isForwardingEditing, setIsForwardingEditing] = useState(false);
+  const [forwardingNumber, setForwardingNumber] = useState('');
+  const [forwardingEnabled, setForwardingEnabled] = useState(false);
+  const [forwardingUrgency, setForwardingUrgency] = useState<'low' | 'medium' | 'high'>('medium');
   // Document selection state
   const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
   const [lastSelectedDoc, setLastSelectedDoc] = useState<number | null>(null);
@@ -431,6 +435,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   }, [connectionsData]);
 
   // Initialize website URL from business data
+  useEffect(() => {
+    if (agent) {
+      setForwardingNumber(agent.forwarding_number || '');
+      setForwardingEnabled(agent.forwarding_enabled || false);
+      setForwardingUrgency(agent.forwarding_urgency || 'medium');
+    }
+  }, [agent]);
+
   useEffect(() => {
     if (business?.website && !websiteUrlInitialized) {
       setWebsiteUrl(business.website);
@@ -1508,6 +1520,159 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                       </p>
                     )}
                   </div>
+                </div>
+
+                {/* Call Forwarding */}
+                <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <PhoneForwarded className="w-4 h-4 text-[#8B6F47]" />
+                      <div>
+                        <h3 className="text-sm font-semibold text-[#5D4E37]">Call Forwarding</h3>
+                        <p className="text-xs text-[#8B7355]">Transfer calls to a human when the AI needs help</p>
+                      </div>
+                    </div>
+                    {!isForwardingEditing && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsForwardingEditing(true)}
+                        className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                      >
+                        <Edit3 className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+
+                  {isForwardingEditing ? (
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm text-[#5D4E37]">Forwarding Number</Label>
+                        <Input
+                          value={forwardingNumber}
+                          onChange={(e) => setForwardingNumber(e.target.value)}
+                          placeholder="+1 (555) 123-4567"
+                          className="mt-1 border-[#E8DCC8] focus:border-[#8B6F47] focus:ring-[#8B6F47]"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm text-[#5D4E37]">Enable Forwarding</Label>
+                        <button
+                          onClick={() => setForwardingEnabled(!forwardingEnabled)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            forwardingEnabled ? 'bg-[#8B6F47]' : 'bg-[#D4C5A9]'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              forwardingEnabled ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-[#5D4E37] mb-2 block">Urgency Level</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {([
+                            { value: 'low' as const, label: 'Low', desc: 'Transfers on any request to speak with a person' },
+                            { value: 'medium' as const, label: 'Medium', desc: 'Only genuine escalations: angry callers, emergencies, complex issues' },
+                            { value: 'high' as const, label: 'High', desc: 'True emergencies only: medical, safety, threats' },
+                          ]).map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => setForwardingUrgency(option.value)}
+                              className={`p-3 rounded-lg border text-left transition-all ${
+                                forwardingUrgency === option.value
+                                  ? 'border-[#8B6F47] bg-[#F5F0E8] ring-1 ring-[#8B6F47]'
+                                  : 'border-[#E8DCC8] bg-white hover:border-[#D4C5A9]'
+                              }`}
+                            >
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <Shield className={`w-3.5 h-3.5 ${
+                                  forwardingUrgency === option.value ? 'text-[#8B6F47]' : 'text-[#8B7355]'
+                                }`} />
+                                <span className={`text-xs font-semibold ${
+                                  forwardingUrgency === option.value ? 'text-[#5D4E37]' : 'text-[#8B7355]'
+                                }`}>{option.label}</span>
+                              </div>
+                              <p className="text-[10px] text-[#8B7355] leading-tight">{option.desc}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-[#8B7355] flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Transfers only available during business hours (9:00 AM - 5:00 PM)
+                      </p>
+
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (agent) {
+                              updateAgent.mutate({
+                                agentId: agent.id,
+                                data: {
+                                  forwarding_number: forwardingNumber,
+                                  forwarding_enabled: forwardingEnabled,
+                                  forwarding_urgency: forwardingUrgency,
+                                }
+                              }, {
+                                onSuccess: () => {
+                                  setIsForwardingEditing(false);
+                                  toast.success('Call forwarding updated');
+                                },
+                              });
+                            }
+                          }}
+                          className="bg-[#8B6F47] hover:bg-[#5D4E37] text-white"
+                        >
+                          <Check className="w-3 h-3 mr-1" />
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setForwardingNumber(agent?.forwarding_number || '');
+                            setForwardingEnabled(agent?.forwarding_enabled || false);
+                            setForwardingUrgency(agent?.forwarding_urgency || 'medium');
+                            setIsForwardingEditing(false);
+                          }}
+                          className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      {agent?.forwarding_number ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-[#5D4E37] font-medium">{agent.forwarding_number}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              agent.forwarding_enabled
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-[#F5F0E8] text-[#8B7355]'
+                            }`}>
+                              {agent.forwarding_enabled ? 'Enabled' : 'Disabled'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#8B7355]">
+                            Urgency: {agent.forwarding_urgency ? agent.forwarding_urgency.charAt(0).toUpperCase() + agent.forwarding_urgency.slice(1) : 'Medium'}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-[#8B7355] italic">No forwarding number set</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Connected Tools */}

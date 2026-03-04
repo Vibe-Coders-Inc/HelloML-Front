@@ -20,7 +20,8 @@ import {
   LogOut,
   Clock,
   Wand2,
-  Briefcase
+  Briefcase,
+  PhoneForwarded
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -50,6 +51,7 @@ interface WizardData {
   systemPrompt: string;
   greeting: string;
   goodbye: string;
+  forwardingNumber: string;
   integrations: string[];
 }
 
@@ -64,6 +66,7 @@ const initialData: WizardData = {
   systemPrompt: '',
   greeting: 'Hello! Thank you for calling. How can I help you today?',
   goodbye: 'Thank you for calling. Have a great day!',
+  forwardingNumber: '',
   integrations: [],
 };
 
@@ -280,7 +283,7 @@ export function SetupWizard({ isOpen, onClose, onComplete }: SetupWizardProps) {
 
     try {
       const business = await createBusinessMutation.mutateAsync({ name: data.businessName, business_email: data.businessEmail, address: data.address, website: data.website || undefined });
-      await createAgentMutation.mutateAsync({ business_id: business.id, area_code: data.areaCode, name: data.agentName || `${data.businessName} Agent`, prompt: data.systemPrompt, greeting: data.greeting, goodbye: data.goodbye });
+      await createAgentMutation.mutateAsync({ business_id: business.id, area_code: data.areaCode, name: data.agentName || `${data.businessName} Agent`, prompt: data.systemPrompt, greeting: data.greeting, goodbye: data.goodbye, ...(data.forwardingNumber ? { forwarding_number: data.forwardingNumber, forwarding_enabled: true, forwarding_urgency: 'medium' } : {}) });
 
       // Wait for burst animation
       setTimeout(() => {
@@ -730,6 +733,21 @@ function Step4({ data, updateData, errors, onNext, onBack }: { data: WizardData;
             rows={2}
           />
         </div>
+      </div>
+
+      {/* Call Forwarding (optional) */}
+      <div className="bg-white p-3 sm:p-4 rounded-xl border-2 border-[#E8DCC8] mt-4">
+        <Label className="text-[#5D4E37] font-semibold text-sm mb-2 flex items-center gap-2">
+          <PhoneForwarded className="w-4 h-4 text-[#8B6F47]" />
+          Call Forwarding Number (optional)
+        </Label>
+        <Input
+          value={data.forwardingNumber}
+          onChange={(e) => updateData({ forwardingNumber: e.target.value })}
+          className="bg-[#FDFCFA] border-[#E8DCC8] rounded-lg text-sm text-[#2D2416]"
+          placeholder="+1 (555) 123-4567"
+        />
+        <p className="text-xs text-[#8B7355] mt-1">Transfer calls to this number when the AI needs to escalate. You can configure urgency settings later.</p>
       </div>
 
       <NavButtons onBack={onBack} onNext={onNext} />
