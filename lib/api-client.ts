@@ -458,6 +458,14 @@ class ApiClient {
     return this.fetch<{ folders: Array<{ id: string; name: string }> }>(`/integrations/${businessId}/google-drive/folders`);
   }
 
+  async listDriveFiles(businessId: number): Promise<{ files: Array<{ id: string; name: string; mimeType: string; modifiedTime: string; size?: string }> }> {
+    return this.fetch<{ files: Array<{ id: string; name: string; mimeType: string; modifiedTime: string; size?: string }> }>(`/integrations/${businessId}/google-drive/files`);
+  }
+
+  async triggerDriveIndex(businessId: number): Promise<{ indexed: number; errors: number }> {
+    return this.fetch<{ indexed: number; errors: number }>(`/integrations/${businessId}/google-drive/index`, { method: 'POST' });
+  }
+
   async listCalendars(businessId: number): Promise<{ calendars: Array<{ id: string; name: string; primary: boolean }> }> {
     return this.fetch<{ calendars: Array<{ id: string; name: string; primary: boolean }> }>(`/integrations/${businessId}/calendars`);
   }

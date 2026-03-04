@@ -377,10 +377,13 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     business_hours_end: '17:00',
   });
   const [driveFolders, setDriveFolders] = useState<Array<{ id: string; name: string }>>([]);
+  const [driveFiles, setDriveFiles] = useState<Array<{ id: string; name: string; mimeType: string; modifiedTime: string; size?: string }>>([]);
   const [calendarList, setCalendarList] = useState<Array<{ id: string; name: string; primary: boolean }>>([]);
   const [selectedDriveFolder, setSelectedDriveFolder] = useState<string>('root');
   const [selectedCalendar, setSelectedCalendar] = useState<string>('primary');
   const [loadingSettings, setLoadingSettings] = useState(false);
+  const [expandedTool, setExpandedTool] = useState<string | null>(null);
+  const [loadingToolData, setLoadingToolData] = useState(false);
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -446,6 +449,20 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
       router.replace(`/business/${businessId}`, { scroll: false });
     }
   }, [searchParams, businessId, router, refetchSubscription]);
+
+  // Auto-open tool settings after OAuth connect redirect
+  useEffect(() => {
+    const connectedProvider = searchParams.get('connected');
+    if (connectedProvider) {
+      setActiveTab('agent');
+      // Small delay to let connections data refetch
+      setTimeout(() => {
+        setExpandedTool(connectedProvider);
+        loadToolData(connectedProvider);
+      }, 500);
+      router.replace(`/business/${businessId}#agent`, { scroll: false });
+    }
+  }, [searchParams, businessId, router]);
 
   // Tutorial
   const { showTutorial, openTutorial, closeTutorial } = useTutorial(businessId);
@@ -576,10 +593,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     }
   };
 
-  const openToolSettings = async (provider: string) => {
-    setSettingsProvider(provider);
-    setLoadingSettings(true);
-    setSettingsDialogOpen(true);
+  const loadToolData = async (provider: string) => {
+    setLoadingToolData(true);
     const existingSettings = connectionsByProvider[provider]?.settings || {};
 
     if (provider === 'google-calendar' || provider === 'outlook-calendar') {
@@ -601,13 +616,35 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     } else if (provider === 'google-drive') {
       setSelectedDriveFolder((existingSettings.folder_id as string) ?? 'root');
       try {
-        const { folders } = await apiClient.listDriveFolders(businessId);
+        const [{ folders }, { files }] = await Promise.all([
+          apiClient.listDriveFolders(businessId),
+          apiClient.listDriveFiles(businessId),
+        ]);
         setDriveFolders(folders);
+        setDriveFiles(files);
       } catch (err) {
-        console.error('Failed to list Drive folders:', err);
+        console.error('Failed to list Drive data:', err);
         setDriveFolders([]);
+        setDriveFiles([]);
       }
     }
+    setLoadingToolData(false);
+  };
+
+  const toggleToolExpanded = async (provider: string) => {
+    if (expandedTool === provider) {
+      setExpandedTool(null);
+    } else {
+      setExpandedTool(provider);
+      await loadToolData(provider);
+    }
+  };
+
+  const openToolSettings = async (provider: string) => {
+    setSettingsProvider(provider);
+    setLoadingSettings(true);
+    setSettingsDialogOpen(true);
+    await loadToolData(provider);
     setLoadingSettings(false);
   };
 
@@ -1468,104 +1505,298 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                 {/* Connected Tools */}
                 <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
                   <h3 className="text-sm font-semibold text-[#5D4E37] mb-1">Connected Tools</h3>
-                  <p className="text-xs text-[#8B7355] mb-4">Connect tools to help your agent assist customers better</p>
+                  <p className="text-xs text-[#8B7355] mb-4">Services your agent can access during calls</p>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="space-y-2">
                     {integrations.map((int) => {
                       const isConnected = int.isInternal ? int.connected : connectedProviders.has(int.id);
                       const isOAuthSupported = ['google-calendar', 'outlook-calendar', 'google-drive'].includes(int.id);
                       const connectionInfo = connectionsByProvider[int.id];
+                      const isExpanded = expandedTool === int.id;
+
+                      const getMimeIcon = (mimeType: string) => {
+                        if (mimeType.includes('spreadsheet') || mimeType.includes('csv')) return '📊';
+                        if (mimeType.includes('document') || mimeType.includes('text')) return '📄';
+                        if (mimeType.includes('pdf')) return '📋';
+                        return '📄';
+                      };
 
                       return (
-                        <div
-                          key={int.id}
-                          className={`p-4 rounded-xl border text-center transition-colors ${
-                            isConnected
-                              ? 'border-emerald-200 bg-emerald-50/50'
-                              : isOAuthSupported
-                                ? 'border-[#E8DCC8] bg-[#FDFCFA] hover:border-[#8B6F47]/50 cursor-pointer'
-                                : 'border-[#E8DCC8] bg-[#FDFCFA] opacity-60'
-                          }`}
-                          onClick={() => {
-                            if (int.id === 'knowledge-base') {
-                              window.history.pushState(null, '', '#documents');
-                              window.dispatchEvent(new HashChangeEvent('hashchange'));
-                            }
-                          }}
-                        >
-                          {int.id === 'knowledge-base' ? (
-                            <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center">
-                              <BookOpen className="w-5 h-5 text-[#8B6F47]" />
-                            </div>
-                          ) : (
-                            <img
-                              src={integrationLogos[int.id]}
-                              alt={int.name}
-                              className="w-10 h-10 mx-auto mb-2"
-                            />
-                          )}
-                          <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
-                          <p className="text-[10px] text-[#8B7355] mt-0.5 mb-3">
-                            {isConnected && connectionInfo?.account_email
-                              ? connectionInfo.account_email
-                              : int.description}
-                          </p>
-                          {isConnected ? (
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-center gap-1 text-xs text-emerald-600 font-medium">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                Connected
+                        <div key={int.id} className={`rounded-xl border transition-colors ${
+                          isConnected ? 'border-emerald-200 bg-emerald-50/30' : 'border-[#E8DCC8] bg-[#FDFCFA]'
+                        }`}>
+                          {/* Tool Header Row */}
+                          <div className="flex items-center justify-between px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              {int.id === 'knowledge-base' ? (
+                                <div className="w-8 h-8 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
+                                  <BookOpen className="w-4 h-4 text-[#8B6F47]" />
+                                </div>
+                              ) : (
+                                <img src={integrationLogos[int.id]} alt={int.name} className="w-8 h-8 flex-shrink-0" />
+                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
+                                  {isConnected && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-medium bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                                      Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-[#8B7355]">
+                                  {isConnected && connectionInfo?.account_email ? connectionInfo.account_email : int.description}
+                                </p>
                               </div>
-                              {!int.isInternal && (
-                                <div className="flex items-center justify-center gap-2">
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {isConnected && !int.isInternal ? (
+                                <>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      openToolSettings(int.id);
-                                    }}
-                                    className="text-[10px] text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-0.5"
+                                    onClick={() => toggleToolExpanded(int.id)}
+                                    className="text-xs text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#F5F0E8]"
                                   >
-                                    <Settings2 className="w-3 h-3" />
-                                    Settings
+                                    <Settings2 className="w-3.5 h-3.5" />
+                                    {isExpanded ? 'Hide' : 'Settings'}
                                   </button>
-                                  <span className="text-[#E8DCC8]">|</span>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setDisconnectProvider(int.id);
-                                    }}
-                                    className="text-[10px] text-[#8B7355] hover:text-red-500 transition-colors"
+                                    onClick={() => setDisconnectProvider(int.id)}
+                                    className="text-xs text-[#8B7355] hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50"
                                   >
                                     Disconnect
                                   </button>
-                                </div>
-                              )}
+                                </>
+                              ) : isConnected && int.isInternal ? (
+                                <button
+                                  onClick={() => {
+                                    window.history.pushState(null, '', '#documents');
+                                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                                  }}
+                                  className="text-xs text-[#8B6F47] hover:text-[#5D4E37] transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#F5F0E8]"
+                                >
+                                  <Upload className="w-3.5 h-3.5" />
+                                  Manage Files
+                                </button>
+                              ) : isOAuthSupported ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs px-3"
+                                  onClick={async () => {
+                                    try {
+                                      const providerMap: Record<string, string> = {
+                                        'google-calendar': 'google',
+                                        'outlook-calendar': 'outlook',
+                                        'google-drive': 'google-drive',
+                                      };
+                                      const provider = providerMap[int.id] || 'google';
+                                      const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, provider);
+                                      window.location.href = auth_url;
+                                    } catch (err) {
+                                      console.error('Failed to get auth URL:', err);
+                                    }
+                                  }}
+                                >
+                                  Connect
+                                </Button>
+                              ) : null}
                             </div>
-                          ) : isOAuthSupported ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full h-7 text-xs"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  const providerMap: Record<string, string> = {
-                                    'google-calendar': 'google',
-                                    'outlook-calendar': 'outlook',
-                                    'google-drive': 'google-drive',
-                                  };
-                                  const provider = providerMap[int.id] || 'google';
-                                  const { auth_url } = await apiClient.getIntegrationAuthUrl(businessId, provider);
-                                  window.location.href = auth_url;
-                                } catch (err) {
-                                  console.error('Failed to get auth URL:', err);
-                                }
-                              }}
-                            >
-                              Connect
-                            </Button>
-                          ) : (
-                            <span className="text-[10px] text-[#8B7355]">Coming Soon</span>
+                          </div>
+
+                          {/* Expanded Settings Panel */}
+                          {isExpanded && isConnected && !int.isInternal && (
+                            <div className="border-t border-[#E8DCC8]/50 px-4 py-4">
+                              {loadingToolData ? (
+                                <div className="flex items-center justify-center py-6">
+                                  <Loader2 className="w-5 h-5 animate-spin text-[#8B6F47]" />
+                                  <span className="ml-2 text-sm text-[#8B7355]">Loading...</span>
+                                </div>
+                              ) : (int.id === 'google-calendar' || int.id === 'outlook-calendar') ? (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Calendar Selection */}
+                                    {calendarList.length > 0 && (
+                                      <div>
+                                        <label className="block text-xs font-medium text-[#5D4E37] mb-1.5">Calendar</label>
+                                        <select
+                                          className={`w-full h-9 rounded-lg border text-sm px-3 ${inputStyles}`}
+                                          value={selectedCalendar}
+                                          onChange={(e) => setSelectedCalendar(e.target.value)}
+                                        >
+                                          {calendarList.map((cal) => (
+                                            <option key={cal.id} value={cal.id}>
+                                              {cal.name}{cal.primary ? ' (Primary)' : ''}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    )}
+
+                                    {/* Default Duration */}
+                                    <div>
+                                      <label className="block text-xs font-medium text-[#5D4E37] mb-1.5">Appointment Length</label>
+                                      <select
+                                        className={`w-full h-9 rounded-lg border text-sm px-3 ${inputStyles}`}
+                                        value={calendarSettings.default_duration}
+                                        onChange={(e) => setCalendarSettings({ ...calendarSettings, default_duration: parseInt(e.target.value) })}
+                                      >
+                                        <option value={15}>15 min</option>
+                                        <option value={30}>30 min</option>
+                                        <option value={45}>45 min</option>
+                                        <option value={60}>1 hour</option>
+                                        <option value={90}>1.5 hours</option>
+                                      </select>
+                                    </div>
+
+                                    {/* Booking Window */}
+                                    <div>
+                                      <label className="block text-xs font-medium text-[#5D4E37] mb-1.5">Booking Window</label>
+                                      <select
+                                        className={`w-full h-9 rounded-lg border text-sm px-3 ${inputStyles}`}
+                                        value={calendarSettings.booking_window_days}
+                                        onChange={(e) => setCalendarSettings({ ...calendarSettings, booking_window_days: parseInt(e.target.value) })}
+                                      >
+                                        <option value={7}>Next 7 days</option>
+                                        <option value={14}>Next 14 days</option>
+                                        <option value={30}>Next 30 days</option>
+                                        <option value={60}>Next 60 days</option>
+                                        <option value={90}>Next 90 days</option>
+                                      </select>
+                                    </div>
+
+                                    {/* Business Hours */}
+                                    <div>
+                                      <label className="block text-xs font-medium text-[#5D4E37] mb-1.5">Business Hours</label>
+                                      <div className="flex items-center gap-2">
+                                        <Input type="time" className={`flex-1 h-9 text-sm ${inputStyles}`} value={calendarSettings.business_hours_start} onChange={(e) => setCalendarSettings({ ...calendarSettings, business_hours_start: e.target.value })} />
+                                        <span className="text-xs text-[#8B7355]">to</span>
+                                        <Input type="time" className={`flex-1 h-9 text-sm ${inputStyles}`} value={calendarSettings.business_hours_end} onChange={(e) => setCalendarSettings({ ...calendarSettings, business_hours_end: e.target.value })} />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Allow Conflicts Toggle */}
+                                  <div className="flex items-center justify-between py-2 px-3 bg-[#F5F0E8]/50 rounded-lg">
+                                    <div>
+                                      <p className="text-xs font-medium text-[#5D4E37]">Allow double-booking</p>
+                                      <p className="text-[10px] text-[#8B7355]">Book over existing events</p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCalendarSettings({ ...calendarSettings, allow_conflicts: !calendarSettings.allow_conflicts })}
+                                      className={`w-10 h-5.5 rounded-full transition-colors ${calendarSettings.allow_conflicts ? 'bg-[#8B6F47]' : 'bg-[#D4C9B8]'}`}
+                                    >
+                                      <div className={`w-4.5 h-4.5 bg-white rounded-full shadow transition-transform ${calendarSettings.allow_conflicts ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+                                    </button>
+                                  </div>
+
+                                  {/* What your agent can do */}
+                                  <div className="pt-2">
+                                    <p className="text-[10px] font-medium text-[#8B7355] uppercase tracking-wider mb-2">Your agent can</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
+                                        <CheckCircle2 className="w-3 h-3" /> Check availability
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
+                                        <CheckCircle2 className="w-3 h-3" /> Book appointments
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-[#8B7355] bg-[#F5F0E8] px-2 py-1 rounded-md">
+                                        <X className="w-3 h-3" /> Cancel/reschedule
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Save */}
+                                  <div className="flex justify-end pt-2">
+                                    <Button
+                                      size="sm"
+                                      className="bg-gradient-to-r from-[#8B6F47] to-[#A67A5B] text-white text-xs h-8 px-4"
+                                      onClick={() => {
+                                        const settings = { ...calendarSettings, calendar_id: selectedCalendar };
+                                        updateToolSettings.mutate(
+                                          { businessId, provider: int.id, settings },
+                                          { onSuccess: () => toast.success('Calendar settings saved') }
+                                        );
+                                      }}
+                                      disabled={updateToolSettings.isPending}
+                                    >
+                                      {updateToolSettings.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                                      Save Settings
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : int.id === 'google-drive' ? (
+                                <div className="space-y-4">
+                                  {/* File tree */}
+                                  <div>
+                                    <p className="text-[10px] font-medium text-[#8B7355] uppercase tracking-wider mb-2">Shared with your agent</p>
+                                    {driveFiles.length > 0 ? (
+                                      <div className="border border-[#E8DCC8]/50 rounded-lg overflow-hidden">
+                                        {driveFiles.slice(0, 10).map((file, idx) => (
+                                          <div key={file.id} className={`flex items-center gap-3 px-3 py-2 text-sm ${idx > 0 ? 'border-t border-[#E8DCC8]/30' : ''}`}>
+                                            <span className="text-base">{getMimeIcon(file.mimeType)}</span>
+                                            <span className="text-[#5D4E37] truncate flex-1">{file.name}</span>
+                                            <span className="text-[10px] text-[#8B7355] flex-shrink-0">
+                                              {new Date(file.modifiedTime).toLocaleDateString()}
+                                            </span>
+                                          </div>
+                                        ))}
+                                        {driveFiles.length > 10 && (
+                                          <div className="px-3 py-2 text-[11px] text-[#8B7355] border-t border-[#E8DCC8]/30 bg-[#F5F0E8]/30">
+                                            + {driveFiles.length - 10} more files
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-[#8B7355] bg-[#F5F0E8]/50 rounded-lg p-4 text-center">
+                                        No documents found. Add Google Docs, PDFs, or spreadsheets to your Drive and they will appear here.
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* What your agent can do */}
+                                  <div>
+                                    <p className="text-[10px] font-medium text-[#8B7355] uppercase tracking-wider mb-2">Your agent can</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
+                                        <CheckCircle2 className="w-3 h-3" /> Read documents
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
+                                        <CheckCircle2 className="w-3 h-3" /> Search content
+                                      </span>
+                                      <span className="inline-flex items-center gap-1 text-[11px] text-[#8B7355] bg-[#F5F0E8] px-2 py-1 rounded-md">
+                                        <X className="w-3 h-3" /> Edit or delete
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Re-index */}
+                                  <div className="flex justify-end pt-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs h-8 px-4 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                                      onClick={async () => {
+                                        try {
+                                          toast.info('Refreshing documents...');
+                                          await apiClient.triggerDriveIndex(businessId);
+                                          const { files } = await apiClient.listDriveFiles(businessId);
+                                          setDriveFiles(files);
+                                          toast.success('Documents refreshed');
+                                        } catch {
+                                          toast.error('Failed to refresh documents');
+                                        }
+                                      }}
+                                    >
+                                      <RefreshCw className="w-3 h-3 mr-1" />
+                                      Refresh
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : null}
+                            </div>
                           )}
                         </div>
                       );
