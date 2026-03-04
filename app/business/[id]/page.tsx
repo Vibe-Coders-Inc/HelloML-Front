@@ -1948,17 +1948,16 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         {!call.is_read && (
                           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" title="Unread" />
                         )}
-                        {/* Mark unread button on hover */}
+                        {/* Mark unread on hover — text link, no outline */}
                         {call.is_read && (
                           <button
-                            className="opacity-0 group-hover/call:opacity-100 transition-opacity p-1 rounded hover:bg-[#E8DCC8]/50 flex-shrink-0"
-                            title="Mark as unread"
+                            className="opacity-0 group-hover/call:opacity-100 transition-opacity text-xs text-[#8B7355] hover:text-[#5D4E37] flex-shrink-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               markRead.mutate({ conversationId: call.id, isRead: false });
                             }}
                           >
-                            <div className="w-2.5 h-2.5 rounded-full border-2 border-emerald-500" />
+                            Mark unread
                           </button>
                         )}
                       </motion.div>
