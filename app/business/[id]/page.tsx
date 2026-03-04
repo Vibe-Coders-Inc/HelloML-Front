@@ -1562,7 +1562,16 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                   )}
                                 </div>
                                 <p className="text-[11px] text-[#8B7355]">
-                                  {isConnected && connectionInfo?.account_email ? connectionInfo.account_email : int.description}
+                                  {isConnected && connectionInfo?.account_email ? (
+                                    <>
+                                      {connectionInfo.account_email}
+                                      {(int.id === 'google-calendar' || int.id === 'outlook-calendar') && connectionInfo?.settings?.calendar_id && connectionInfo.settings.calendar_id !== 'primary' && (
+                                        <span className="ml-1 text-[#A89070]">
+                                          · {calendarList.find(c => c.id === connectionInfo.settings?.calendar_id)?.name || String(connectionInfo.settings.calendar_id)}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : int.description}
                                 </p>
                               </div>
                             </div>
@@ -2312,29 +2321,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                             <div>
                               <p className="text-sm font-medium text-[#5D4E37]">{displayName}</p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                {docSource === 'google-drive' ? (
-                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
-                                    <svg width="12" height="12" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                                      <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
-                                      <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-20.4 35.3c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/>
-                                      <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 13.95z" fill="#ea4335"/>
-                                      <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
-                                      <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
-                                      <path d="m73.4 26.5-10.1-17.5c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 23.8h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
-                                    </svg>
-                                    Google Drive
-                                  </span>
-                                ) : docSource === 'website' ? (
-                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
-                                    <Globe className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                                    Website
-                                  </span>
-                                ) : (
-                                  <span className="flex items-center gap-1 text-xs text-[#8B7355]">
-                                    <Upload className="w-3 h-3 text-[#8B6F47] flex-shrink-0" />
-                                    Uploaded
-                                  </span>
-                                )}
+                                <span className="text-xs text-[#8B7355]">
+                                  {docSource === 'google-drive' ? 'Google Drive' : docSource === 'website' ? 'Website' : 'Uploaded'}
+                                </span>
                                 {sizeStr && (
                                   <>
                                     <span className="text-[#C9B790]">·</span>
@@ -2352,7 +2341,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               variant="outline"
                               size="sm"
                               className="h-9 w-9 p-0 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
-                              onClick={(e) => { e.stopPropagation(); deleteDocument.mutate(doc.id); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteDocument.mutate(doc.id, {
+                                  onSuccess: () => {
+                                    setSelectedDocs(prev => { const next = new Set(prev); next.delete(doc.id); return next; });
+                                  }
+                                });
+                              }}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
