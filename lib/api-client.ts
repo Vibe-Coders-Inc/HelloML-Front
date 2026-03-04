@@ -320,6 +320,12 @@ class ApiClient {
     });
   }
 
+  async markConversationRead(conversationId: number, isRead: boolean): Promise<Conversation> {
+    return this.fetch<Conversation>(`/conversation/${conversationId}/read?is_read=${isRead}`, {
+      method: 'PATCH',
+    });
+  }
+
   async getAgentStats(agentId: number): Promise<ConversationStats> {
     return this.fetch<ConversationStats>(`/conversation/agent/${agentId}/stats`);
   }
@@ -382,6 +388,13 @@ class ApiClient {
   async deleteDocument(documentId: number): Promise<{ success: boolean }> {
     return this.fetch<{ success: boolean }>(`/rag/documents/${documentId}`, {
       method: 'DELETE',
+    });
+  }
+
+  async bulkDeleteDocuments(documentIds: number[]): Promise<{ success: boolean; deleted_count: number }> {
+    return this.fetch<{ success: boolean; deleted_count: number }>('/rag/documents/bulk-delete', {
+      method: 'POST',
+      body: JSON.stringify(documentIds),
     });
   }
 

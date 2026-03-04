@@ -26,8 +26,8 @@ import { BusinessTutorial, TutorialHelpButton, useTutorial } from '@/components/
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { useBusiness, useUpdateBusiness, useDeleteBusiness } from '@/lib/hooks/use-businesses';
 import { useAgentByBusiness, useCreateAgent, useUpdateAgent } from '@/lib/hooks/use-agents';
-import { useConversationsByAgent, useConversationMessages } from '@/lib/hooks/use-conversations';
-import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument } from '@/lib/hooks/use-documents';
+import { useConversationsByAgent, useConversationMessages, useMarkConversationRead } from '@/lib/hooks/use-conversations';
+import { useDocuments, useUploadPDFDocument, useUploadTextDocument, useDeleteDocument, useBulkDeleteDocuments } from '@/lib/hooks/use-documents';
 import { useProvisionPhoneNumber, useDeletePhoneByAgent } from '@/lib/hooks/use-phone-numbers';
 import { useSubscription, useUsage, useCreateCheckoutSession, useCreatePortalSession } from '@/lib/hooks/use-billing';
 import { useConnections, useDisconnectIntegration, useUpdateToolSettings } from '@/lib/hooks/use-integrations';
@@ -384,6 +384,11 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
   const [loadingToolData, setLoadingToolData] = useState(false);
+  // Document selection state
+  const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
+  const [lastSelectedDoc, setLastSelectedDoc] = useState<number | null>(null);
+  const [docPage, setDocPage] = useState(0);
+  const DOCS_PER_PAGE = 20;
 
   const { data: business, isLoading } = useBusiness(businessId);
   const { data: agent } = useAgentByBusiness(businessId);
@@ -400,6 +405,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const uploadPDF = useUploadPDFDocument();
   const uploadText = useUploadTextDocument();
   const deleteDocument = useDeleteDocument();
+  const bulkDeleteDocs = useBulkDeleteDocuments();
+  const markRead = useMarkConversationRead();
 
   // Billing hooks
   const { data: subscriptionData, refetch: refetchSubscription } = useSubscription(businessId);
@@ -1883,8 +1890,18 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
               {/* Call List */}
               <div className="lg:col-span-1 bg-white rounded-xl border border-[#E8DCC8]/50 overflow-hidden">
                 <div className="p-4 border-b border-[#E8DCC8]/50">
-                  <h3 className="text-sm font-semibold text-[#5D4E37]">Recent Calls</h3>
-                  <p className="text-xs text-[#8B7355]">{conversations.length} total</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#5D4E37]">Recent Calls</h3>
+                      <p className="text-xs text-[#8B7355]">{conversations.length} total</p>
+                    </div>
+                    {conversations.some((c: Conversation) => !c.is_read) && (
+                      <span className="flex items-center gap-1.5 text-xs text-emerald-600">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        {conversations.filter((c: Conversation) => !c.is_read).length} new
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {conversations.length === 0 ? (
                   <div className="p-8 text-center">
@@ -1898,10 +1915,15 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                     {conversations.map((call: Conversation) => (
                       <motion.div
                         key={call.id}
-                        className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
+                        className={`flex items-center gap-3 p-3 cursor-pointer transition-colors group/call relative ${
                           selectedCall === call.id ? 'bg-[#8B6F47]/10' : 'hover:bg-[#F5F0E8]/50'
                         }`}
-                        onClick={() => setSelectedCall(call.id)}
+                        onClick={() => {
+                          setSelectedCall(call.id);
+                          if (!call.is_read) {
+                            markRead.mutate({ conversationId: call.id, isRead: true });
+                          }
+                        }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -1910,7 +1932,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           <User className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#5D4E37] truncate">
+                          <p className={`text-sm truncate ${!call.is_read ? 'font-semibold text-[#3D3225]' : 'font-medium text-[#5D4E37]'}`}>
                             {call.caller_phone ? formatPhoneNumber(call.caller_phone) : 'Unknown'}
                           </p>
                           <p className="text-xs text-[#8B7355]">
@@ -1922,12 +1944,23 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                             })}
                           </p>
                         </div>
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          call.status === 'completed' ? 'bg-emerald-500' :
-                          call.status === 'failed' ? 'bg-red-500' :
-                          call.status === 'in_progress' ? 'bg-blue-500' :
-                          'bg-gray-400'
-                        }`} />
+                        {/* Unread indicator */}
+                        {!call.is_read && (
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" title="Unread" />
+                        )}
+                        {/* Mark unread button on hover */}
+                        {call.is_read && (
+                          <button
+                            className="opacity-0 group-hover/call:opacity-100 transition-opacity p-1 rounded hover:bg-[#E8DCC8]/50 flex-shrink-0"
+                            title="Mark as unread"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markRead.mutate({ conversationId: call.id, isRead: false });
+                            }}
+                          >
+                            <div className="w-2.5 h-2.5 rounded-full border-2 border-emerald-500" />
+                          </button>
+                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -2022,7 +2055,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
           <div className="space-y-6">
             <SectionHeader
               title="Knowledge Base"
-              subtitle="Upload documents to help your agent answer customer questions"
+              subtitle="Upload documents to help your agent answer customer questions. Hold Shift to select multiple files."
             />
 
             <div className="bg-white rounded-xl border border-[#E8DCC8]/50 p-6">
@@ -2139,44 +2172,143 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                   </label>
 
                   {/* File List */}
-                  {documents.length > 0 && (
+                  {documents.length > 0 && (() => {
+                    const totalPages = Math.ceil(documents.length / DOCS_PER_PAGE);
+                    const paginatedDocs = documents.slice(docPage * DOCS_PER_PAGE, (docPage + 1) * DOCS_PER_PAGE);
+                    return (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-[#5D4E37]">{documents.length} file{documents.length !== 1 ? 's' : ''} uploaded</p>
+                        <p className="text-sm font-medium text-[#5D4E37]">
+                          {documents.length} file{documents.length !== 1 ? 's' : ''}
+                          {selectedDocs.size > 0 && <span className="text-[#8B6F47] ml-2">({selectedDocs.size} selected)</span>}
+                        </p>
+                        {selectedDocs.size > 0 && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="text-xs text-[#8B7355] hover:text-[#5D4E37] transition-colors"
+                              onClick={() => setSelectedDocs(new Set())}
+                            >
+                              Clear selection
+                            </button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50 h-7 text-xs"
+                              onClick={() => {
+                                const ids = Array.from(selectedDocs);
+                                bulkDeleteDocs.mutate(ids, {
+                                  onSuccess: () => {
+                                    setSelectedDocs(new Set());
+                                    toast.success(`Deleted ${ids.length} file${ids.length > 1 ? 's' : ''}`);
+                                  }
+                                });
+                              }}
+                              disabled={bulkDeleteDocs.isPending}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-1" />
+                              Delete selected
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {documents.map((doc) => (
+                      {paginatedDocs.map((doc) => {
+                        const isSelected = selectedDocs.has(doc.id);
+                        const sourceLabel = doc.source === 'google-drive' ? 'Google Drive' : doc.source === 'website' ? 'Website' : 'Uploaded';
+                        const sizeStr = doc.file_size ? (doc.file_size > 1024 * 1024 ? `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(doc.file_size / 1024)} KB`) : null;
+                        return (
                         <motion.div
                           key={doc.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center justify-between p-3 rounded-xl bg-[#F5F0E8]/30 hover:bg-[#F5F0E8]/50 transition-colors group"
+                          className={`flex items-center justify-between p-3 rounded-xl transition-colors group cursor-pointer ${
+                            isSelected ? 'bg-[#8B6F47]/10 ring-1 ring-[#8B6F47]/30' : 'bg-[#F5F0E8]/30 hover:bg-[#F5F0E8]/50'
+                          }`}
+                          onClick={(e) => {
+                            if (e.shiftKey && lastSelectedDoc !== null) {
+                              // Shift-click: select range
+                              const allIds = paginatedDocs.map(d => d.id);
+                              const startIdx = allIds.indexOf(lastSelectedDoc);
+                              const endIdx = allIds.indexOf(doc.id);
+                              const [from, to] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+                              const newSet = new Set(selectedDocs);
+                              for (let i = from; i <= to; i++) newSet.add(allIds[i]);
+                              setSelectedDocs(newSet);
+                            } else {
+                              // Regular click: toggle
+                              const newSet = new Set(selectedDocs);
+                              if (isSelected) newSet.delete(doc.id); else newSet.add(doc.id);
+                              setSelectedDocs(newSet);
+                              setLastSelectedDoc(doc.id);
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                              <FileText className="w-5 h-5 text-[#8B6F47]" />
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${isSelected ? 'bg-[#8B6F47] text-white' : 'bg-white'}`}>
+                              {isSelected ? (
+                                <Check className="w-5 h-5" />
+                              ) : (
+                                <FileText className={`w-5 h-5 ${doc.source === 'google-drive' ? 'text-blue-500' : doc.source === 'website' ? 'text-emerald-500' : 'text-[#8B6F47]'}`} />
+                              )}
                             </div>
                             <div>
                               <p className="text-sm font-medium text-[#5D4E37]">{doc.filename}</p>
-                              <p className="text-xs text-[#8B7355]">{doc.file_type}</p>
+                              <p className="text-xs text-[#8B7355]">
+                                {sourceLabel}{sizeStr ? ` · ${sizeStr}` : ''}
+                              </p>
                             </div>
                           </div>
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => window.open(doc.storage_url)}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); window.open(doc.storage_url); }}>
                               <Download className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => deleteDocument.mutate(doc.id)}
+                              onClick={(e) => { e.stopPropagation(); deleteDocument.mutate(doc.id); }}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </motion.div>
-                      ))}
+                        );
+                      })}
+                      {/* Pagination */}
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-between pt-3 border-t border-[#E8DCC8]/30">
+                          <p className="text-xs text-[#8B7355]">
+                            Showing {docPage * DOCS_PER_PAGE + 1}-{Math.min((docPage + 1) * DOCS_PER_PAGE, documents.length)} of {documents.length}
+                          </p>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost" size="sm" className="h-7 px-2 text-xs"
+                              disabled={docPage === 0}
+                              onClick={() => setDocPage(p => p - 1)}
+                            >
+                              Previous
+                            </Button>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                              <Button
+                                key={i} variant={i === docPage ? 'default' : 'ghost'} size="sm"
+                                className={`h-7 w-7 p-0 text-xs ${i === docPage ? 'bg-[#8B6F47] text-white hover:bg-[#7A5F3A]' : ''}`}
+                                onClick={() => setDocPage(i)}
+                              >
+                                {i + 1}
+                              </Button>
+                            ))}
+                            <Button
+                              variant="ghost" size="sm" className="h-7 px-2 text-xs"
+                              disabled={docPage >= totalPages - 1}
+                              onClick={() => setDocPage(p => p + 1)}
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="text-center py-12">

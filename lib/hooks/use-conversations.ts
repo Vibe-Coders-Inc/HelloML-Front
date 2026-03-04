@@ -35,6 +35,9 @@ export function useConversationsByAgent(
     queryKey: conversationKeys.listByAgent(agentId, options),
     queryFn: () => apiClient.listConversationsByAgent(agentId, options),
     enabled: !!agentId,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always' as const,
+    refetchInterval: 30000, // Auto-refresh every 30s
   });
 }
 
@@ -82,6 +85,18 @@ export function useEndConversation() {
         queryKey: conversationKeys.detail(variables.conversationId),
       });
       queryClient.invalidateQueries({ queryKey: conversationKeys.all });
+    },
+  });
+}
+
+export function useMarkConversationRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ conversationId, isRead }: { conversationId: number; isRead: boolean }) =>
+      apiClient.markConversationRead(conversationId, isRead),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
     },
   });
 }

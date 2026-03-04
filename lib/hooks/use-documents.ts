@@ -105,7 +105,17 @@ export function useDeleteDocument() {
   return useMutation({
     mutationFn: (documentId: number) => apiClient.deleteDocument(documentId),
     onSuccess: () => {
-      // Invalidate all document lists since we don't know which agent it belongs to
+      queryClient.invalidateQueries({ queryKey: documentKeys.lists() });
+    },
+  });
+}
+
+export function useBulkDeleteDocuments() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (documentIds: number[]) => apiClient.bulkDeleteDocuments(documentIds),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: documentKeys.lists() });
     },
   });

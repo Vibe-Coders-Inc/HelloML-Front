@@ -54,6 +54,7 @@ export interface Document {
   status?: 'pending' | 'processing' | 'ready' | 'error';
   file_size?: number;
   chunk_count?: number;
+  source?: 'upload' | 'google-drive' | 'website';
 }
 
 export interface DocumentChunk {
@@ -72,6 +73,7 @@ export interface Conversation {
   started_at: string;
   ended_at?: string;
   status: 'in_progress' | 'completed' | 'failed' | 'cancelled';
+  is_read?: boolean;
 }
 
 export interface Message {
