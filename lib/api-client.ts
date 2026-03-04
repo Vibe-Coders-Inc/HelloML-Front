@@ -454,6 +454,10 @@ class ApiClient {
     );
   }
 
+  async getDrivePickerToken(businessId: number): Promise<{ access_token: string }> {
+    return this.fetch<{ access_token: string }>(`/integrations/${businessId}/google-drive/picker-token`);
+  }
+
   async listDriveFolders(businessId: number): Promise<{ folders: Array<{ id: string; name: string }> }> {
     return this.fetch<{ folders: Array<{ id: string; name: string }> }>(`/integrations/${businessId}/google-drive/folders`);
   }
@@ -464,6 +468,13 @@ class ApiClient {
 
   async triggerDriveIndex(businessId: number): Promise<{ indexed: number; errors: number }> {
     return this.fetch<{ indexed: number; errors: number }>(`/integrations/${businessId}/google-drive/index`, { method: 'POST' });
+  }
+
+  async indexDriveFiles(businessId: number, fileIds: Array<{ id: string; name: string; mimeType: string }>): Promise<{ indexed: number; errors: number; total: number }> {
+    return this.fetch<{ indexed: number; errors: number; total: number }>(`/integrations/${businessId}/google-drive/index-files`, {
+      method: 'POST',
+      body: JSON.stringify({ file_ids: fileIds }),
+    });
   }
 
   async listCalendars(businessId: number): Promise<{ calendars: Array<{ id: string; name: string; primary: boolean }> }> {

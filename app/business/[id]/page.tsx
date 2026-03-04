@@ -1732,32 +1732,103 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                       </div>
                                     ) : (
                                       <div className="text-sm text-[#8B7355] bg-[#F5F0E8]/50 rounded-lg p-4 text-center">
-                                        No documents indexed yet. Click Refresh to sync your Drive files.
+                                        No files shared yet. Click &quot;Add Files&quot; to select documents from your Google Drive.
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Re-index */}
-                                  <div className="flex justify-end pt-2">
+                                  {/* Add Files + Refresh */}
+                                  <div className="flex justify-end gap-2 pt-2">
                                     <Button
                                       variant="outline"
                                       size="sm"
                                       className="text-xs h-8 px-4 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
                                       onClick={async () => {
                                         try {
-                                          toast.info('Refreshing documents...');
-                                          await apiClient.triggerDriveIndex(businessId);
-                                          const { files } = await apiClient.listDriveFiles(businessId);
-                                          setDriveFiles(files);
-                                          toast.success('Documents refreshed');
-                                        } catch {
-                                          toast.error('Failed to refresh documents');
+                                          // Load Google Picker API
+                                          const loadGapi = () => new Promise<void>((resolve) => {
+                                            if ((window as unknown as Record<string, unknown>).gapi) { resolve(); return; }
+                                            const script = document.createElement('script');
+                                            script.src = 'https://apis.google.com/js/api.js';
+                                            script.onload = () => resolve();
+                                            document.body.appendChild(script);
+                                          });
+                                          await loadGapi();
+                                          const gapi = (window as unknown as Record<string, unknown>).gapi as { load: (lib: string, cb: () => void) => void };
+                                          await new Promise<void>((resolve) => gapi.load('picker', resolve));
+
+                                          // Get access token from backend
+                                          const { access_token } = await apiClient.getDrivePickerToken(businessId);
+
+                                          // Build and show Picker
+                                          const google = (window as unknown as Record<string, unknown>).google as Record<string, unknown>;
+                                          const picker = google.picker as Record<string, unknown>;
+                                          const DocsView = picker.DocsView as new () => { setIncludeFolders: (v: boolean) => unknown; setMimeTypes: (v: string) => unknown };
+                                          const PickerBuilder = picker.PickerBuilder as new () => {
+                                            addView: (v: unknown) => unknown;
+                                            setOAuthToken: (t: string) => unknown;
+                                            setDeveloperKey: (k: string) => unknown;
+                                            setCallback: (cb: (data: { action: string; docs?: Array<{ id: string; name: string; mimeType: string }> }) => void) => unknown;
+                                            enableFeature: (f: unknown) => unknown;
+                                            build: () => { setVisible: (v: boolean) => void };
+                                          };
+                                          const Feature = picker.Feature as Record<string, unknown>;
+                                          const Action = picker.Action as Record<string, string>;
+
+                                          const view = new DocsView();
+                                          view.setIncludeFolders(true);
+                                          view.setMimeTypes('application/vnd.google-apps.document,application/vnd.google-apps.spreadsheet,application/pdf,text/plain,text/csv');
+
+                                          const pickerInstance = new PickerBuilder();
+                                          pickerInstance.addView(view);
+                                          pickerInstance.setOAuthToken(access_token);
+                                          pickerInstance.setDeveloperKey('AIzaSyATKEw7xEit3iXVx57mzhAar-rKmWDLLUA');
+                                          pickerInstance.setCallback(async (data: { action: string; docs?: Array<{ id: string; name: string; mimeType: string }> }) => {
+                                            if (data.action === Action.PICKED && data.docs) {
+                                              const files = data.docs.map(d => ({ id: d.id, name: d.name, mimeType: d.mimeType }));
+                                              toast.info(`Indexing ${files.length} file${files.length > 1 ? 's' : ''}...`);
+                                              try {
+                                                const result = await apiClient.indexDriveFiles(businessId, files);
+                                                toast.success(`${result.indexed} file${result.indexed > 1 ? 's' : ''} indexed`);
+                                                // Refresh file list
+                                                const { files: updated } = await apiClient.listDriveFiles(businessId);
+                                                setDriveFiles(updated);
+                                              } catch {
+                                                toast.error('Failed to index files');
+                                              }
+                                            }
+                                          });
+                                          pickerInstance.enableFeature(Feature.MULTISELECT_ENABLED);
+                                          pickerInstance.build().setVisible(true);
+                                        } catch (err) {
+                                          console.error('Picker error:', err);
+                                          toast.error('Failed to open file picker');
                                         }
                                       }}
                                     >
-                                      <RefreshCw className="w-3 h-3 mr-1" />
-                                      Refresh
+                                      <Plus className="w-3 h-3 mr-1" />
+                                      Add Files
                                     </Button>
+                                    {driveFiles.length > 0 && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-8 px-3 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                                        onClick={async () => {
+                                          try {
+                                            toast.info('Refreshing...');
+                                            await apiClient.triggerDriveIndex(businessId);
+                                            const { files } = await apiClient.listDriveFiles(businessId);
+                                            setDriveFiles(files);
+                                            toast.success('Documents refreshed');
+                                          } catch {
+                                            toast.error('Failed to refresh');
+                                          }
+                                        }}
+                                      >
+                                        <RefreshCw className="w-3 h-3" />
+                                      </Button>
+                                    )}
                                   </div>
                                 </div>
                               ) : null}
