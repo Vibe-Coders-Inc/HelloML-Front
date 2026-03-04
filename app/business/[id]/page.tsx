@@ -1526,7 +1526,18 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                           isConnected ? 'border-emerald-200 bg-emerald-50/30' : 'border-[#E8DCC8] bg-[#FDFCFA]'
                         }`}>
                           {/* Tool Header Row */}
-                          <div className="flex items-center justify-between px-4 py-3">
+                          <div
+                            className={`flex items-center justify-between px-4 py-3 ${isConnected ? 'cursor-pointer' : ''}`}
+                            onClick={() => {
+                              if (!isConnected) return;
+                              if (int.isInternal) {
+                                window.history.pushState(null, '', '#documents');
+                                window.dispatchEvent(new HashChangeEvent('hashchange'));
+                              } else {
+                                toggleToolExpanded(int.id);
+                              }
+                            }}
+                          >
                             <div className="flex items-center gap-3">
                               {int.id === 'knowledge-base' ? (
                                 <div className="w-8 h-8 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
@@ -1552,14 +1563,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               {isConnected && !int.isInternal ? (
                                 <>
                                   <button
-                                    onClick={() => toggleToolExpanded(int.id)}
+                                    onClick={(e) => { e.stopPropagation(); toggleToolExpanded(int.id); }}
                                     className="text-xs text-[#8B7355] hover:text-[#5D4E37] transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-[#F5F0E8]"
                                   >
                                     <Settings2 className="w-3.5 h-3.5" />
                                     {isExpanded ? 'Hide' : 'Settings'}
                                   </button>
                                   <button
-                                    onClick={() => setDisconnectProvider(int.id)}
+                                    onClick={(e) => { e.stopPropagation(); setDisconnectProvider(int.id); }}
                                     className="text-xs text-[#8B7355] hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50"
                                   >
                                     Disconnect
@@ -1567,7 +1578,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 </>
                               ) : isConnected && int.isInternal ? (
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     window.history.pushState(null, '', '#documents');
                                     window.dispatchEvent(new HashChangeEvent('hashchange'));
                                   }}
@@ -1581,7 +1593,8 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                   variant="outline"
                                   size="sm"
                                   className="h-7 text-xs px-3"
-                                  onClick={async () => {
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
                                     try {
                                       const providerMap: Record<string, string> = {
                                         'google-calendar': 'google',
@@ -1698,7 +1711,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                         const settings = { ...calendarSettings, calendar_id: selectedCalendar };
                                         updateToolSettings.mutate(
                                           { businessId, provider: int.id, settings },
-                                          { onSuccess: () => toast.success('Calendar settings saved') }
+                                          { onSuccess: () => { toast.success('Calendar settings saved'); setExpandedTool(null); } }
                                         );
                                       }}
                                       disabled={updateToolSettings.isPending}
