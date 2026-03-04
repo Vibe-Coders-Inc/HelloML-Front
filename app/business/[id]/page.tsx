@@ -1546,7 +1546,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               }
                             }}
                           >
-                            <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
                               {int.id === 'knowledge-base' ? (
                                 <div className="w-8 h-8 rounded-lg bg-[#8B6F47]/10 flex items-center justify-center flex-shrink-0">
                                   <BookOpen className="w-4 h-4 text-[#8B6F47]" />
@@ -1576,7 +1576,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-2">
                               {isConnected && !int.isInternal ? (
                                 <>
                                   <Button
