@@ -1539,10 +1539,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 <div className="flex items-center gap-2">
                                   <p className="text-sm font-medium text-[#5D4E37]">{int.name}</p>
                                   {isConnected && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-medium bg-emerald-100 px-1.5 py-0.5 rounded-full">
-                                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                                      Active
-                                    </span>
+                                    <span className="text-[10px] text-emerald-600 font-medium">Connected</span>
                                   )}
                                 </div>
                                 <p className="text-[11px] text-[#8B7355]">
@@ -1692,22 +1689,6 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                     </button>
                                   </div>
 
-                                  {/* What your agent can do */}
-                                  <div className="pt-2">
-                                    <p className="text-[10px] font-medium text-[#8B7355] uppercase tracking-wider mb-2">Your agent can</p>
-                                    <div className="flex flex-wrap gap-2">
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-                                        <CheckCircle2 className="w-3 h-3" /> Check availability
-                                      </span>
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-                                        <CheckCircle2 className="w-3 h-3" /> Book appointments
-                                      </span>
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-[#8B7355] bg-[#F5F0E8] px-2 py-1 rounded-md">
-                                        <X className="w-3 h-3" /> Cancel/reschedule
-                                      </span>
-                                    </div>
-                                  </div>
-
                                   {/* Save */}
                                   <div className="flex justify-end pt-2">
                                     <Button
@@ -1751,25 +1732,9 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                       </div>
                                     ) : (
                                       <div className="text-sm text-[#8B7355] bg-[#F5F0E8]/50 rounded-lg p-4 text-center">
-                                        No documents found. Add Google Docs, PDFs, or spreadsheets to your Drive and they will appear here.
+                                        No documents indexed yet. Click Refresh to sync your Drive files.
                                       </div>
                                     )}
-                                  </div>
-
-                                  {/* What your agent can do */}
-                                  <div>
-                                    <p className="text-[10px] font-medium text-[#8B7355] uppercase tracking-wider mb-2">Your agent can</p>
-                                    <div className="flex flex-wrap gap-2">
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-                                        <CheckCircle2 className="w-3 h-3" /> Read documents
-                                      </span>
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-                                        <CheckCircle2 className="w-3 h-3" /> Search content
-                                      </span>
-                                      <span className="inline-flex items-center gap-1 text-[11px] text-[#8B7355] bg-[#F5F0E8] px-2 py-1 rounded-md">
-                                        <X className="w-3 h-3" /> Edit or delete
-                                      </span>
-                                    </div>
                                   </div>
 
                                   {/* Re-index */}
