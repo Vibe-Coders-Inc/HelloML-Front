@@ -208,6 +208,9 @@ function AuthContent() {
     try {
       await signUp(data.email, data.password, data.name);
       if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('set', 'user_data', {
+          email: data.email,
+        });
         window.gtag('event', 'conversion', {
           send_to: 'AW-17958638557/dcSMCKWl8fkbEN2nrPNC',
         });

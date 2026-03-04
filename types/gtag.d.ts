@@ -3,7 +3,7 @@ export {};
 declare global {
   interface Window {
     gtag?: (
-      command: 'event' | 'config' | 'js',
+      command: 'event' | 'config' | 'js' | 'set',
       targetId: string | Date,
       config?: {
         send_to?: string;

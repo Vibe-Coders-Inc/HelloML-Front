@@ -333,7 +333,7 @@ function AddressEditableField({
 }
 
 export default function BusinessPage({ params }: { params: Promise<{ id: string }> }) {
-  const { isAuthenticated, isLoading: authLoading } = useApp();
+  const { isAuthenticated, isLoading: authLoading, user } = useApp();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = React.use(params);
@@ -388,6 +388,17 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [forwardingNumber, setForwardingNumber] = useState('');
   const [forwardingEnabled, setForwardingEnabled] = useState(false);
   const [forwardingUrgency, setForwardingUrgency] = useState<'low' | 'medium' | 'high'>('medium');
+  const [forwardingSchedule, setForwardingSchedule] = useState<
+    Record<string, { enabled: boolean; start: string; end: string }>
+  >({
+    Monday: { enabled: true, start: '09:00', end: '17:00' },
+    Tuesday: { enabled: true, start: '09:00', end: '17:00' },
+    Wednesday: { enabled: true, start: '09:00', end: '17:00' },
+    Thursday: { enabled: true, start: '09:00', end: '17:00' },
+    Friday: { enabled: true, start: '09:00', end: '17:00' },
+    Saturday: { enabled: false, start: '09:00', end: '17:00' },
+    Sunday: { enabled: false, start: '09:00', end: '17:00' },
+  });
   // Document selection state
   const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
   const [lastSelectedDoc, setLastSelectedDoc] = useState<number | null>(null);
@@ -456,6 +467,11 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
     if (checkoutStatus === 'success') {
       // Fire Google Ads purchase conversion tracking
       if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        if (user?.email) {
+          window.gtag('set', 'user_data', {
+            email: user.email,
+          });
+        }
         window.gtag('event', 'conversion', {
           send_to: 'AW-17958638557/Lar2CKil8fkbEN2nrPNC',
         });
@@ -1551,9 +1567,25 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         <Label className="text-sm text-[#5D4E37]">Forwarding Number</Label>
                         <Input
                           value={forwardingNumber}
-                          onChange={(e) => setForwardingNumber(e.target.value)}
-                          placeholder="+1 (555) 123-4567"
-                          className="mt-1 border-[#E8DCC8] focus:border-[#8B6F47] focus:ring-[#8B6F47]"
+                          onChange={(e) => {
+                            const digits = e.target.value.replace(/\D/g, '');
+                            let formatted = '';
+                            if (digits.length === 0) {
+                              formatted = '';
+                            } else if (digits.length <= 3) {
+                              formatted = `(${digits}`;
+                            } else if (digits.length <= 6) {
+                              formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                            } else if (digits.length <= 10) {
+                              formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                            } else {
+                              const d = digits.slice(0, 11);
+                              formatted = `+${d.slice(0, 1)} (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7)}`;
+                            }
+                            setForwardingNumber(formatted);
+                          }}
+                          placeholder="(555) 123-4567"
+                          className="mt-1 bg-white border-[#E8DCC8] text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:border-[#8B6F47] focus:ring-[#8B6F47]/20"
                         />
                       </div>
 
@@ -1604,10 +1636,100 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         </div>
                       </div>
 
-                      <p className="text-xs text-[#8B7355] flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Transfers only available during business hours (9:00 AM - 5:00 PM)
-                      </p>
+                      <div>
+                        <Label className="text-sm text-[#5D4E37] mb-2 block">Forwarding Schedule</Label>
+                        <p className="text-xs text-[#8B7355] mb-3">Calls will only be forwarded during these hours</p>
+                        <div className="space-y-1.5">
+                          {(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const).map((day) => {
+                            const schedule = forwardingSchedule[day];
+                            return (
+                              <div
+                                key={day}
+                                className={`flex items-center gap-3 px-3 py-2 rounded-lg border transition-colors ${
+                                  schedule.enabled
+                                    ? 'border-[#E8DCC8] bg-white'
+                                    : 'border-[#E8DCC8]/50 bg-[#F5F0E8]/50'
+                                }`}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setForwardingSchedule((prev) => ({
+                                      ...prev,
+                                      [day]: { ...prev[day], enabled: !prev[day].enabled },
+                                    }))
+                                  }
+                                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors flex-shrink-0 ${
+                                    schedule.enabled ? 'bg-[#8B6F47]' : 'bg-[#D4C5A9]'
+                                  }`}
+                                >
+                                  <span
+                                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                                      schedule.enabled ? 'translate-x-[18px]' : 'translate-x-[3px]'
+                                    }`}
+                                  />
+                                </button>
+                                <span className={`text-xs font-medium w-10 ${
+                                  schedule.enabled ? 'text-[#5D4E37]' : 'text-[#8B7355]/50'
+                                }`}>
+                                  {day.slice(0, 3)}
+                                </span>
+                                {schedule.enabled ? (
+                                  <div className="flex items-center gap-1.5 ml-auto">
+                                    <select
+                                      value={schedule.start}
+                                      onChange={(e) =>
+                                        setForwardingSchedule((prev) => ({
+                                          ...prev,
+                                          [day]: { ...prev[day], start: e.target.value },
+                                        }))
+                                      }
+                                      className="h-7 text-xs rounded-md border border-[#E8DCC8] bg-white text-[#5D4E37] px-1.5 focus:border-[#8B6F47] focus:ring-[#8B6F47]/20 focus:outline-none"
+                                    >
+                                      {Array.from({ length: 48 }, (_, i) => {
+                                        const h = Math.floor(i / 2);
+                                        const m = i % 2 === 0 ? '00' : '30';
+                                        const val = `${h.toString().padStart(2, '0')}:${m}`;
+                                        const ampm = h === 0 ? '12' : h > 12 ? String(h - 12) : String(h);
+                                        const suffix = h < 12 ? 'AM' : 'PM';
+                                        const label = `${ampm}:${m} ${suffix}`;
+                                        return (
+                                          <option key={val} value={val}>{label}</option>
+                                        );
+                                      })}
+                                    </select>
+                                    <span className="text-xs text-[#8B7355]">to</span>
+                                    <select
+                                      value={schedule.end}
+                                      onChange={(e) =>
+                                        setForwardingSchedule((prev) => ({
+                                          ...prev,
+                                          [day]: { ...prev[day], end: e.target.value },
+                                        }))
+                                      }
+                                      className="h-7 text-xs rounded-md border border-[#E8DCC8] bg-white text-[#5D4E37] px-1.5 focus:border-[#8B6F47] focus:ring-[#8B6F47]/20 focus:outline-none"
+                                    >
+                                      {Array.from({ length: 48 }, (_, i) => {
+                                        const h = Math.floor(i / 2);
+                                        const m = i % 2 === 0 ? '00' : '30';
+                                        const val = `${h.toString().padStart(2, '0')}:${m}`;
+                                        const ampm = h === 0 ? '12' : h > 12 ? String(h - 12) : String(h);
+                                        const suffix = h < 12 ? 'AM' : 'PM';
+                                        const label = `${ampm}:${m} ${suffix}`;
+                                        return (
+                                          <option key={val} value={val}>{label}</option>
+                                        );
+                                      })}
+                                    </select>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-[#8B7355]/40 ml-auto italic">Closed</span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
 
                       <div className="flex gap-2 pt-2">
                         <Button

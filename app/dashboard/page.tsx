@@ -77,6 +77,11 @@ function DashboardContent() {
     if (searchParams.get('new_signup') === 'true' && typeof window !== 'undefined' && window.gtag) {
       const oauthConversionFired = sessionStorage.getItem('gads_oauth_signup_fired');
       if (!oauthConversionFired) {
+        if (user?.email) {
+          window.gtag('set', 'user_data', {
+            email: user.email,
+          });
+        }
         window.gtag('event', 'conversion', {
           send_to: 'AW-17958638557/dcSMCKWl8fkbEN2nrPNC',
         });
