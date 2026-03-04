@@ -1732,17 +1732,16 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                       </div>
                                     ) : (
                                       <div className="text-sm text-[#8B7355] bg-[#F5F0E8]/50 rounded-lg p-4 text-center">
-                                        No files shared yet. Click &quot;Add Files&quot; to select documents from your Google Drive.
+                                        Select documents from your Drive for your agent to reference during calls.
                                       </div>
                                     )}
                                   </div>
 
                                   {/* Add Files + Refresh */}
-                                  <div className="flex justify-end gap-2 pt-2">
+                                  <div className="flex gap-2 pt-2">
                                     <Button
-                                      variant="outline"
                                       size="sm"
-                                      className="text-xs h-8 px-4 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                                      className="flex-1 h-10 text-sm bg-gradient-to-r from-[#8B6F47] to-[#A67A5B] text-white hover:from-[#7A6040] hover:to-[#956C50] hover:text-white"
                                       onClick={async () => {
                                         try {
                                           // Load Google Picker API
@@ -1777,7 +1776,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
 
                                           const view = new DocsView();
                                           view.setIncludeFolders(true);
-                                          view.setMimeTypes('application/vnd.google-apps.document,application/vnd.google-apps.spreadsheet,application/pdf,text/plain,text/csv');
+                                          view.setMimeTypes('application/vnd.google-apps.document,application/vnd.google-apps.spreadsheet,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword');
 
                                           const pickerInstance = new PickerBuilder();
                                           pickerInstance.addView(view);
@@ -1806,14 +1805,14 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                         }
                                       }}
                                     >
-                                      <Plus className="w-3 h-3 mr-1" />
-                                      Add Files
+                                      <Plus className="w-4 h-4 mr-1.5" />
+                                      Add Files from Drive
                                     </Button>
                                     {driveFiles.length > 0 && (
                                       <Button
                                         variant="outline"
                                         size="sm"
-                                        className="text-xs h-8 px-3 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8]"
+                                        className="text-xs h-10 px-3 border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] hover:text-[#5D4E37]"
                                         onClick={async () => {
                                           try {
                                             toast.info('Refreshing...');
