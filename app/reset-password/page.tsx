@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Logo } from '@/components/Logo';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Mail, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ResetPasswordPage() {
@@ -14,9 +14,30 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleSend = useCallback(async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -29,6 +50,28 @@ export default function ResetPasswordPage() {
       setError(error.message);
     } else {
       setSent(true);
+      setCooldown(30);
+    }
+    setIsLoading(false);
+  }, [email]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSend();
+  };
+
+  const handleResend = async () => {
+    if (cooldown > 0) return;
+    setIsLoading(true);
+    setError('');
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+    });
+    if (error) {
+      setError(error.message);
+    } else {
+      setCooldown(30);
     }
     setIsLoading(false);
   };
@@ -45,8 +88,8 @@ export default function ResetPasswordPage() {
           </h1>
           <p className="mt-2 text-[#A67A5B]/70 text-sm sm:text-base">
             {sent
-              ? 'We sent a password reset link to your email address. Click the link to set a new password.'
-              : 'Enter your email address and we will send you a link to reset your password.'}
+              ? 'We sent a password reset link to your email.'
+              : 'Enter your email and we will send you a reset link.'}
           </p>
         </div>
 
@@ -61,7 +104,7 @@ export default function ResetPasswordPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 required
                 className="h-12 rounded-xl bg-white border-[#E8DCC8] focus:border-[#8B6F47] focus:ring-2 focus:ring-[#8B6F47]/10 text-[#3D2E1F] placeholder:text-[#C9B790] transition-all"
               />
@@ -82,8 +125,33 @@ export default function ResetPasswordPage() {
             </Button>
           </form>
         ) : (
-          <div className="text-sm p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-center">
-            A reset link has been sent to <strong>{email}</strong>. It may take a minute to arrive.
+          <div className="space-y-4">
+            <div className="p-5 rounded-xl bg-[#F5F0E8] border border-[#E8DCC8] text-center">
+              <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-[#8B6F47]/10 flex items-center justify-center">
+                <Mail className="w-5 h-5 text-[#8B6F47]" />
+              </div>
+              <p className="text-sm text-[#5D4E37] font-medium">
+                Reset link sent to <strong>{email}</strong>
+              </p>
+              <p className="text-xs text-[#8B7355] mt-1">
+                Check your inbox and spam folder. The link expires in 1 hour.
+              </p>
+            </div>
+
+            <Button
+              onClick={handleResend}
+              disabled={cooldown > 0 || isLoading}
+              variant="outline"
+              className="w-full h-11 rounded-xl border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] font-medium transition-all disabled:opacity-50"
+            >
+              {isLoading ? 'Sending...' : cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend email'}
+            </Button>
+
+            {error && (
+              <div className="text-sm p-3 rounded-xl bg-red-50 border border-red-200 text-red-600">
+                {error}
+              </div>
+            )}
           </div>
         )}
 
