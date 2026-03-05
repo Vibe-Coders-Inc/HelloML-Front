@@ -120,7 +120,7 @@ export function WebsiteExtractor({ onExtracted, initialUrl = '', className = '' 
           whileTap={{ scale: 0.95 }}
           className={`h-11 px-4 rounded-xl text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap ${
             extracted
-              ? 'bg-green-500 text-white'
+              ? 'bg-[#8B6F47] text-white'
               : 'bg-[#8B6F47] text-white hover:bg-[#6B5D4D] disabled:opacity-40 disabled:cursor-not-allowed'
           }`}
         >
@@ -181,7 +181,7 @@ export function WebsiteExtractor({ onExtracted, initialUrl = '', className = '' 
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-green-600 text-xs mt-1.5 flex items-center gap-1"
+            className="text-[#8B6F47] text-xs mt-1.5 flex items-center gap-1"
           >
             <Check className="w-3 h-3" />
             Business info extracted and auto-filled
