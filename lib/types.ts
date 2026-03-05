@@ -44,6 +44,7 @@ export interface Agent {
   forwarding_number?: string;
   forwarding_enabled?: boolean;
   forwarding_urgency?: 'low' | 'medium' | 'high';
+  forwarding_verified?: boolean;
   created_at: string;
   updated_at: string;
 }

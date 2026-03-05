@@ -388,6 +388,10 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
   const [forwardingNumber, setForwardingNumber] = useState('');
   const [forwardingEnabled, setForwardingEnabled] = useState(false);
   const [forwardingUrgency, setForwardingUrgency] = useState<'low' | 'medium' | 'high'>('medium');
+  const [verifyStep, setVerifyStep] = useState<'idle' | 'choose' | 'code' | 'verified'>('idle');
+  const [verifyCode, setVerifyCode] = useState('');
+  const [verifySending, setVerifySending] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
   const [forwardingSchedule, setForwardingSchedule] = useState<
     Record<string, { enabled: boolean; start: string; end: string }>
   >({
@@ -1583,18 +1587,150 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                               formatted = `+${d.slice(0, 1)} (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7)}`;
                             }
                             setForwardingNumber(formatted);
+                            // Reset verification if number changed
+                            if (formatted !== (agent?.forwarding_number || '')) {
+                              setVerifyStep('idle');
+                              setVerifyCode('');
+                              setVerifyError('');
+                            }
                           }}
                           placeholder="(555) 123-4567"
                           className="mt-1 bg-white border-[#E8DCC8] text-[#5D4E37] placeholder:text-[#A67A5B]/40 focus:border-[#8B6F47] focus:ring-[#8B6F47]/20"
                         />
+
+                        {/* Verification UI */}
+                        {forwardingNumber && forwardingNumber.replace(/\D/g, '').length >= 10 && (
+                          <div className="mt-2">
+                            {(agent?.forwarding_verified && forwardingNumber === (agent?.forwarding_number || '')) || verifyStep === 'verified' ? (
+                              <div className="flex items-center gap-1.5 text-green-600">
+                                <Check className="w-3.5 h-3.5" />
+                                <span className="text-xs font-medium">Verified</span>
+                              </div>
+                            ) : verifyStep === 'idle' ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setVerifyStep('choose')}
+                                className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
+                              >
+                                Verify this number
+                              </Button>
+                            ) : verifyStep === 'choose' ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-[#8B7355]">Send code via:</span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={verifySending}
+                                  onClick={async () => {
+                                    setVerifySending(true);
+                                    setVerifyError('');
+                                    try {
+                                      // Save number first
+                                      if (agent && forwardingNumber !== (agent.forwarding_number || '')) {
+                                        await apiClient.updateAgent(agent.id, { forwarding_number: forwardingNumber });
+                                      }
+                                      await apiClient.sendForwardingCode(Number(id), 'sms');
+                                      setVerifyStep('code');
+                                    } catch (err: unknown) {
+                                      setVerifyError(err instanceof Error ? err.message : 'Failed to send code');
+                                    } finally {
+                                      setVerifySending(false);
+                                    }
+                                  }}
+                                  className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
+                                >
+                                  {verifySending ? 'Sending...' : 'Text me'}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={verifySending}
+                                  onClick={async () => {
+                                    setVerifySending(true);
+                                    setVerifyError('');
+                                    try {
+                                      if (agent && forwardingNumber !== (agent.forwarding_number || '')) {
+                                        await apiClient.updateAgent(agent.id, { forwarding_number: forwardingNumber });
+                                      }
+                                      await apiClient.sendForwardingCode(Number(id), 'call');
+                                      setVerifyStep('code');
+                                    } catch (err: unknown) {
+                                      setVerifyError(err instanceof Error ? err.message : 'Failed to send code');
+                                    } finally {
+                                      setVerifySending(false);
+                                    }
+                                  }}
+                                  className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
+                                >
+                                  {verifySending ? 'Calling...' : 'Call me'}
+                                </Button>
+                              </div>
+                            ) : verifyStep === 'code' ? (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    value={verifyCode}
+                                    onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                    placeholder="Enter 6-digit code"
+                                    maxLength={6}
+                                    className="w-36 bg-white border-[#E8DCC8] text-[#5D4E37] text-center tracking-widest text-sm h-8 focus:border-[#8B6F47] focus:ring-[#8B6F47]/20"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    disabled={verifyCode.length !== 6 || verifySending}
+                                    onClick={async () => {
+                                      setVerifySending(true);
+                                      setVerifyError('');
+                                      try {
+                                        await apiClient.verifyForwardingCode(Number(id), verifyCode);
+                                        setVerifyStep('verified');
+                                        toast.success('Number verified');
+                                      } catch (err: unknown) {
+                                        setVerifyError(err instanceof Error ? err.message : 'Invalid code');
+                                      } finally {
+                                        setVerifySending(false);
+                                      }
+                                    }}
+                                    className="bg-[#8B6F47] hover:bg-[#5D4E37] text-white text-xs h-8"
+                                  >
+                                    {verifySending ? 'Verifying...' : 'Verify'}
+                                  </Button>
+                                </div>
+                                <button
+                                  onClick={() => setVerifyStep('choose')}
+                                  className="text-xs text-[#8B7355] underline hover:text-[#5D4E37]"
+                                >
+                                  Resend code
+                                </button>
+                              </div>
+                            ) : null}
+                            {verifyError && (
+                              <p className="text-xs text-red-500 mt-1">{verifyError}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <Label className="text-sm text-[#5D4E37]">Enable Forwarding</Label>
+                        <div>
+                          <Label className="text-sm text-[#5D4E37]">Enable Forwarding</Label>
+                          {!(agent?.forwarding_verified || verifyStep === 'verified') && forwardingNumber && (
+                            <p className="text-[10px] text-[#8B7355]">Verify your number first</p>
+                          )}
+                        </div>
                         <button
-                          onClick={() => setForwardingEnabled(!forwardingEnabled)}
+                          onClick={() => {
+                            if (agent?.forwarding_verified || verifyStep === 'verified') {
+                              setForwardingEnabled(!forwardingEnabled);
+                            } else {
+                              toast.error('Please verify your forwarding number first');
+                            }
+                          }}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            forwardingEnabled ? 'bg-[#8B6F47]' : 'bg-[#D4C5A9]'
+                            !(agent?.forwarding_verified || verifyStep === 'verified')
+                              ? 'bg-[#D4C5A9] opacity-50 cursor-not-allowed'
+                              : forwardingEnabled ? 'bg-[#8B6F47]' : 'bg-[#D4C5A9]'
                           }`}
                         >
                           <span
@@ -1778,6 +1914,16 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-[#5D4E37] font-medium">{agent.forwarding_number}</span>
+                            {agent.forwarding_verified ? (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 flex items-center gap-1">
+                                <Check className="w-3 h-3" />
+                                Verified
+                              </span>
+                            ) : (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
+                                Not verified
+                              </span>
+                            )}
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               agent.forwarding_enabled
                                 ? 'bg-green-100 text-green-700'

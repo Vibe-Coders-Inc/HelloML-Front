@@ -493,6 +493,20 @@ class ApiClient {
   async listCalendars(businessId: number): Promise<{ calendars: Array<{ id: string; name: string; primary: boolean }> }> {
     return this.fetch<{ calendars: Array<{ id: string; name: string; primary: boolean }> }>(`/integrations/${businessId}/calendars`);
   }
+
+  async sendForwardingCode(businessId: number, method: 'sms' | 'call'): Promise<{ success: boolean; method: string }> {
+    return this.fetch<{ success: boolean; method: string }>(`/${businessId}/forwarding/send-code`, {
+      method: 'POST',
+      body: JSON.stringify({ method }),
+    });
+  }
+
+  async verifyForwardingCode(businessId: number, code: string): Promise<{ success: boolean; verified: boolean }> {
+    return this.fetch<{ success: boolean; verified: boolean }>(`/${businessId}/forwarding/verify-code`, {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+  }
 }
 
 export const apiClient = new ApiClient();
