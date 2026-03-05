@@ -367,9 +367,17 @@ function AuthContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="login-password" className="text-[#3D2E1F] font-medium text-sm">
-                    {authContent.forms.labels.password}
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="login-password" className="text-[#3D2E1F] font-medium text-sm">
+                      {authContent.forms.labels.password}
+                    </Label>
+                    <Link
+                      href="/reset-password"
+                      className="text-xs text-[#8B6F47]/70 hover:text-[#8B6F47] transition-colors font-medium"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                   <div className="relative">
                     <Input
                       id="login-password"
