@@ -494,7 +494,7 @@ class ApiClient {
     return this.fetch<{ calendars: Array<{ id: string; name: string; primary: boolean }> }>(`/integrations/${businessId}/calendars`);
   }
 
-  async sendForwardingCode(businessId: number, method: 'sms' | 'call'): Promise<{ success: boolean; method: string }> {
+  async sendForwardingCode(businessId: number, method: 'call' = 'call'): Promise<{ success: boolean; method: string }> {
     return this.fetch<{ success: boolean; method: string }>(`/${businessId}/forwarding/send-code`, {
       method: 'POST',
       body: JSON.stringify({ method }),

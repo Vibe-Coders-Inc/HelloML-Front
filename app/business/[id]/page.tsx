@@ -1606,66 +1606,30 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                 <Check className="w-3.5 h-3.5" />
                                 <span className="text-xs font-medium">Verified</span>
                               </div>
-                            ) : verifyStep === 'idle' ? (
+                            ) : verifyStep === 'idle' || verifyStep === 'choose' ? (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setVerifyStep('choose')}
+                                disabled={verifySending}
+                                onClick={async () => {
+                                  setVerifySending(true);
+                                  setVerifyError('');
+                                  try {
+                                    if (agent && forwardingNumber !== (agent.forwarding_number || '')) {
+                                      await apiClient.updateAgent(agent.id, { forwarding_number: forwardingNumber });
+                                    }
+                                    await apiClient.sendForwardingCode(Number(id), 'call');
+                                    setVerifyStep('code');
+                                  } catch (err: unknown) {
+                                    setVerifyError(err instanceof Error ? err.message : 'Failed to send code');
+                                  } finally {
+                                    setVerifySending(false);
+                                  }
+                                }}
                                 className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
                               >
-                                Verify this number
+                                {verifySending ? 'Calling...' : 'Verify with a call'}
                               </Button>
-                            ) : verifyStep === 'choose' ? (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-[#8B7355]">Send code via:</span>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  disabled={verifySending}
-                                  onClick={async () => {
-                                    setVerifySending(true);
-                                    setVerifyError('');
-                                    try {
-                                      // Save number first
-                                      if (agent && forwardingNumber !== (agent.forwarding_number || '')) {
-                                        await apiClient.updateAgent(agent.id, { forwarding_number: forwardingNumber });
-                                      }
-                                      await apiClient.sendForwardingCode(Number(id), 'sms');
-                                      setVerifyStep('code');
-                                    } catch (err: unknown) {
-                                      setVerifyError(err instanceof Error ? err.message : 'Failed to send code');
-                                    } finally {
-                                      setVerifySending(false);
-                                    }
-                                  }}
-                                  className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
-                                >
-                                  {verifySending ? 'Sending...' : 'Text me'}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  disabled={verifySending}
-                                  onClick={async () => {
-                                    setVerifySending(true);
-                                    setVerifyError('');
-                                    try {
-                                      if (agent && forwardingNumber !== (agent.forwarding_number || '')) {
-                                        await apiClient.updateAgent(agent.id, { forwarding_number: forwardingNumber });
-                                      }
-                                      await apiClient.sendForwardingCode(Number(id), 'call');
-                                      setVerifyStep('code');
-                                    } catch (err: unknown) {
-                                      setVerifyError(err instanceof Error ? err.message : 'Failed to send code');
-                                    } finally {
-                                      setVerifySending(false);
-                                    }
-                                  }}
-                                  className="border-[#E8DCC8] text-[#5D4E37] hover:bg-[#F5F0E8] text-xs h-7"
-                                >
-                                  {verifySending ? 'Calling...' : 'Call me'}
-                                </Button>
-                              </div>
                             ) : verifyStep === 'code' ? (
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -1698,7 +1662,7 @@ export default function BusinessPage({ params }: { params: Promise<{ id: string 
                                   </Button>
                                 </div>
                                 <button
-                                  onClick={() => setVerifyStep('choose')}
+                                  onClick={() => setVerifyStep('idle')}
                                   className="text-xs text-[#8B7355] underline hover:text-[#5D4E37]"
                                 >
                                   Resend code
