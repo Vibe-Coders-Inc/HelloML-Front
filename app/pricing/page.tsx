@@ -46,6 +46,66 @@ const faqs = [
     question: 'Can I cancel anytime?',
     answer: 'Yes, you can cancel your subscription at any time. Your agent will remain active until the end of your billing period.',
   },
+  {
+    question: 'Does HelloML work with Google Calendar?',
+    answer: 'Yes. HelloML integrates with both Google Calendar and Outlook. Your AI agent checks your real-time availability and books appointments directly during calls.',
+  },
+  {
+    question: 'Can I transfer calls to a real person?',
+    answer: 'Yes. You can configure call forwarding so the AI transfers callers to a live person when needed. Transfers include caller verification so your team has context before picking up.',
+  },
+  {
+    question: 'What happens if the AI can\'t answer a question?',
+    answer: 'If the AI does not have the answer in its knowledge base, it can search the web in real time or transfer the call to a live team member. You control which fallback behavior to use.',
+  },
+  {
+    question: 'Do I get a dedicated phone number?',
+    answer: 'Yes. Every HelloML agent comes with a dedicated phone number included at no extra cost. You can also port an existing number if you prefer.',
+  },
+  {
+    question: 'Can the AI handle multiple calls at once?',
+    answer: 'Yes. Unlike a human receptionist, your HelloML agent handles unlimited concurrent calls. Every caller gets answered immediately with zero hold time.',
+  },
+  {
+    question: 'What industries does HelloML work for?',
+    answer: 'HelloML works for any business that receives phone calls. Popular industries include contractors, medical clinics, dental offices, salons, law firms, real estate agencies, and restaurants.',
+  },
+  {
+    question: 'Is there a free trial?',
+    answer: 'Yes. You can get started with HelloML for free with no credit card required. Create your AI agent and test it before committing to a paid plan.',
+  },
+  {
+    question: 'Can I customize what the AI says?',
+    answer: 'Yes. You have full control over your agent\'s system prompt, greeting, personality, and responses. Customize the AI to match your brand voice and business needs.',
+  },
+  {
+    question: 'Does HelloML transcribe calls?',
+    answer: 'Yes. Every call is transcribed in real time. You can view full transcripts in your dashboard and search through past conversations.',
+  },
+  {
+    question: 'How does HelloML compare to Smith.ai?',
+    answer: 'HelloML starts at $29/month while Smith.ai starts at $200+/month. HelloML uses AI agents that answer instantly with no hold time, while Smith.ai uses human receptionists. Both handle calls professionally, but HelloML is significantly more affordable.',
+  },
+  {
+    question: 'Can I upload my own documents for the AI to reference?',
+    answer: 'Yes. You can upload PDFs, text files, and connect Google Drive. The AI uses these documents as its knowledge base to answer caller questions accurately.',
+  },
+  {
+    question: 'What voices are available?',
+    answer: 'HelloML offers 9+ natural-sounding voices with different accents and tones. You can preview each voice and choose the one that best fits your brand.',
+  },
+  {
+    question: 'Does it work after business hours?',
+    answer: 'Yes. Your HelloML agent is available 24/7, 365 days a year. It never takes breaks, holidays, or sick days, so you never miss a call.',
+  },
+  {
+    question: 'Can I see call recordings or transcripts?',
+    answer: 'Yes. Every call includes a full transcript available in your dashboard. You can review conversations, search by keyword, and track call history.',
+  },
+  {
+    question: 'How long does setup take?',
+    answer: 'Setup takes under 5 minutes. Just create your agent, customize the greeting and knowledge base, and your dedicated phone number is ready to receive calls.',
+  },
 ];
 
 export default function PricingPage() {
