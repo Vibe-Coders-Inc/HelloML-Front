@@ -95,7 +95,7 @@ function DemoSection() {
   const showIdle = session.status === 'idle' || session.status === 'ended' || session.status === 'error';
 
   return (
-    <section id="demo" className="min-h-[100svh] flex items-center justify-center px-4 sm:px-6 pt-8 md:pt-12 pb-16 md:pb-20 overflow-hidden relative bg-[#FAF8F3]">
+    <section id="demo" className="flex items-center justify-center px-4 sm:px-6 pt-8 md:pt-12 pb-16 md:pb-20 overflow-hidden relative bg-[#FAF8F3]">
       <div className="w-full max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
@@ -257,7 +257,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ═══ 1. HERO ═══ */}
-      <Slide className="bg-[#FAF8F3] !pt-24 sm:!pt-28 md:!pt-20">
+      <Slide className="bg-[#FAF8F3] !pt-24 sm:!pt-28 md:!pt-20 !min-h-0">
         <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="text-center lg:text-left">
             <motion.h1
