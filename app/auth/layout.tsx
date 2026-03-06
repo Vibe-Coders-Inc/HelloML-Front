@@ -5,7 +5,7 @@ export const metadata: Metadata = getMetadata({
   title: 'Sign In',
   description: 'Sign in or create an account to start using HelloML AI voice agents for your business.',
   path: '/auth',
-  noIndex: true,
+  noIndex: false,
 });
 
 export default function AuthLayout({

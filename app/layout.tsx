@@ -62,7 +62,7 @@ const softwareJsonLd = {
     },
     {
       '@type': 'Offer',
-      price: '5.00',
+      price: '29.00',
       priceCurrency: 'USD',
       billingIncrement: 'P1M',
       description: 'Starter plan — $29/mo for 200 minutes of AI phone answering.',
