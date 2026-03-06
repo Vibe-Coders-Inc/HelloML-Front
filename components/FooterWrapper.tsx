@@ -7,7 +7,7 @@ export function FooterWrapper() {
   const pathname = usePathname();
 
   // Don't show footer on auth page or landing page (landing has its own footer)
-  if (pathname === '/auth' || pathname === '/' || pathname === '/demo') {
+  if (pathname === '/auth' || pathname === '/') {
     return null;
   }
 

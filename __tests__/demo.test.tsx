@@ -5,7 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
   useSearchParams: () => new URLSearchParams(),
-  usePathname: () => '/demo',
+  usePathname: () => '/',
 }));
 
 // Mock next/link
@@ -24,12 +24,20 @@ jest.mock('framer-motion', () => ({
     div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     button: ({ children, onClick, ...props }: any) => <button onClick={onClick} {...props}>{children}</button>,
     p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
+    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
     section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
     h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
     h2: ({ children, ...props }: any) => <h2 {...props}>{children}</h2>,
+    h3: ({ children, ...props }: any) => <h3 {...props}>{children}</h3>,
+    svg: ({ children, ...props }: any) => <svg {...props}>{children}</svg>,
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
   useInView: () => true,
+  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+  useTransform: () => 0,
+  useMotionValue: () => ({ set: () => {}, get: () => 0 }),
+  useSpring: (v: any) => v,
+  animate: () => ({ stop: () => {} }),
 }));
 
 // Mock Logo
@@ -37,11 +45,33 @@ jest.mock('@/components/Logo', () => ({
   Logo: () => <div data-testid="logo">Logo</div>,
 }));
 
+jest.mock('@/components/landing/HeroCallCard', () => ({
+  HeroCallCard: () => <div data-testid="hero-call-card" />,
+}));
+jest.mock('@/components/landing/NoiseOverlay', () => ({
+  NoiseOverlay: () => <div data-testid="noise-overlay" />,
+}));
+jest.mock('@/components/landing/MissedCallCascade', () => ({
+  MissedCallCascade: () => <div data-testid="missed-call-cascade" />,
+}));
+jest.mock('@/components/landing/FaceGearMorph', () => ({
+  FaceGearMorph: () => <div data-testid="face-gear-morph" />,
+}));
+
+jest.mock('@/components/VoiceOrb', () => ({
+  VoiceOrb: ({ state, onClick }: any) => (
+    <div data-testid="voice-orb" onClick={onClick}>
+      {state === 'idle' && <button>Start Demo</button>}
+    </div>
+  ),
+}));
+
 // Track session mock state
 const mockStart = jest.fn();
 const mockEnd = jest.fn();
 const mockToggleMute = jest.fn();
 let mockSessionStatus = 'idle';
+let mockErrorMessage: string | undefined = undefined;
 
 jest.mock('@/components/DemoSession', () => ({
   useDemoSession: () => ({
@@ -50,7 +80,7 @@ jest.mock('@/components/DemoSession', () => ({
     audioLevel: 0.5,
     aiSpeaking: false,
     isMuted: false,
-    errorMessage: undefined,
+    errorMessage: mockErrorMessage,
     transcript: [],
     start: mockStart,
     end: mockEnd,
@@ -58,21 +88,27 @@ jest.mock('@/components/DemoSession', () => ({
   }),
 }));
 
-import DemoPage from '@/app/demo/page';
+import LandingPage from '@/app/page';
 
-describe('Demo Page', () => {
+describe('Demo Section on Landing Page', () => {
   beforeEach(() => {
     mockSessionStatus = 'idle';
+    mockErrorMessage = undefined;
     jest.clearAllMocks();
   });
 
-  it('renders without crash', () => {
-    render(<DemoPage />);
+  it('renders demo section with heading', () => {
+    render(<LandingPage />);
     expect(screen.getByText('Talk to an AI Phone Agent')).toBeInTheDocument();
   });
 
+  it('has demo section with id="demo"', () => {
+    const { container } = render(<LandingPage />);
+    expect(container.querySelector('#demo')).toBeInTheDocument();
+  });
+
   it('displays all voice options', () => {
-    render(<DemoPage />);
+    render(<LandingPage />);
     const voices = ['Alloy', 'Ash', 'Ballad', 'Coral', 'Echo', 'Sage', 'Shimmer', 'Verse', 'Marin'];
     voices.forEach(voice => {
       expect(screen.getByText(voice)).toBeInTheDocument();
@@ -80,67 +116,40 @@ describe('Demo Page', () => {
   });
 
   it('shows voice description on selection', () => {
-    render(<DemoPage />);
-    // Default is Ash
+    render(<LandingPage />);
     expect(screen.getByText('Warm, confident')).toBeInTheDocument();
-    // Click Coral
     fireEvent.click(screen.getByText('Coral'));
     expect(screen.getByText('Clear, friendly')).toBeInTheDocument();
   });
 
-  it('shows Start Demo button in idle state', () => {
-    render(<DemoPage />);
-    expect(screen.getByText('Start Demo')).toBeInTheDocument();
-  });
-
-  it('shows 2-minute demo info', () => {
-    render(<DemoPage />);
-    expect(screen.getByText(/2 minute demo/)).toBeInTheDocument();
+  it('shows free minutes info', () => {
+    render(<LandingPage />);
+    const matches = screen.getAllByText(/5 free minutes/);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows connecting state', () => {
     mockSessionStatus = 'connecting';
-    render(<DemoPage />);
+    render(<LandingPage />);
     expect(screen.getByText('Connecting...')).toBeInTheDocument();
   });
 
-  it('shows active state with timer and controls', () => {
+  it('shows active state with timer', () => {
     mockSessionStatus = 'active';
-    render(<DemoPage />);
-    expect(screen.getByText('2:00')).toBeInTheDocument();
-    // Timer is visible, controls are present
+    render(<LandingPage />);
     expect(screen.getByText('2:00')).toBeInTheDocument();
   });
 
   it('shows ended state with CTA', () => {
     mockSessionStatus = 'ended';
-    render(<DemoPage />);
+    render(<LandingPage />);
     expect(screen.getByText('Hope that was impressive!')).toBeInTheDocument();
-    expect(screen.getByText(/Create Your Agent/)).toBeInTheDocument();
   });
 
   it('shows error state for mic denied', () => {
     mockSessionStatus = 'error';
-    // Override the mock temporarily to include errorMessage
-    jest.spyOn(require('@/components/DemoSession'), 'useDemoSession').mockReturnValue({
-      status: 'error',
-      timeLeft: 120,
-      audioLevel: 0,
-      aiSpeaking: false,
-      isMuted: false,
-      errorMessage: 'mic_denied',
-      transcript: [],
-      start: mockStart,
-      end: mockEnd,
-      toggleMute: mockToggleMute,
-    });
-    render(<DemoPage />);
+    mockErrorMessage = 'mic_denied';
+    render(<LandingPage />);
     expect(screen.getByText('Microphone access needed')).toBeInTheDocument();
-  });
-
-  it('has back link to home', () => {
-    render(<DemoPage />);
-    const backLink = screen.getByText('Back');
-    expect(backLink.closest('a')).toHaveAttribute('href', '/');
   });
 });

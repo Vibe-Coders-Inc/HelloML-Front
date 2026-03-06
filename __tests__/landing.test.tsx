@@ -26,6 +26,7 @@ jest.mock('framer-motion', () => ({
     section: ({ children, style, ...props }: any) => <section {...props}>{children}</section>,
     svg: ({ children, style, ...props }: any) => <svg {...props}>{children}</svg>,
   },
+  AnimatePresence: ({ children }: any) => <>{children}</>,
   useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
   useTransform: () => 0,
   useInView: () => true,
@@ -52,6 +53,35 @@ jest.mock('@/components/landing/NoiseOverlay', () => ({
   NoiseOverlay: () => <div data-testid="noise-overlay" />,
 }));
 
+jest.mock('@/components/landing/MissedCallCascade', () => ({
+  MissedCallCascade: () => <div data-testid="missed-call-cascade" />,
+}));
+
+jest.mock('@/components/landing/FaceGearMorph', () => ({
+  FaceGearMorph: () => <div data-testid="face-gear-morph" />,
+}));
+
+jest.mock('@/components/VoiceOrb', () => ({
+  VoiceOrb: ({ state, onClick }: any) => (
+    <div data-testid="voice-orb" onClick={onClick}>
+      {state === 'idle' && <button>Start Demo</button>}
+    </div>
+  ),
+}));
+
+jest.mock('@/components/DemoSession', () => ({
+  useDemoSession: () => ({
+    status: 'idle',
+    timeLeft: 120,
+    audioLevel: 0,
+    aiSpeaking: false,
+    isMuted: false,
+    start: jest.fn(),
+    end: jest.fn(),
+    toggleMute: jest.fn(),
+  }),
+}));
+
 import LandingPage from '@/app/page';
 
 describe('Landing Page', () => {
@@ -66,10 +96,10 @@ describe('Landing Page', () => {
     expect(borelElements.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('has primary CTA linking to demo', () => {
+  it('has primary CTA linking to demo section', () => {
     render(<LandingPage />);
     const cta = screen.getByText('Hear It Live');
-    expect(cta.closest('a')).toHaveAttribute('href', '/demo');
+    expect(cta.closest('a')).toHaveAttribute('href', '#demo');
   });
 
   it('has secondary CTA linking to signup', () => {
@@ -99,7 +129,8 @@ describe('Landing Page', () => {
 
   it('has footer with navigation links', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Demo')).toBeInTheDocument();
+    const demoLink = screen.getByText('Demo');
+    expect(demoLink.closest('a')).toHaveAttribute('href', '#demo');
     expect(screen.getByText('Pricing')).toBeInTheDocument();
     expect(screen.getByText('Privacy')).toBeInTheDocument();
   });

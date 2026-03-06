@@ -1,16 +1,18 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { motion, useInView, animate, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, animate, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, MicOff, PhoneOff } from 'lucide-react';
 import Image from 'next/image';
 import { HeroCallCard } from '@/components/landing/HeroCallCard';
 import { NoiseOverlay } from '@/components/landing/NoiseOverlay';
 import { MissedCallCascade } from '@/components/landing/MissedCallCascade';
 import { FaceGearMorph } from '@/components/landing/FaceGearMorph';
+import { VoiceOrb } from '@/components/VoiceOrb';
+import { useDemoSession } from '@/components/DemoSession';
 
 /* ═══════════════════════════════════════════
    HELLOML LANDING PAGE — v5
@@ -61,6 +63,272 @@ const integrations = [
   { name: 'Google Drive', src: 'https://img.icons8.com/color/96/google-drive--v1.png' },
 ];
 
+const VOICES = [
+  { id: 'alloy', label: 'Alloy', desc: 'Neutral, balanced' },
+  { id: 'ash', label: 'Ash', desc: 'Warm, confident' },
+  { id: 'ballad', label: 'Ballad', desc: 'Expressive, dramatic' },
+  { id: 'coral', label: 'Coral', desc: 'Clear, friendly' },
+  { id: 'echo', label: 'Echo', desc: 'Smooth, deep' },
+  { id: 'sage', label: 'Sage', desc: 'Calm, measured' },
+  { id: 'shimmer', label: 'Shimmer', desc: 'Soft, gentle' },
+  { id: 'verse', label: 'Verse', desc: 'Versatile, natural' },
+  { id: 'marin', label: 'Marin', desc: 'Latest, natural' },
+] as const;
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function scrollToDemo(e: React.MouseEvent) {
+  e.preventDefault();
+  document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Demo Section ── */
+function DemoSection() {
+  const session = useDemoSession();
+  const [selectedVoice, setSelectedVoice] = useState('ash');
+  const isLive = session.status === 'active' || session.status === 'connecting';
+
+  return (
+    <section id="demo" className="min-h-[100svh] flex items-center justify-center px-4 sm:px-6 py-16 md:py-20 overflow-hidden relative bg-[#FAF8F3]">
+      <div className="flex flex-col items-center w-full max-w-lg">
+
+        {/* IDLE STATE top content */}
+        <AnimatePresence mode="wait">
+          {session.status === 'idle' && (
+            <motion.div
+              key="idle-top"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center"
+            >
+              <motion.h2 {...fadeUp} className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#3D2E1F] mb-4">
+                Talk to an AI Phone Agent
+              </motion.h2>
+              <p className="text-[#8B6F47]/70 text-base sm:text-lg mb-6 max-w-md">
+                Experience what HelloML sounds like, live.
+              </p>
+
+              {/* Voice Picker */}
+              <div className="w-full max-w-lg mb-8">
+                <p className="text-[#8B6F47]/50 text-xs mb-3 text-center">Choose a voice</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {VOICES.map((voice) => (
+                    <button
+                      key={voice.id}
+                      onClick={() => setSelectedVoice(voice.id)}
+                      title={voice.desc}
+                      className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                        selectedVoice === voice.id
+                          ? 'bg-[#8B6F47] text-white shadow-md scale-105'
+                          : 'bg-[#E8DCC8]/60 text-[#8B6F47]/80 hover:bg-[#E8DCC8] hover:text-[#8B6F47]'
+                      }`}
+                    >
+                      {voice.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[#8B6F47]/30 text-xs mt-2 text-center">
+                  {VOICES.find(v => v.id === selectedVoice)?.desc}
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {session.status === 'connecting' && (
+            <motion.div
+              key="connecting-top"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <h2 className="text-xl text-[#8B6F47] mb-8">Connecting...</h2>
+            </motion.div>
+          )}
+
+          {session.status === 'active' && (
+            <motion.div
+              key="active-top"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <p className="text-[#8B6F47]/40 text-sm mb-6 tabular-nums">
+                {formatTime(session.timeLeft)}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* VoiceOrb always mounted when idle or live */}
+        {(session.status === 'idle' || isLive) && (
+          <VoiceOrb
+            state={session.status === 'idle' ? 'idle' : session.status === 'connecting' ? 'connecting' : 'active'}
+            audioLevel={session.audioLevel}
+            aiSpeaking={session.aiSpeaking}
+            voice={selectedVoice}
+            onClick={session.status === 'idle' ? () => session.start(selectedVoice) : undefined}
+          />
+        )}
+
+        {/* Bottom content */}
+        <AnimatePresence mode="wait">
+          {session.status === 'idle' && (
+            <motion.div
+              key="idle-bottom"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center"
+            >
+              <p className="mt-10 text-[#8B6F47]/50 text-xs sm:text-sm">
+                No signup required. 5 free minutes. Uses your microphone.
+              </p>
+              <p className="mt-3 text-[#8B6F47]/30 text-xs max-w-sm">
+                This demo uses your microphone to have a live conversation with our AI
+              </p>
+            </motion.div>
+          )}
+
+          {session.status === 'active' && (
+            <motion.div
+              key="active-bottom"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center text-center w-full max-w-lg"
+            >
+              {/* Live transcript */}
+              <div className="mt-6 w-full px-4 space-y-3 min-h-[4rem]">
+                {session.transcript.slice(-3).map((entry, i) => (
+                  <motion.div
+                    key={`${entry.role}-${i}-${entry.text.slice(0, 10)}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: entry.final ? 1 : 0.7 }}
+                    className={`text-sm sm:text-base leading-relaxed ${
+                      entry.role === 'ai'
+                        ? 'text-[#3D2E1F]/80 text-center font-light'
+                        : 'text-[#8B6F47]/60 text-center italic'
+                    }`}
+                  >
+                    <span className="text-[#8B6F47]/40 text-xs mr-1.5">
+                      {entry.role === 'ai' ? 'AI' : 'You'}
+                    </span>
+                    {entry.text}
+                    {!entry.final && <span className="animate-pulse ml-0.5">|</span>}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center gap-4 mt-8">
+                <button
+                  onClick={session.toggleMute}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                    session.isMuted
+                      ? 'bg-red-100 text-red-500'
+                      : 'bg-[#8B6F47]/10 text-[#8B6F47]/70 hover:bg-[#8B6F47]/20'
+                  }`}
+                >
+                  <MicOff className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={session.end}
+                  className="w-14 h-14 rounded-full bg-red-100 text-red-500 hover:bg-red-200 flex items-center justify-center transition-colors"
+                >
+                  <PhoneOff className="w-6 h-6" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ENDED STATE */}
+        {session.status === 'ended' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative flex flex-col items-center text-center"
+          >
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.07]">
+              <div className="relative w-[400px] h-[400px]">
+                <div className="absolute inset-0 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-8 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-16 rounded-full border border-[#8B6F47]"/>
+                <div className="absolute inset-24 rounded-full border border-[#A67A5B]"/>
+              </div>
+            </div>
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#3D2E1F] mb-3">
+                Hope that was impressive!
+              </h2>
+              <p className="text-[#8B6F47]/80 text-lg mb-8">
+                Ready to build your own?
+              </p>
+              <Link href="/auth?mode=signup">
+                <Button className="bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 text-base font-medium group">
+                  Create Your Agent, Free
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <p className="mt-4 text-[#8B6F47]/40 text-xs">
+                No credit card required. 5 free minutes included.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-6 text-sm text-[#8B6F47] hover:text-[#A67A5B] transition-colors"
+              >
+                Try again
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ERROR STATE */}
+        {session.status === 'error' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center text-center max-w-md"
+          >
+            {session.errorMessage === 'mic_denied' ? (
+              <>
+                <h2 className="text-xl font-bold text-[#3D2E1F] mb-3">
+                  Microphone access needed
+                </h2>
+                <p className="text-[#8B6F47]/70 text-sm mb-6">
+                  Microphone access is needed for the demo. Please allow microphone permissions in your browser settings and try again.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold text-[#3D2E1F] mb-3">
+                  Something went wrong
+                </h2>
+                <p className="text-[#8B6F47]/70 text-sm mb-6">
+                  We couldn&apos;t establish a connection. Please check your internet and try again.
+                </p>
+              </>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-[#8B6F47] hover:text-[#A67A5B] transition-colors"
+            >
+              Try again
+            </button>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ═══════════════════════════════════════════ */
 export default function LandingPage() {
   return (
@@ -104,16 +372,16 @@ export default function LandingPage() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6, ease }}
               className="flex flex-col sm:flex-row items-center lg:items-start gap-3 mb-3 w-full sm:w-auto">
-              <Link href="/demo" className="w-full sm:w-auto">
+              <a href="#demo" onClick={scrollToDemo} className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto bg-[#8B6F47] hover:bg-[#A67A5B] text-white rounded-full px-8 py-5 sm:py-6 text-base sm:text-lg font-medium shadow-xl shadow-[#8B6F47]/25 group cursor-pointer">
                   Hear It Live <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </a>
               <Link href="/auth?mode=signup" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-8 py-5 sm:py-6 text-base sm:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">Start Free</Button>
               </Link>
             </motion.div>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-xs text-[#A67A5B]/50">No credit card required</motion.p>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-xs text-[#A67A5B]/50">No credit card required. 5 free minutes included.</motion.p>
 
             {/* Social proof — DARKER */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-8 pt-5 border-t border-[#E8DCC8]/40">
@@ -138,7 +406,10 @@ export default function LandingPage() {
         </div>
       </Slide>
 
-      {/* ═══ 2. THE PROBLEM ═══ */}
+      {/* ═══ 2. LIVE DEMO ═══ */}
+      <DemoSection />
+
+      {/* ═══ 3. THE PROBLEM ═══ */}
       <Slide className="bg-[#F5F0E8]">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div {...scaleIn}>
@@ -371,7 +642,7 @@ export default function LandingPage() {
                 Works with the tools you{' '}<span style={{ fontFamily: 'Borel, cursive' }} className="text-[#D4A96A]">already</span>{' '}use.
               </motion.h2>
               <motion.p {...fadeUp} className="text-base md:text-lg text-[#FAF8F3]/40 mb-10">
-                Connects to your calendar, docs, and workflows in seconds.
+                Live integrations with your calendar, docs, and workflows. Connected in seconds.
               </motion.p>
               <motion.div {...scaleIn} className="flex items-center justify-center lg:justify-start gap-6 md:gap-10">
                 {integrations.map((logo, i) => (
@@ -441,13 +712,13 @@ export default function LandingPage() {
                 Start Free <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/demo" className="w-full sm:w-auto">
+            <a href="#demo" onClick={scrollToDemo} className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-10 py-6 text-base sm:text-lg font-medium border-[#8B6F47]/30 text-[#8B6F47] hover:bg-[#8B6F47]/10 cursor-pointer">
                 Try the Live Demo
               </Button>
-            </Link>
+            </a>
           </motion.div>
-          <p className="text-xs text-[#A67A5B]/40 mt-4">No credit card required. Cancel anytime.</p>
+          <p className="text-xs text-[#A67A5B]/40 mt-4">No credit card required. 5 free minutes. Cancel anytime.</p>
         </motion.div>
       </Slide>
 
@@ -456,7 +727,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 md:flex-row md:justify-between">
           <Logo size="small" lightMode />
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-[#8B7355]">
-            <Link href="/demo" className="hover:text-[#8B6F47] transition-colors">Demo</Link>
+            <a href="#demo" onClick={scrollToDemo} className="hover:text-[#8B6F47] transition-colors">Demo</a>
             <Link href="/pricing" className="hover:text-[#8B6F47] transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-[#8B6F47] transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-[#8B6F47] transition-colors">Terms</Link>
