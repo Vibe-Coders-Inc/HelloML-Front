@@ -93,7 +93,7 @@ function DemoSection() {
   const isLive = session.status === 'active' || session.status === 'connecting';
 
   return (
-    <section id="demo" className="min-h-[100svh] flex items-center justify-center px-4 sm:px-6 py-16 md:py-20 overflow-hidden relative bg-[#FAF8F3]">
+    <section id="demo" className="min-h-[100svh] flex items-center justify-center px-4 sm:px-6 pt-8 md:pt-12 pb-16 md:pb-20 overflow-hidden relative bg-[#FAF8F3]">
       <div className="w-full max-w-6xl mx-auto">
 
         {/* ── IDLE: Split layout — text+picker left, orb right ── */}
