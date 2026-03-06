@@ -99,7 +99,7 @@ describe('Demo Section on Landing Page', () => {
 
   it('renders demo section with heading', () => {
     render(<LandingPage />);
-    expect(screen.getByText('Talk to an AI Phone Agent')).toBeInTheDocument();
+    expect(screen.getByText('live.')).toBeInTheDocument();
   });
 
   it('has demo section with id="demo"', () => {
