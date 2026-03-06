@@ -206,3 +206,52 @@ body {
   50%  { border-radius: 54% 46% 46% 54% / 48% 52% 46% 54%; transform: translate(1px, -2px); }
   100% { border-radius: 48% 52% 52% 48% / 50% 50% 52% 48%; transform: translate(-1px, 1px); }
 }
+
+/* Blog prose styles */
+.prose-helloml {
+  color: #4A3728;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+.prose-helloml p {
+  margin-bottom: 1.25rem;
+}
+.prose-helloml h2 {
+  color: #8B6F47;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+.prose-helloml h3 {
+  color: #8B6F47;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+.prose-helloml ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose-helloml li {
+  margin-bottom: 0.5rem;
+}
+.prose-helloml strong {
+  color: #6B5B4F;
+  font-weight: 600;
+}
+.prose-helloml table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.prose-helloml a {
+  color: #8B6F47;
+  text-decoration: underline;
+}
+.prose-helloml a:hover {
+  color: #A67A5B;
+}

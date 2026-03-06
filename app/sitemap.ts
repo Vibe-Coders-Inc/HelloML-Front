@@ -1,8 +1,16 @@
 import type { MetadataRoute } from 'next';
+import { blogPosts } from '@/lib/blog/posts';
 
 const BASE_URL = 'https://www.helloml.app';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
   return [
     {
       url: BASE_URL,
@@ -52,5 +60,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    ...blogEntries,
   ];
 }
