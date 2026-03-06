@@ -140,16 +140,19 @@ describe('Demo Section on Landing Page', () => {
     expect(screen.getByText('2:00')).toBeInTheDocument();
   });
 
-  it('shows ended state with CTA', () => {
+  it('shows idle state when ended (no separate ended screen)', () => {
     mockSessionStatus = 'ended';
     render(<LandingPage />);
-    expect(screen.getByText('Hope that was impressive!')).toBeInTheDocument();
+    // Should show voice picker (idle view), not a CTA screen
+    expect(screen.getByText('Ash')).toBeInTheDocument();
   });
 
-  it('shows error state for mic denied', () => {
+  it('shows idle state with error hint when error', () => {
     mockSessionStatus = 'error';
     mockErrorMessage = 'mic_denied';
     render(<LandingPage />);
-    expect(screen.getByText('Microphone access needed')).toBeInTheDocument();
+    // Should show voice picker + inline error hint
+    expect(screen.getByText('Ash')).toBeInTheDocument();
+    expect(screen.getByText(/Microphone access is needed/)).toBeInTheDocument();
   });
 });
